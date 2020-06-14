@@ -1,10 +1,10 @@
+using Xunit;
+
 namespace BlaTeX.Tests
 {
-
     public class MyTests
     {
-
-        [Xunit.Fact]
+        [Fact]
         public void FirstTest()
         {
         }
