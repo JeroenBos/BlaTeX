@@ -19,7 +19,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/Tests/bin/Debug/netcoreapp3.1/BlaTeX.Tests.dll",
             "args": [
-                "FirstTest"
+                "FirstTest" // no-commit //https://stackoverflow.com/a/20574486/308451
             ],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
