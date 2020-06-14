@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web" InitialTargets="SetGlobals">
+<Project Sdk="Microsoft.NET.Sdk.Razor" InitialTargets="SetGlobals">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
