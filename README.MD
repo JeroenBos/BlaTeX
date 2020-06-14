@@ -6,6 +6,6 @@ To get breakpoints to hit:
 - Trigger launch configuration 'Debug'
 
 Tests
-- Tests can be run by running `dotnet test Tests/BlaTeX.Tests.csproj` or pressing F7
+- Tests can be run by running `dotnet test *Tests` or pressing F7
 - Tests can be debuged by selecting them with a regex 
   - in launch.json -> Debug Test -> args for selection tests, or `*` for all
