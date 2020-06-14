@@ -5,13 +5,26 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug",
+            "name": "Debug Web",
             "type": "pwa-chrome",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "url": "http://localhost:5000",
             "webRoot": "${workspaceFolder}",
             "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
-        }
+        },
+        {
+            "name": "Debug Test",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/Tests/bin/Debug/netcoreapp3.1/BlaTeX.Tests.dll",
+            "args": [
+                "FirstTest"
+            ],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "justMyCode": false,
+        },
     ]
 }
