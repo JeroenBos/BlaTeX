@@ -13,6 +13,6 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <DefaultItemExcludes>$(DefaultItemExcludes);obj/</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj;Tests/**/*</DefaultItemExcludes>
   </PropertyGroup>
 </Project>
