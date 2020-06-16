@@ -1,4 +1,5 @@
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const outputDir = '../../wwwroot/js'
 
@@ -35,7 +36,21 @@ module.exports = {
         aggregateTimeout: 0
     },
 
-    plugins: [new CleanWebpackPlugin([outputDir])],
+    plugins: [
+        new CleanWebpackPlugin([outputDir]),
+        new CopyPlugin([
+            {
+                from: '*.css',
+                context: 'node_modules/katex/dist/',
+                to: '../../wwwroot/css/katex'
+            },
+            {
+                from: 'fonts',
+                context: 'node_modules/katex/dist/',
+                to: '../../wwwroot/css/katex/fonts'
+            },
+        ],
+        )],
     name: 'blatex',
     entry: './index.js',
     output: { filename: outputDir + '/blatex.js' },
