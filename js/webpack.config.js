@@ -1,7 +1,6 @@
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
-// var nodeExternals = require('webpack-node-externals');
-const webpack = require('webpack');
+const outputDir = '../../wwwroot/js'
 
 module.exports = {
     mode: 'development',
@@ -36,9 +35,8 @@ module.exports = {
         aggregateTimeout: 0
     },
 
-    plugins: [new CleanWebpackPlugin(['dist'])],
+    plugins: [new CleanWebpackPlugin([outputDir])],
     name: 'blatex',
     entry: './index.js',
-    output: { filename: './blatex.js' },
-    // externals: [nodeExternals()],
+    output: { filename: outputDir + '/blatex.js' },
 };
