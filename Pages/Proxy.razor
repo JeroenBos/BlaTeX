@@ -4,7 +4,9 @@
 
 
 <h3>This component demonstrates calling JS from .NET. </h3>
-<input @bind="Input" @bind:event="oninput" />
+<input value="c = \pm \sqrt{a^2 + b^2}"
+    @oninput="@((ChangeEventArgs __e) => onInputChanged((string)__e.Value))" />
+    
 <p></p>
 @if (rendered == null) {
     <div>Loading...</div>
@@ -15,21 +17,11 @@ else {
 
 @code {
     private MarkupString? rendered;
-    
-    private string _input = "c = \\pm\\sqrt{a^2 + b^2}";
-    private string Input
+
+    private async Task onInputChanged(string value)
     {
-        get => _input;
-        set
-        {
-            this._input = value;
-            rendered = null;
-            this.InvokeAsync(async () =>
-            {
-                this.rendered = await Render(value);
-                this.StateHasChanged();
-            });
-        }
+        rendered = null;
+        this.rendered = await Render(value);
     }
 
     private async Task<MarkupString> Render(string math)
