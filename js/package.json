@@ -1,0 +1,24 @@
+{
+    "name": "blatex",
+    "version": "0.0.1",
+    "license": "MIT",
+    "description": "Wrapper around KaTeX for BlaTeX",
+    "scripts": {
+        "build": "webpack",
+        "watch": "webpack --watch --info-verbosity verbose",
+        "rebuild": "npm install && webpack"
+    },
+    "private": true,
+    "dependencies": {
+        "katex": "0.10.0-rc.1"
+    },
+    "devDependencies": {
+        "source-map-loader": "0.2.4",
+        "webpack": "4.29.6",
+        "webpack-cli": "3.2.3",
+        "webpack-config-utils": "2.3.0",
+        "webpack-dev-server": "3.2.1",
+        "webpack-node-externals": "1.7.2",
+        "clean-webpack-plugin": "0.1.19"
+    }
+}
