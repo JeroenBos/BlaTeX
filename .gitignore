@@ -434,3 +434,4 @@ $RECYCLE.BIN/
 
 # JS dist
 wwwroot/js
+wwwroot/css/katex
