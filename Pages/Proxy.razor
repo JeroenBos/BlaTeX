@@ -1,0 +1,39 @@
+@page "/proxy"
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+
+<h3>This component demonstrates calling JS from .NET. </h3>
+<input @bind="Input" @bind:event="oninput" />
+<p></p>
+@if (rendered == null) {
+    <div>Loading...</div>
+}
+else {
+    <div>@rendered.Value</div>
+}
+
+@code {
+    private MarkupString? rendered;
+    
+    private string _input = "c = \\pm\\sqrt{a^2 + b^2}";
+    private string Input
+    {
+        get => _input;
+        set
+        {
+            this._input = value;
+            rendered = null;
+            this.InvokeAsync(async () =>
+            {
+                this.rendered = await Render(value);
+                this.StateHasChanged();
+            });
+        }
+    }
+
+    private async Task<MarkupString> Render(string math)
+    {
+        return (MarkupString)await JS.InvokeAsync<string>("katex.renderToString", math);
+    }
+}
