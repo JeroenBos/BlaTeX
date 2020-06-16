@@ -21,11 +21,11 @@ else {
     private async Task onInputChanged(ChangeEventArgs e)
     {
         rendered = null;
-        this.rendered = await Render((string)e.Value);
+        this.rendered = (MarkupString)await Render((string)e.Value);
     }
 
-    private async Task<MarkupString> Render(string math)
+    private async Task<string> Render(string math)
     {
-        return (MarkupString)await JS.InvokeAsync<string>("katex.renderToString", math);
+        return await JS.InvokeAsync<string>("katex.renderToString", math);
     }
 }
