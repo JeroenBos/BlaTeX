@@ -1,0 +1,31 @@
+@page "/"
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+
+<h3>This component demonstrates calling JS from .NET. </h3>
+<input value="c = \pm \sqrt{a^2 + b^2}" 
+       @oninput="onInputChanged" />
+    
+<p></p>
+@if (rendered == null) {
+    <div>Loading...</div>
+}
+else {
+    <div>@rendered.Value</div>
+}
+
+@code {
+    private MarkupString? rendered;
+
+    private async Task onInputChanged(ChangeEventArgs e)
+    {
+        rendered = null;
+        this.rendered = (MarkupString)await Render((string)e.Value);
+    }
+
+    private async Task<string> Render(string math)
+    {
+        return await JS.InvokeAsync<string>("katex.renderToString", math);
+    }
+}
