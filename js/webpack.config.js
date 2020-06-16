@@ -54,4 +54,5 @@ module.exports = {
     name: 'blatex',
     entry: './index.js',
     output: { filename: outputDir + '/blatex.js' },
+    stats: { assets: true, excludeAssets: [/.*/] },
 };
