@@ -22,11 +22,15 @@ else
     [Parameter]
     public RenderFragment Loading { get; set; }
 
-    protected override async Task OnParametersSetAsync()
+    protected override Task OnInitializedAsync() => this.update();
+    protected override Task OnParametersSetAsync() => this.update();
+
+    private async Task update()
     {
         if (this.Math == null)
             this.rendered = null;
         else
             this.rendered = (MarkupString)await JS.InvokeAsync<string>("katex.renderToString", this.Math);
+
     }
 }
