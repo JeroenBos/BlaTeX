@@ -1,44 +1,22 @@
 {
-    // I need to run "dotnet watch build" and "dotnet run" in two terminals
-    
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
-            "command": "dotnet",
+            "label": "wait_for_build",
+            "command": "bash",
             "type": "shell",
             "args": [
-                "build",
-                "${workspaceFolder}/JeroenAlpha.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "-c",
+                "globals set 'BlaTeX.Tests' 'wait_for_build' 3 && globals wait 'BlaTeX.Tests'",  // wait at least 3 seconds for the watcher to set its flag
             ],
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "publish",
-            "command": "dotnet",
-            "type": "shell",
-            "args": [
-                "publish",
-                "${workspaceFolder}/JeroenAlpha.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
-            ],
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "watch",
-            "command": "dotnet",
-            "type": "shell",
-            "args": [
-                "watch",
-                "run",
-                "${workspaceFolder}/JeroenAlpha.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
-            ],
-            "problemMatcher": "$msCompile"
+            "presentation": {
+                "echo": true,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
         }
     ]
 }

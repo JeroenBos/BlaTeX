@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk" InitialTargets="SetGlobals">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -21,4 +21,10 @@
     <ProjectReference Include="..\BlaTeX.csproj" />
   </ItemGroup>
 
+  <Target Name="SetGlobals">
+    <Exec Command="globals set '$(ProjectName)' '$(ProjectName)' 10" />
+  </Target>
+  <Target Name="UnsetGlobals" AfterTargets="PostBuildEvent">
+    <Exec Command="globals unset '$(ProjectName)' '$(ProjectName)'" />
+  </Target>
 </Project>
