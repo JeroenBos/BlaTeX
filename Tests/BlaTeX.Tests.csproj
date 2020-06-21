@@ -15,16 +15,16 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
-
+    
     <ProjectReference Include="..\BlaTeX.csproj" />
     
     <Watch Include="../**/*.cs;../**/*.razor;../**/*.csproj" Exclude="../**/obj/**" />
   </ItemGroup>
    
-  <Target Name="SetGlobals">
-    <Exec Command="globals set '$(ProjectName)' '$(ProjectName)' 10" />
+  <Target Name="SetGlobals" >
+    <Exec Command="globals set '$(ProjectName)' '$(ProjectName)' 10" Condition="'$(Configuration)' != 'CI'"/>
   </Target>
-  <Target Name="UnsetGlobals" AfterTargets="PostBuildEvent">
-    <Exec Command="globals unset '$(ProjectName)' '$(ProjectName)'" />
+  <Target Name="UnsetGlobals" AfterTargets="PostBuildEvent" >
+    <Exec Command="globals unset '$(ProjectName)' '$(ProjectName)'" Condition="'$(Configuration)' != 'CI'" />
   </Target>
 </Project>
