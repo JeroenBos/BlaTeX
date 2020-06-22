@@ -6,10 +6,11 @@ To get breakpoints to hit:
 - Trigger launch configuration 'Debug'
 
 Tests
+- Requirements: Node.js v12.x
 - Tests can be run by running `dotnet test *Tests` or pressing F7
 - Tests can be debuged by selecting them with a regex 
   - in launch.json -> Debug Test -> args for selection tests, or `*` for all
 
 JS
-- install npm (v3.5.2)
+- install npm (v6.14.5)
 - run `cd js && npm install && npm run build`

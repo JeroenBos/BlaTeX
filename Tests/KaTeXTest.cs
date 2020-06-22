@@ -3,22 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
 using BlaTeX.Pages;
+using Bunit;
 using Bunit.Diffing;
 using Bunit.Extensions;
 using Bunit.RazorTesting;
 using Bunit.Rendering;
+using JBSnorro;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 
-using JBSnorro;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-
-namespace Bunit
+namespace BlaTeX.Tests
 {
     public abstract class KaTeXTestComponentBase : IComponent
     {
@@ -39,7 +39,7 @@ namespace Bunit
         /// in the file and runs their associated tests.
         /// </summary>
         [Fact]
-        public virtual void RazorTests()
+        public virtual async Task RazorTests()
         {
             // this simulates the work done by Xunit.Sdk.RazorTestDiscoverer (in Bunit.Xunit.dll)
             // because my testing library doesn't support that, but I want debugging!
@@ -47,7 +47,7 @@ namespace Bunit
             var tests = razorRenderer.GetRazorTestsFromComponent(this.GetType()).ToReadOnlyList();
             foreach (var test in tests)
             {
-                test.RunTest();
+                await test.RunTest().ConfigureAwait(false);
             }
         }
 
@@ -94,39 +94,40 @@ namespace Bunit
         public override string? DisplayName => this.GetType().Name;
         [Parameter]
         public string? Math { get; set; } = default!;
-
         [Parameter]
         public RenderFragment Expected { get; set; } = default!;
+        [Parameter]
+        public Action<KaTeX> Operations { get; set; }
 
-        public KaTeXTest()
-        {
-        }
 
         /// <inheritdoc/>
-        protected override Task Run()
+        protected override async Task Run()
         {
             Validate();
 
+            string blatexJSPath = Program.RootFolder + "/wwwroot/js/blatex.js";
+            if (!File.Exists(blatexJSPath)) throw new FileNotFoundException("blatex.js not found. You probably need to build it, see readme. ");
+
             Services.AddDefaultTestContextServices();
+            Services.Add(new ServiceDescriptor(typeof(IJSRuntime), new NodeJSRuntime(new[] { blatexJSPath })));
 
             var (id, cut) = this.Renderer.RenderComponent<KaTeX>(new ComponentParameter[] {
                 (nameof(KaTeX.Math), this.Math)
             });
+            // await this.Renderer.Dispatcher;
 
+            await Task.Delay(1000); 
             if (cut is null)
                 throw new InvalidOperationException("The KaTeX component did not render successfully");
 
             // await this.DoOperations(cut);
 
             var katexHtml = Htmlizer.GetHtml(Renderer, id);
-
             var expectedRenderId = Renderer.RenderFragment(this.Expected);
             var expectedHtml = Htmlizer.GetHtml(Renderer, expectedRenderId);
 
             VerifySnapshot(katexHtml, expectedHtml);
-            return Task.CompletedTask;
         }
-
 
         private void VerifySnapshot(string inputHtml, string expectedHtml)
         {
