@@ -1,0 +1,39 @@
+@inject IJSRuntime JS
+
+@if (rendered != null)
+{
+    @rendered.Value
+}
+else if (Loading != null)
+{
+    @Loading
+}
+else
+{   
+    <div> Rendering... </div>
+}
+
+@code {
+    private MarkupString? rendered = default;
+
+    [Parameter]
+    public string Math { get; set; }
+
+    [Parameter]
+    public RenderFragment Loading { get; set; }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        await base.SetParametersAsync(parameters);
+        await this.update();
+    }
+
+    private async Task update()
+    {
+        if (this.Math == null)
+            this.rendered = null;
+        else
+            this.rendered = (MarkupString)await JS.InvokeAsync<string>("katex.renderToString", this.Math);
+        this.StateHasChanged();
+    }
+}

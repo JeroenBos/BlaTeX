@@ -30,12 +30,12 @@
                 "searchPaths": [
                 ],
                 "searchMicrosoftSymbolServer": true,
-                "cachePath": "/symcache",
-                "moduleFilter": {
-                    "mode": "loadAllButExcluded",
-                    "excludedModules": [ "DoNotLookForThisOne*.dll" ]
-                }
-            }
+                // "cachePath": "/symcache",
+                // "moduleFilter": {
+                //     "mode": "loadAllButExcluded",
+                //     "excludedModules": [ "System.Private.CoreLib.dll" ]
+                // }
+            },
         },
     ]
 }

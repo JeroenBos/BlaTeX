@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk" InitialTargets="SetGlobals">
+<Project Sdk="Microsoft.NET.Sdk.Razor" InitialTargets="SetGlobals">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -11,11 +11,18 @@
     <PackageReference Include="bunit.core" Version="1.0.0-beta-7" />
     <PackageReference Include="bunit.web" Version="1.0.0-beta-7" />
     <PackageReference Include="bunit.xunit" Version="1.0.0-beta-7" />
-    <PackageReference Include="JBSnorro" Version="0.0.3" />
+    <PackageReference Include="JBSnorro" Version="0.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
-    
+    <PackageReference Include="Shouldly" Version="3.0.2" />
+    <PackageReference Include="AngleSharp" Version="0.14.0" />
+    <PackageReference Include="AngleSharp.Css" Version="0.14.0" />
+    <PackageReference Include="AngleSharp.Diffing" Version="0.14.0" />
+    <PackageReference Include="AngleSharp.Wrappers" Version="1.2.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <ProjectReference Include="..\BlaTeX.csproj" />
     
     <Watch Include="../**/*.cs;../**/*.razor;../**/*.csproj" Exclude="../**/obj/**" />
