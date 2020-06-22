@@ -34,7 +34,7 @@ namespace BlaTeX.Tests
         public RenderFragment Expected { get; set; } = default!;
 
         /// <inheritdoc/>
-        protected override Task Run()
+        protected override async Task Run()
         {
             Validate();
 
@@ -48,6 +48,10 @@ namespace BlaTeX.Tests
                 (nameof(KaTeX.Math), this.Math)
             });
 
+            // https://github.com/egil/bUnit/issues/157
+            // HACK: Find some way to properly wait for SetParameterAsync
+            await Task.Delay(1000);
+
             if (cut is null)
                 throw new InvalidOperationException("The KaTeX component did not render successfully");
 
@@ -56,8 +60,6 @@ namespace BlaTeX.Tests
             var expectedHtml = Htmlizer.GetHtml(Renderer, expectedRenderId);
 
             VerifySnapshot(katexHtml, expectedHtml);
-            
-            return Task.CompletedTask;
         }
 
         private void VerifySnapshot(string inputHtml, string expectedHtml)
