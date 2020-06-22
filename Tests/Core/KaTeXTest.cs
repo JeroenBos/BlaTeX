@@ -34,7 +34,7 @@ namespace BlaTeX.Tests
         public RenderFragment Expected { get; set; } = default!;
 
         /// <inheritdoc/>
-        protected override async Task Run()
+        protected override Task Run()
         {
             Validate();
 
@@ -48,8 +48,6 @@ namespace BlaTeX.Tests
                 (nameof(KaTeX.Math), this.Math)
             });
 
-            await Renderer.Wait();
-
             if (cut is null)
                 throw new InvalidOperationException("The KaTeX component did not render successfully");
 
@@ -58,6 +56,8 @@ namespace BlaTeX.Tests
             var expectedHtml = Htmlizer.GetHtml(Renderer, expectedRenderId);
 
             VerifySnapshot(katexHtml, expectedHtml);
+            
+            return Task.CompletedTask;
         }
 
         private void VerifySnapshot(string inputHtml, string expectedHtml)
