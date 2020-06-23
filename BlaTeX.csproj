@@ -20,4 +20,9 @@
   <PropertyGroup>
     <DefaultItemExcludes>$(DefaultItemExcludes);obj;Tests/**/*</DefaultItemExcludes>
   </PropertyGroup>
+   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+    <_Parameter1>BlaTeX.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>
