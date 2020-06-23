@@ -48,18 +48,29 @@ namespace BlaTeX.Tests
                 (nameof(KaTeX.Math), this.Math)
             });
 
-            // https://github.com/egil/bUnit/issues/157
-            // HACK: Find some way to properly wait for SetParameterAsync
-            await Task.Delay(1000);
-
             if (cut is null)
                 throw new InvalidOperationException("The KaTeX component did not render successfully");
+
+            await WaitForKatexToHaveRendered(cut);
 
             var katexHtml = Htmlizer.GetHtml(Renderer, id);
             var expectedRenderId = Renderer.RenderFragment(this.Expected);
             var expectedHtml = Htmlizer.GetHtml(Renderer, expectedRenderId);
 
             VerifySnapshot(katexHtml, expectedHtml);
+        }
+
+        private Task WaitForKatexToHaveRendered(KaTeX cut)
+        {
+            var tsc = new TaskCompletionSource<object?>();
+            using var eventHook = this.Renderer.WithRenderEventHandler(CompleteSourceIfKaTeXRenderer);
+            void CompleteSourceIfKaTeXRenderer()
+            {
+                if (cut.rendered != null)
+                    tsc.TrySetResult(null);
+            }
+            CompleteSourceIfKaTeXRenderer();
+            return tsc.Task;
         }
 
         private void VerifySnapshot(string inputHtml, string expectedHtml)
@@ -98,6 +109,28 @@ namespace BlaTeX.Tests
                 throw new ArgumentException($"Unsupported parameter received", unknown[0]);
 
             return base.SetParametersAsync(parameters);
+        }
+    }
+    static class RendererExtensions
+    {
+        public static IDisposable WithRenderEventHandler(this ITestRenderer renderer, Action eventHandler)
+        {
+            if (eventHandler == null) throw new ArgumentNullException(nameof(eventHandler));
+
+            var wrapper = new _IRenderEventHandler(eventHandler);
+            renderer.AddRenderEventHandler(wrapper);
+            return new Disposable(() => renderer.RemoveRenderEventHandler(wrapper));
+        }
+
+
+        class _IRenderEventHandler : IRenderEventHandler
+        {
+            private readonly Action action;
+            public _IRenderEventHandler(Action action) => this.action = action;
+            public Task Handle(RenderEvent renderEvent)
+            {
+                return Task.CompletedTask;
+            }
         }
     }
 }
