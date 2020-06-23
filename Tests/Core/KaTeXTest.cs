@@ -9,6 +9,7 @@ using BlaTeX.Pages;
 using Bunit;
 using Bunit.Diffing;
 using Bunit.Extensions;
+using Bunit.Extensions.WaitForHelpers;
 using Bunit.RazorTesting;
 using Bunit.Rendering;
 using JBSnorro;
@@ -51,7 +52,7 @@ namespace BlaTeX.Tests
             if (cut is null)
                 throw new InvalidOperationException("The KaTeX component did not render successfully");
 
-            await WaitForKatexToHaveRendered(cut);
+            await WaitForKatexToHaveRendered(cut, id);
 
             var katexHtml = Htmlizer.GetHtml(Renderer, id);
             var expectedRenderId = Renderer.RenderFragment(this.Expected);
@@ -60,17 +61,11 @@ namespace BlaTeX.Tests
             VerifySnapshot(katexHtml, expectedHtml);
         }
 
-        private Task WaitForKatexToHaveRendered(KaTeX cut)
+        private async Task WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
         {
-            var tsc = new TaskCompletionSource<object?>();
-            using var eventHook = this.Renderer.WithRenderEventHandler(CompleteSourceIfKaTeXRenderer);
-            void CompleteSourceIfKaTeXRenderer()
-            {
-                if (cut.rendered != null)
-                    tsc.TrySetResult(null);
-            }
-            CompleteSourceIfKaTeXRenderer();
-            return tsc.Task;
+            var icut = cut.ToIRenderedComponent(cutId, this.Services);
+            using var waiter = new WaitForStateHelper(icut, () => cut.rendered != null, timeout);
+            await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
         }
 
         private void VerifySnapshot(string inputHtml, string expectedHtml)
@@ -111,26 +106,19 @@ namespace BlaTeX.Tests
             return base.SetParametersAsync(parameters);
         }
     }
-    static class RendererExtensions
+    static class IRenderedComponentConstructorExtenstion
     {
-        public static IDisposable WithRenderEventHandler(this ITestRenderer renderer, Action eventHandler)
+        private static readonly Type RenderedComponentType = typeof(SnapshotTest).Assembly.GetType("Bunit.Rendering.RenderedComponent`1")!.MakeGenericType(typeof(KaTeX));
+        private static readonly ConstructorInfo RenderedComponentTypeCtor = RenderedComponentType.GetConstructors()[0];
+
+        /// <summary>
+        /// Instantiates and performs a first render of a component of type <typeparamref name="KaTeX"/>.
+        /// </summary>
+        /// <typeparam name="KaTeX">Type of the component to render</typeparam>
+        /// <returns>The rendered <typeparamref name="KaTeX"/></returns>
+        public static IRenderedComponent<KaTeX> ToIRenderedComponent(this KaTeX cut, int cutId, TestServiceProvider services)
         {
-            if (eventHandler == null) throw new ArgumentNullException(nameof(eventHandler));
-
-            var wrapper = new _IRenderEventHandler(eventHandler);
-            renderer.AddRenderEventHandler(wrapper);
-            return new Disposable(() => renderer.RemoveRenderEventHandler(wrapper));
-        }
-
-
-        class _IRenderEventHandler : IRenderEventHandler
-        {
-            private readonly Action action;
-            public _IRenderEventHandler(Action action) => this.action = action;
-            public Task Handle(RenderEvent renderEvent)
-            {
-                return Task.CompletedTask;
-            }
+            return (IRenderedComponent<KaTeX>)RenderedComponentTypeCtor.Invoke(new object[] { services, cutId, cut });
         }
     }
 }
