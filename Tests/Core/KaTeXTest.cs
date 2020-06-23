@@ -9,6 +9,7 @@ using BlaTeX.Pages;
 using Bunit;
 using Bunit.Diffing;
 using Bunit.Extensions;
+using Bunit.Extensions.WaitForHelpers;
 using Bunit.RazorTesting;
 using Bunit.Rendering;
 using JBSnorro;
@@ -48,18 +49,23 @@ namespace BlaTeX.Tests
                 (nameof(KaTeX.Math), this.Math)
             });
 
-            // https://github.com/egil/bUnit/issues/157
-            // HACK: Find some way to properly wait for SetParameterAsync
-            await Task.Delay(1000);
-
             if (cut is null)
                 throw new InvalidOperationException("The KaTeX component did not render successfully");
+
+            await WaitForKatexToHaveRendered(cut, id);
 
             var katexHtml = Htmlizer.GetHtml(Renderer, id);
             var expectedRenderId = Renderer.RenderFragment(this.Expected);
             var expectedHtml = Htmlizer.GetHtml(Renderer, expectedRenderId);
 
             VerifySnapshot(katexHtml, expectedHtml);
+        }
+
+        private async Task WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
+        {
+            var icut = cut.ToIRenderedComponent(cutId, this.Services);
+            using var waiter = new WaitForStateHelper(icut, () => cut.rendered != null, timeout);
+            await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
         }
 
         private void VerifySnapshot(string inputHtml, string expectedHtml)
@@ -98,6 +104,21 @@ namespace BlaTeX.Tests
                 throw new ArgumentException($"Unsupported parameter received", unknown[0]);
 
             return base.SetParametersAsync(parameters);
+        }
+    }
+    static class IRenderedComponentConstructorExtenstion
+    {
+        private static readonly Type RenderedComponentType = typeof(SnapshotTest).Assembly.GetType("Bunit.Rendering.RenderedComponent`1")!.MakeGenericType(typeof(KaTeX));
+        private static readonly ConstructorInfo RenderedComponentTypeCtor = RenderedComponentType.GetConstructors()[0];
+
+        /// <summary>
+        /// Instantiates and performs a first render of a component of type <typeparamref name="KaTeX"/>.
+        /// </summary>
+        /// <typeparam name="KaTeX">Type of the component to render</typeparam>
+        /// <returns>The rendered <typeparamref name="KaTeX"/></returns>
+        public static IRenderedComponent<KaTeX> ToIRenderedComponent(this KaTeX cut, int cutId, TestServiceProvider services)
+        {
+            return (IRenderedComponent<KaTeX>)RenderedComponentTypeCtor.Invoke(new object[] { services, cutId, cut });
         }
     }
 }
