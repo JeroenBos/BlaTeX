@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
+using BlaTeX.JSInterop;
 
 namespace BlaTeX.Tests
 {
@@ -44,6 +45,7 @@ namespace BlaTeX.Tests
 
             Services.AddDefaultTestContextServices();
             Services.Add(new ServiceDescriptor(typeof(IJSRuntime), new NodeJSRuntime(new[] { blatexJSPath })));
+            Services.Add(new ServiceDescriptor(typeof(IKaTeX), typeof(_KaTeX), ServiceLifetime.Singleton));
 
             var (id, cut) = this.Renderer.RenderComponent<KaTeX>(new ComponentParameter[] {
                 (nameof(KaTeX.Math), this.Math)

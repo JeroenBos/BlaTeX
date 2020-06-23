@@ -16,6 +16,11 @@ namespace BlaTeX.Tests
 {
     class NodeJSRuntime : IJSRuntime
     {
+        public static NodeJSRuntime CreateDefault()
+        {
+            return new NodeJSRuntime($"{Program.RootFolder}/wwwroot/js/blatex.js".ToSingleton());
+        }
+        
         public JsonSerializerOptions Options { get; }
         public IReadOnlyList<string> Imports { get; }
         public NodeJSRuntime(IEnumerable<string> imports, JsonSerializerOptions? options = null)

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using BlaTeX.JSInterop;
+using Microsoft.JSInterop;
 
 namespace BlaTeX
 {
@@ -18,6 +20,7 @@ namespace BlaTeX
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddSingleton(serviceType: typeof(IKaTeX), implementationType: typeof(_KaTeX));
 
             await builder.Build().RunAsync();
         }
