@@ -1,8 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using BlaTeX.JSInterop.KaTeX;
 using Microsoft.JSInterop;
 
-namespace BlaTeX.JSInterop
+namespace BlaTeX.JSInterop.KaTeX
 {
     public interface IKaTeX
     {
@@ -14,9 +20,10 @@ namespace BlaTeX.JSInterop
             return new _KaTeX(jsRuntime);
         }
         Task<string> RenderToString(string math);
+        Task<HtmlDomNode> RenderToDom(string math);
     }
 
-    class _KaTeX : IKaTeX
+    internal class _KaTeX : IKaTeX
     {
         private readonly IJSRuntime jsRuntime;
 
@@ -29,6 +36,7 @@ namespace BlaTeX.JSInterop
         }
 
         public Task<string> RenderToString(string math) => InvokeAsync<string>("renderToString", math);
+        public Task<HtmlDomNode> RenderToDom(string math) => InvokeAsync<HtmlDomNode>("__renderToDomTree", math);
 
 
         private Task<T> InvokeAsync<T>(string name, params object[] arguments)
@@ -45,4 +53,5 @@ namespace BlaTeX.JSInterop
                             .AsTask();
         }
     }
+
 }

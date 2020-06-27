@@ -18,6 +18,7 @@ using Microsoft.JSInterop;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using BlaTeX.JSInterop;
+using BlaTeX.JSInterop.KaTeX;
 
 namespace BlaTeX.Tests
 {
