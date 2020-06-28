@@ -12,5 +12,17 @@ Tests
   - in launch.json -> Debug Test -> args for selection tests, or `*` for all
 
 JS
-- install npm (v6.14.5)
-- run `cd js && npm install && npm run build`
+- One-time:
+  - install yarn (v1.22.4)
+  - install npm (v6.14.5)
+- `cd js/blatex && yarn install && yarn build && cd .. && npm install && npm run build`
+
+
+Submodules:
+  - One-time initialize katex-fonts submodule:
+    - `git submodule add --branch "v0.10.0-rc.1" git@github.com:JeroenBos/KaTeX.git js/blatex`
+    - `cd js/blatex && rmdir submodules/katex-fonts && git submodule add -f https://github.com/KaTeX/katex-fonts.git submodules/katex-fonts`
+  - Update blatex submodule:
+    - `git submodule foreach git pull`
+    - commit the diff file
+

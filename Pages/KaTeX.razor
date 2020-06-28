@@ -33,7 +33,7 @@ else
         if (this.Math == null)
             this.rendered = null;
         else
-            this.rendered = (MarkupString)await JS.InvokeAsync<string>("katex.renderToString", this.Math);
+            this.rendered = (MarkupString)await JS.InvokeAsync<string>("blatex_wrapper.default.renderToString", this.Math);
         this.StateHasChanged();
     }
 }

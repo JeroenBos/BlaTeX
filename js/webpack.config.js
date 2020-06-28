@@ -41,18 +41,18 @@ module.exports = {
         new CopyPlugin([
             {
                 from: '*.css',
-                context: 'node_modules/katex/dist/',
+                context: 'node_modules/blatex/dist/',
                 to: '../../wwwroot/css/katex'
             },
             {
                 from: 'fonts',
-                context: 'node_modules/katex/dist/',
+                context: 'node_modules/blatex/dist/',
                 to: '../../wwwroot/css/katex/fonts'
             },
         ],
         )],
-    name: 'blatex',
+    name: 'blatex_wrapper',
     entry: './index.js',
-    output: { filename: outputDir + '/blatex.js' },
+    output: { filename: outputDir + '/blatex_wrapper.js' },
     stats: { assets: true, excludeAssets: [/.*/] },
 };

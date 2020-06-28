@@ -1,5 +1,5 @@
 {
-    "name": "blatex",
+    "name": "blatex_wrapper",
     "version": "0.0.1",
     "license": "MIT",
     "description": "Wrapper around KaTeX for BlaTeX",
@@ -10,7 +10,7 @@
     },
     "private": true,
     "dependencies": {
-        "katex": "0.10.0-rc.1"
+        "blatex": "file:blatex"
     },
     "devDependencies": {
         "clean-webpack-plugin": "0.1.19",
