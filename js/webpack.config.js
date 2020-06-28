@@ -51,8 +51,8 @@ module.exports = {
             },
         ],
         )],
-    name: 'blatex',
+    name: 'blatex_wrapper',
     entry: './index.js',
-    output: { filename: outputDir + '/blatex.js' },
+    output: { filename: outputDir + '/blatex_wrapper.js' },
     stats: { assets: true, excludeAssets: [/.*/] },
 };
