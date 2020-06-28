@@ -1,3 +1,4 @@
+#nullable enable
 using Xunit;
 using BlaTeX.JSInterop;
 using System.Threading.Tasks;
@@ -13,8 +14,12 @@ namespace BlaTeX.Tests
         [Fact]
         public async Task FirstHtmlDomNodeTests()
         {
-            var domNode = await KaTeX.RenderToDom("c");
+            var domNode = await KaTeX.RenderToDom("c") as DomSpan;
             Contract.Assert(domNode != null);
+            Contract.Assert(domNode.Children != null);
+            Contract.Assert(domNode.Children.Count == 2);
+
+
         }
 
     }

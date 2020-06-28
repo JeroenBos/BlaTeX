@@ -1,13 +1,16 @@
 #nullable enable
+using JBSnorro;
+using JBSnorro.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace BlaTeX.JSInterop.KaTeX
 {
     internal class _HtmlDomNode : HtmlDomNode
     {
-        
         public IReadOnlyList<string> classes { get; set; } = default!;
         public float height { get; set; } = default!;
         public float depth { get; set; } = default!;
@@ -43,6 +46,32 @@ namespace BlaTeX.JSInterop.KaTeX
 
         Node VirtualNode.ToNode() => throw new NotImplementedException();
         string VirtualNode.ToMarkup() => throw new NotImplementedException();
+
+        public override bool Equals(object? obj)
+        {
+            return this.Equals(obj as HtmlDomNode);
+        }
+
+        protected bool Equals([NotNullWhen(true)] HtmlDomNode? other)
+        {
+            if (other is null)
+                return false;
+            if (ReferenceEquals(other, this)) // optimization
+                return true;
+
+            if (this.depth != other.Depth)
+                return false;
+            if (this.height != other.Height)
+                return false;
+            if (this.maxFontSize != other.MaxFontSize)
+                return false;
+            if (this.style?.Equals(other.Style) ?? other.Style is { })
+                return false;
+            if (this.classes?.SequenceEqual(other.Classes) ?? other.Classes is { })
+                return false;
+            return true;
+        }
+        public override int GetHashCode() => throw new NotImplementedException();
     }
 
     /// <summary> A concrete type of Span<T>. </summary>
@@ -62,6 +91,15 @@ namespace BlaTeX.JSInterop.KaTeX
             : base(children, attributes, width, classes, height, depth, maxFontSize, style)
         {
         }
+        public override bool Equals(object? obj)
+        {
+            return this.Equals(obj as DomSpan);
+        }
+        protected bool Equals([NotNullWhen(true)] DomSpan? other)
+        {
+            return base.Equals(other);
+        }
+        public override int GetHashCode() => throw new NotImplementedException();
     }
 
     internal class _Span<TChildNode> : _HtmlDomNode, Span<TChildNode> where TChildNode : VirtualNode
@@ -72,7 +110,7 @@ namespace BlaTeX.JSInterop.KaTeX
         [DebuggerHidden]
         IReadOnlyList<TChildNode> Span<TChildNode>.Children => children;
         [DebuggerHidden]
-        Dictionary<string, string> Span<TChildNode>.Attributes => attributes;
+        IReadOnlyDictionary<string, string> Span<TChildNode>.Attributes => attributes;
         [DebuggerHidden]
         float? Span<TChildNode>.Width => width;
 
@@ -92,6 +130,24 @@ namespace BlaTeX.JSInterop.KaTeX
             this.attributes = attributes;
             this.width = width;
         }
+        public override bool Equals(object? obj)
+        {
+            return this.Equals(obj as Span<TChildNode>);
+        }
+        protected bool Equals([NotNullWhen(true)] Span<TChildNode>? other)
+        {
+            if (!base.Equals(other))
+                return false;
+
+            if (this.width != other.Width)
+                return false;
+            if (this.children?.SequenceEqual(other.Children) ?? other.Children is { })
+                return false;
+            if (this.attributes?.Equals(other.Attributes) ?? other.Attributes is { })
+                return false;
+            return true;
+        }
+        public override int GetHashCode() => throw new NotImplementedException();
     }
 
     internal class _SettingsOptions : SettingsOptions
@@ -115,6 +171,39 @@ namespace BlaTeX.JSInterop.KaTeX
         float? SettingsOptions.MaxSize => maxSize;
         float? SettingsOptions.MaxExpand => maxExpand;
         IReadOnlyList<string>? SettingsOptions.AllowedProtocols => allowedProtocols;
+
+        public override bool Equals(object? obj)
+        {
+            return this.Equals(obj as SettingsOptions);
+        }
+        protected bool Equals([NotNullWhen(true)] SettingsOptions? other)
+        {
+            if (other is null)
+                return false;
+            if (ReferenceEquals(other, this)) // optimization
+                return true;
+
+            if (this.displayMode != other.DisplayMode)
+                return false;
+            if (this.throwOnError != other.ThrowOnError)
+                return false;
+            if (this.errorColor != other.ErrorColor)
+                return false;
+            if (this.macros?.Equals(other.Macros) ?? other.Macros is { })
+                return false;
+            if (this.colorIsTextColor != other.ColorIsTextColor)
+                return false;
+            if (this.strict?.Equals(other.Strict) ?? other.Strict is { })
+                return false;
+            if (this.maxSize != other.MaxSize)
+                return false;
+            if (this.maxExpand != other.MaxExpand)
+                return false;
+            if (this.allowedProtocols?.SequenceEqual(other.AllowedProtocols) ?? other.AllowedProtocols is { })
+                return false;
+            return true;
+        }
+        public override int GetHashCode() => throw new NotImplementedException();
     };
 
     internal class _CssStyle : CssStyle
@@ -141,5 +230,64 @@ namespace BlaTeX.JSInterop.KaTeX
         public string? Top { get; set; }
         public string? Width { get; set; }
         public string? VerticalAlign { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return this.Equals(obj as CssStyle);
+        }
+        protected bool Equals([NotNullWhen(true)] CssStyle? other)
+        {
+            if (other is null)
+                return false;
+            if (ReferenceEquals(other, this)) // optimization
+                return true;
+
+            if (this.PaddingRight != other.PaddingRight)
+                return false;
+            if (this.PaddingTop != other.PaddingTop)
+                return false;
+            if (this.PaddingBottom != other.PaddingBottom)
+                return false;
+            if (this.MarginBottom != other.MarginBottom)
+                return false;
+            if (this.PointerEvents?.Equals(other.PointerEvents) ?? other.PointerEvents is { })
+                return false;
+            if (this.BorderBottomWidth != other.BorderBottomWidth)
+                return false;
+            if (this.BorderColor != other.BorderColor)
+                return false;
+            if (this.BorderRightWidth != other.BorderRightWidth)
+                return false;
+            if (this.BorderTopWidth != other.BorderTopWidth)
+                return false;
+            if (this.Bottom != other.Bottom)
+                return false;
+            if (this.Color != other.Color)
+                return false;
+            if (this.Height != other.Height)
+                return false;
+            if (this.Left != other.Left)
+                return false;
+            if (this.MarginLeft != other.MarginLeft)
+                return false;
+            if (this.MarginRight != other.MarginRight)
+                return false;
+            if (this.MarginTop != other.MarginTop)
+                return false;
+            if (this.MinWidth != other.MinWidth)
+                return false;
+            if (this.PaddingLeft != other.PaddingLeft)
+                return false;
+            if (this.Position != other.Position)
+                return false;
+            if (this.Top != other.Top)
+                return false;
+            if (this.Width != other.Width)
+                return false;
+            if (this.VerticalAlign != other.VerticalAlign)
+                return false;
+            return true;
+        }
+        public override int GetHashCode() => throw new NotImplementedException();
     }
 }

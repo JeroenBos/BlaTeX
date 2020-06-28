@@ -19,7 +19,7 @@ namespace BlaTeX.Tests
     {
         public static NodeJSRuntime CreateDefault()
         {
-            return new NodeJSRuntime($"{Program.RootFolder}/wwwroot/js/blatex.js".ToSingleton());
+            return new NodeJSRuntime($"{Program.RootFolder}/wwwroot/js/blatex_wrapper.js".ToSingleton());
         }
 
         public JsonSerializerOptions Options { get; }

@@ -72,7 +72,7 @@ namespace BlaTeX.JSInterop.KaTeX
     {
         // Span<T> is not part of the polymorphic deserializers because it's indistinguishable from their direct descendants (DomSpan for now only)
         public IReadOnlyList<TChildNode> Children { get; }
-        public Dictionary<string, string> Attributes { get; }
+        public IReadOnlyDictionary<string, string> Attributes { get; }
         public float? Width { get; }
     }
     public interface DomSpan : Span<HtmlDomNode>
