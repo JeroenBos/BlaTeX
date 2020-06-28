@@ -41,12 +41,12 @@ module.exports = {
         new CopyPlugin([
             {
                 from: '*.css',
-                context: 'node_modules/katex/dist/',
+                context: 'node_modules/blatex/dist/',
                 to: '../../wwwroot/css/katex'
             },
             {
                 from: 'fonts',
-                context: 'node_modules/katex/dist/',
+                context: 'node_modules/blatex/dist/',
                 to: '../../wwwroot/css/katex/fonts'
             },
         ],

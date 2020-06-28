@@ -1,4 +1,4 @@
-import * as katex from 'katex/dist/blatex.js';
+import * as katex from './blatex/dist/blatex';
 
 console.log(katex);
 console.log(Object.keys(katex));
@@ -10,5 +10,5 @@ console.log(JSON.stringify(result));
 if (typeof globalThis !== 'undefined') {
     globalThis.katex = katex;
 }
-export default katex;
-export const blatex = katex;
+// export default katex;
+exports.default = katex;

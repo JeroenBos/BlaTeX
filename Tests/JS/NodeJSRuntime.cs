@@ -30,7 +30,15 @@ namespace BlaTeX.Tests
             Console.WriteLine(stdErr);
             if (stdOut == "")
                 return default!;
-            return JsonSerializer.Deserialize<TValue>(stdOut, this.Options);
+            try
+            {
+                return JsonSerializer.Deserialize<TValue>(stdOut, this.Options);
+            }
+            catch (JsonException)
+            {
+                Console.WriteLine(stdOut);
+                throw;
+            }
         }
 
         ValueTask<TValue> IJSRuntime.InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object[] args)
