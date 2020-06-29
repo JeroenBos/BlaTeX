@@ -72,6 +72,19 @@ namespace BlaTeX.JSInterop.KaTeX
             return true;
         }
         public override int GetHashCode() => throw new NotImplementedException();
+
+        public virtual HtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
+                                        Option<float> height = default,
+                                        Option<float> depth = default,
+                                        Option<float> maxFontSize = default,
+                                        Option<CssStyle> style = default)
+        {
+            return new _HtmlDomNode(classes.ValueOrDefault(this.classes),
+                                    height.ValueOrDefault(this.height),
+                                    depth.ValueOrDefault(this.depth),
+                                    maxFontSize.ValueOrDefault(this.maxFontSize),
+                                    (_CssStyle)style.ValueOrDefault(this.style));
+        }
     }
 
     /// <summary> A concrete type of Span<T>. </summary>
@@ -100,6 +113,25 @@ namespace BlaTeX.JSInterop.KaTeX
             return base.Equals(other);
         }
         public override int GetHashCode() => throw new NotImplementedException();
+
+        public sealed override Span<HtmlDomNode> With(Option<HtmlDomNode[]> children = default,
+                                                      Option<Dictionary<string, string>> attributes = default,
+                                                      Option<float?> width = default,
+                                                      Option<IReadOnlyList<string>> classes = default,
+                                                      Option<float> height = default,
+                                                      Option<float> depth = default,
+                                                      Option<float> maxFontSize = default,
+                                                      Option<CssStyle> style = default)
+        {
+            return new _DomSpan(children.ValueOrDefault(this.children),
+                                attributes.ValueOrDefault(this.attributes),
+                                width.ValueOrDefault(this.width),
+                                classes.ValueOrDefault(this.classes),
+                                height.ValueOrDefault(this.height),
+                                depth.ValueOrDefault(this.depth),
+                                maxFontSize.ValueOrDefault(this.maxFontSize),
+                                (_CssStyle)style.ValueOrDefault(this.style));
+        }
     }
 
     internal class _Span<TChildNode> : _HtmlDomNode, Span<TChildNode> where TChildNode : VirtualNode
@@ -148,6 +180,32 @@ namespace BlaTeX.JSInterop.KaTeX
             return true;
         }
         public override int GetHashCode() => throw new NotImplementedException();
+        public sealed override HtmlDomNode With(Option<IReadOnlyList<string>> classes = default(Option<IReadOnlyList<string>>),
+                                                Option<float> height = default(Option<float>),
+                                                Option<float> depth = default(Option<float>),
+                                                Option<float> maxFontSize = default(Option<float>),
+                                                Option<CssStyle> style = default(Option<CssStyle>))
+        {
+            return With(default, default, default, classes, height, depth, maxFontSize, style);
+        }
+        public virtual Span<TChildNode> With(Option<TChildNode[]> children = default,
+                                             Option<Dictionary<string, string>> attributes = default,
+                                             Option<float?> width = default,
+                                             Option<IReadOnlyList<string>> classes = default,
+                                             Option<float> height = default,
+                                             Option<float> depth = default,
+                                             Option<float> maxFontSize = default,
+                                             Option<CssStyle> style = default)
+        {
+            return new _Span<TChildNode>(children.ValueOrDefault(this.children),
+                                         attributes.ValueOrDefault(this.attributes),
+                                         width.ValueOrDefault(this.width),
+                                         classes.ValueOrDefault(this.classes),
+                                         height.ValueOrDefault(this.height),
+                                         depth.ValueOrDefault(this.depth),
+                                         maxFontSize.ValueOrDefault(this.maxFontSize),
+                                         (_CssStyle)style.ValueOrDefault(this.style));
+        }
     }
 
     internal class _SettingsOptions : SettingsOptions
@@ -171,6 +229,30 @@ namespace BlaTeX.JSInterop.KaTeX
         float? SettingsOptions.MaxSize => maxSize;
         float? SettingsOptions.MaxExpand => maxExpand;
         IReadOnlyList<string>? SettingsOptions.AllowedProtocols => allowedProtocols;
+
+        /// <summary> Ctor for JsonSerializer. </summary>
+        public _SettingsOptions() { }
+        public _SettingsOptions(bool? displayMode,
+                                bool? throwOnError,
+                                string? errorColor,
+                                MacroMap? macros,
+                                bool? colorIsTextColor,
+                                Strict? strict,
+                                float? maxSize,
+                                float? maxExpand,
+                                string[]? allowedProtocols)
+        {
+            this.displayMode = displayMode;
+            this.throwOnError = throwOnError;
+            this.errorColor = errorColor;
+            this.macros = macros;
+            this.colorIsTextColor = colorIsTextColor;
+            this.strict = strict;
+            this.maxSize = maxSize;
+            this.maxExpand = maxExpand;
+            this.allowedProtocols = allowedProtocols;
+        }
+
 
         public override bool Equals(object? obj)
         {
@@ -204,6 +286,29 @@ namespace BlaTeX.JSInterop.KaTeX
             return true;
         }
         public override int GetHashCode() => throw new NotImplementedException();
+
+        public virtual SettingsOptions With(Option<bool?> displayMode = default,
+                                            Option<bool?> throwOnError = default,
+                                            Option<string?> errorColor = default,
+                                            Option<MacroMap?> macros = default,
+                                            Option<bool?> colorIsTextColor = default,
+                                            Option<Strict?> strict = default,
+                                            Option<float?> maxSize = default,
+                                            Option<float?> maxExpand = default,
+                                            Option<string[]?> allowedProtocols = default)
+        {
+            return new _SettingsOptions(
+                displayMode.ValueOrDefault(this.displayMode),
+                throwOnError.ValueOrDefault(this.throwOnError),
+                errorColor.ValueOrDefault(this.errorColor),
+                macros.ValueOrDefault(this.macros),
+                colorIsTextColor.ValueOrDefault(this.colorIsTextColor),
+                strict.ValueOrDefault(this.strict),
+                maxSize.ValueOrDefault(this.maxSize),
+                maxExpand.ValueOrDefault(this.maxExpand),
+                allowedProtocols.ValueOrDefault(this.allowedProtocols)
+            );
+        }
     };
 
     internal class _CssStyle : CssStyle
@@ -230,6 +335,56 @@ namespace BlaTeX.JSInterop.KaTeX
         public string? Top { get; set; }
         public string? Width { get; set; }
         public string? VerticalAlign { get; set; }
+
+        /// <summary> Ctor for JsonSerializer. </summary>
+        public _CssStyle() { }
+        public _CssStyle(string? paddingRight,
+                         string? paddingTop,
+                         string? paddingBottom,
+                         string? marginBottom,
+                         ReactCSSProperties_pointerEvents? pointerEvents,
+                         string? borderBottomWidth,
+                         string? borderColor,
+                         string? borderRightWidth,
+                         string? borderTopWidth,
+                         string? bottom,
+                         string? color,
+                         string? height,
+                         string? left,
+                         string? marginLeft,
+                         string? marginRight,
+                         string? marginTop,
+                         string? minWidth,
+                         string? paddingLeft,
+                         string? position,
+                         string? top,
+                         string? width,
+                         string? verticalAlign)
+        {
+            this.PaddingRight = paddingRight;
+            this.PaddingTop = paddingTop;
+            this.PaddingBottom = paddingBottom;
+            this.MarginBottom = marginBottom;
+            this.PointerEvents = pointerEvents;
+            this.BorderBottomWidth = borderBottomWidth;
+            this.BorderColor = borderColor;
+            this.BorderRightWidth = borderRightWidth;
+            this.BorderTopWidth = borderTopWidth;
+            this.Bottom = bottom;
+            this.Color = color;
+            this.Height = height;
+            this.Left = left;
+            this.MarginLeft = marginLeft;
+            this.MarginRight = marginRight;
+            this.MarginTop = marginTop;
+            this.MinWidth = minWidth;
+            this.PaddingLeft = paddingLeft;
+            this.Position = position;
+            this.Top = top;
+            this.Width = width;
+            this.VerticalAlign = verticalAlign;
+        }
+
 
         public override bool Equals(object? obj)
         {
@@ -289,5 +444,55 @@ namespace BlaTeX.JSInterop.KaTeX
             return true;
         }
         public override int GetHashCode() => throw new NotImplementedException();
+
+
+        public CssStyle With(Option<string?> paddingRight = default,
+                             Option<string?> paddingTop = default,
+                             Option<string?> paddingBottom = default,
+                             Option<string?> marginBottom = default,
+                             Option<ReactCSSProperties_pointerEvents?> pointerEvents = default,
+                             Option<string?> borderBottomWidth = default,
+                             Option<string?> borderColor = default,
+                             Option<string?> borderRightWidth = default,
+                             Option<string?> borderTopWidth = default,
+                             Option<string?> bottom = default,
+                             Option<string?> color = default,
+                             Option<string?> height = default,
+                             Option<string?> left = default,
+                             Option<string?> marginLeft = default,
+                             Option<string?> marginRight = default,
+                             Option<string?> marginTop = default,
+                             Option<string?> minWidth = default,
+                             Option<string?> paddingLeft = default,
+                             Option<string?> position = default,
+                             Option<string?> top = default,
+                             Option<string?> width = default,
+                             Option<string?> verticalAlign = default)
+        {
+            return new _CssStyle(
+                paddingRight.ValueOrDefault(this.PaddingRight),
+                paddingTop.ValueOrDefault(this.PaddingTop),
+                paddingBottom.ValueOrDefault(this.PaddingBottom),
+                marginBottom.ValueOrDefault(this.MarginBottom),
+                pointerEvents.ValueOrDefault(this.PointerEvents),
+                borderBottomWidth.ValueOrDefault(this.BorderBottomWidth),
+                borderColor.ValueOrDefault(this.BorderColor),
+                borderRightWidth.ValueOrDefault(this.BorderRightWidth),
+                borderTopWidth.ValueOrDefault(this.BorderTopWidth),
+                bottom.ValueOrDefault(this.Bottom),
+                color.ValueOrDefault(this.Color),
+                height.ValueOrDefault(this.Height),
+                left.ValueOrDefault(this.Left),
+                marginLeft.ValueOrDefault(this.MarginLeft),
+                marginRight.ValueOrDefault(this.MarginRight),
+                marginTop.ValueOrDefault(this.MarginTop),
+                minWidth.ValueOrDefault(this.MinWidth),
+                paddingLeft.ValueOrDefault(this.PaddingLeft),
+                position.ValueOrDefault(this.Position),
+                top.ValueOrDefault(this.Top),
+                width.ValueOrDefault(this.Width),
+                verticalAlign.ValueOrDefault(this.VerticalAlign)
+            );
+        }
     }
 }

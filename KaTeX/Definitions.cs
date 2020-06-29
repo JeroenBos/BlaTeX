@@ -3,15 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using BlaTeX;
-using JBSnorro.Diagnostics;
-using JBSnorro.Text.Json;
 using JBSnorro;
 using JBSnorro.Extensions;
-using System.Reflection;
-using static BlaTeX.JSInterop.KaTeXJsonConverters;
 
 namespace BlaTeX.JSInterop.KaTeX
 {
@@ -32,6 +25,11 @@ namespace BlaTeX.JSInterop.KaTeX
         float Depth { get; }
         float MaxFontSize { get; }
         CssStyle Style { get; }
+        HtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
+                         Option<float> height = default,
+                         Option<float> depth = default,
+                         Option<float> maxFontSize = default,
+                         Option<CssStyle> style = default);
     }
 
 
@@ -62,6 +60,29 @@ namespace BlaTeX.JSInterop.KaTeX
         string? Top { get; }
         string? Width { get; }
         string? VerticalAlign { get; }
+
+        CssStyle With(Option<string?> paddingRight = default,
+                      Option<string?> paddingTop = default,
+                      Option<string?> paddingBottom = default,
+                      Option<string?> marginBottom = default,
+                      Option<ReactCSSProperties_pointerEvents?> pointerEvents = default,
+                      Option<string?> borderBottomWidth = default,
+                      Option<string?> borderColor = default,
+                      Option<string?> borderRightWidth = default,
+                      Option<string?> borderTopWidth = default,
+                      Option<string?> bottom = default,
+                      Option<string?> color = default,
+                      Option<string?> height = default,
+                      Option<string?> left = default,
+                      Option<string?> marginLeft = default,
+                      Option<string?> marginRight = default,
+                      Option<string?> marginTop = default,
+                      Option<string?> minWidth = default,
+                      Option<string?> paddingLeft = default,
+                      Option<string?> position = default,
+                      Option<string?> top = default,
+                      Option<string?> width = default,
+                      Option<string?> verticalAlign = default);
     }
 
     public interface ReactCSSProperties_pointerEvents
@@ -74,9 +95,30 @@ namespace BlaTeX.JSInterop.KaTeX
         public IReadOnlyList<TChildNode> Children { get; }
         public IReadOnlyDictionary<string, string> Attributes { get; }
         public float? Width { get; }
+
+        Span<TChildNode> With(Option<TChildNode[]> children = default,
+                              Option<Dictionary<string, string>> attributes = default,
+                              Option<float?> width = default,
+                              Option<IReadOnlyList<string>> classes = default,
+                              Option<float> height = default,
+                              Option<float> depth = default,
+                              Option<float> maxFontSize = default,
+                              Option<CssStyle> style = default);
     }
     public interface DomSpan : Span<HtmlDomNode>
     {
+        new DomSpan With(Option<HtmlDomNode[]> children = default,
+                         Option<Dictionary<string, string>> attributes = default,
+                         Option<float?> width = default,
+                         Option<IReadOnlyList<string>> classes = default,
+                         Option<float> height = default,
+                         Option<float> depth = default,
+                         Option<float> maxFontSize = default,
+                         Option<CssStyle> style = default)
+        {
+            return (DomSpan)((Span<HtmlDomNode>)this).With(children, attributes, width, classes, height, depth, maxFontSize, style);
+        }
+
     }
 
 
@@ -147,6 +189,16 @@ namespace BlaTeX.JSInterop.KaTeX
         float? MaxSize { get; }
         float? MaxExpand { get; }
         IReadOnlyList<string>? AllowedProtocols { get; }
+
+        public SettingsOptions With(Option<bool?> displayMode = default,
+                                    Option<bool?> throwOnError = default,
+                                    Option<string?> errorColor = default,
+                                    Option<MacroMap?> macros = default,
+                                    Option<bool?> colorIsTextColor = default,
+                                    Option<Strict?> strict = default,
+                                    Option<float?> maxSize = default,
+                                    Option<float?> maxExpand = default,
+                                    Option<string[]?> allowedProtocols = default);
     };
 
     interface MacroMap
