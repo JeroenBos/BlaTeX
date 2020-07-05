@@ -1,11 +1,18 @@
 #nullable enable
 using JBSnorro;
+using JBSnorro.Collections.ObjectModel;
+using JBSnorro.Diagnostics;
 using JBSnorro.Extensions;
+using JBSnorro.Text.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace BlaTeX.JSInterop.KaTeX
 {
@@ -91,10 +98,13 @@ namespace BlaTeX.JSInterop.KaTeX
     internal class _DomSpan : _Span<HtmlDomNode>, DomSpan
     {
         /// <summary> Ctor for JsonSerializer. </summary>
-        public _DomSpan() { }
+        public _DomSpan()
+        {
+
+        }
         public _DomSpan(
             HtmlDomNode[] children,
-            Dictionary<string, string> attributes,
+            Attributes attributes,
             float? width,
             IReadOnlyList<string> classes,
             float height,
@@ -115,7 +125,7 @@ namespace BlaTeX.JSInterop.KaTeX
         public override int GetHashCode() => throw new NotImplementedException();
 
         public sealed override Span<HtmlDomNode> With(Option<HtmlDomNode[]> children = default,
-                                                      Option<Dictionary<string, string>> attributes = default,
+                                                      Option<Attributes> attributes = default,
                                                       Option<float?> width = default,
                                                       Option<IReadOnlyList<string>> classes = default,
                                                       Option<float> height = default,
@@ -137,19 +147,19 @@ namespace BlaTeX.JSInterop.KaTeX
     internal class _Span<TChildNode> : _HtmlDomNode, Span<TChildNode> where TChildNode : VirtualNode
     {
         public TChildNode[] children { get; set; } = default!;
-        public Dictionary<string, string> attributes { get; set; } = default!;
+        public Attributes attributes { get; set; } = default!;
         public float? width { get; set; }
         [DebuggerHidden]
         IReadOnlyList<TChildNode> Span<TChildNode>.Children => children;
         [DebuggerHidden]
-        IReadOnlyDictionary<string, string> Span<TChildNode>.Attributes => attributes;
+        Attributes Span<TChildNode>.Attributes => attributes;
         [DebuggerHidden]
         float? Span<TChildNode>.Width => width;
 
         /// <summary> Ctor for JsonSerializer. </summary>
         public _Span() { }
         public _Span(TChildNode[] children,
-                     Dictionary<string, string> attributes,
+                     Attributes attributes,
                      float? width,
                      IReadOnlyList<string> classes,
                      float height,
@@ -189,7 +199,7 @@ namespace BlaTeX.JSInterop.KaTeX
             return With(default, default, default, classes, height, depth, maxFontSize, style);
         }
         public virtual Span<TChildNode> With(Option<TChildNode[]> children = default,
-                                             Option<Dictionary<string, string>> attributes = default,
+                                             Option<Attributes> attributes = default,
                                              Option<float?> width = default,
                                              Option<IReadOnlyList<string>> classes = default,
                                              Option<float> height = default,
@@ -493,6 +503,139 @@ namespace BlaTeX.JSInterop.KaTeX
                 width.ValueOrDefault(this.Width),
                 verticalAlign.ValueOrDefault(this.VerticalAlign)
             );
+        }
+    }
+
+    class _SourceLocation : SourceLocation
+    {
+        public class JsonConverter : JsonConverter<SourceLocation>
+        {
+            public static JsonConverter Instance { get; } = new JsonConverter();
+            private static readonly Regex expectedFormat = new Regex("[0-9]+,[0-9]+");
+            public override SourceLocation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                string s = JsonSerializer.Deserialize<string>(ref reader, options);
+                if (string.IsNullOrWhiteSpace(s))
+                {
+                    throw new JsonException("Unexpected empty string as SourceLocation");
+                }
+                else if (!expectedFormat.IsMatch(s))
+                {
+                    throw new JsonException($"Unexpected source location format: '{s}'");
+                }
+                else
+                {
+                    int separatorIndex = s.IndexOf(",");
+                    int start = int.Parse(s[..separatorIndex]);
+                    int end = int.Parse(s[(separatorIndex + 1)..]);
+                    return new _SourceLocation(start, end);
+                }
+            }
+
+            public override void Write(Utf8JsonWriter writer, SourceLocation value, JsonSerializerOptions options)
+            {
+                Contract.Requires(value != null);
+                Contract.Requires(value.Start >= 0);
+                Contract.Requires(value.End >= 0);
+                writer.WriteStringValue($"{value.Start},{value.End}");
+            }
+            private JsonConverter() { }
+        }
+
+        public int start { get; set; } = default!;
+        public int end { get; set; } = default!;
+
+
+        public _SourceLocation(int start, int end)
+        {
+            this.start = start;
+            this.end = end;
+        }
+        public virtual SourceLocation With(Option<int> start = default,
+                                           Option<int> end = default)
+        {
+            return new _SourceLocation(start.ValueOrDefault(this.start),
+                                       end.ValueOrDefault(this.end));
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return this.Equals(obj as SourceLocation);
+        }
+
+        protected bool Equals([NotNullWhen(true)] SourceLocation? other)
+        {
+            if (other is null)
+                return false;
+            if (ReferenceEquals(other, this)) // optimization
+                return true;
+
+            if (this.start != other.Start)
+                return false;
+            if (this.end != other.End)
+                return false;
+            return true;
+        }
+        public override int GetHashCode() => throw new NotImplementedException();
+
+        [DebuggerHidden]
+        int SourceLocation.Start => start;
+        [DebuggerHidden]
+        int SourceLocation.End => end;
+
+}
+
+    // currently sealed because extension is not supported, but may be opened up later
+    sealed class _Attributes : ReadOnlyDictionary<string, object?>, Attributes
+    {
+        public class JsonConverter : DictionaryJsonConverter<object?, Attributes>
+        {
+            public static JsonConverter Instance { get; } = new JsonConverter();
+            static Attributes ctor(Dictionary<string, object?> deserialized)
+            {
+                return new _Attributes(deserialized);
+            }
+            static IReadOnlyDictionary<string, Type?> elementTypes => new Dictionary<string, Type?>
+            {
+                // the types are the key type for json deserialization. So they trigger which jsonConverter to use
+                { sourceLocationKey, typeof(SourceLocation) },
+            };
+            private JsonConverter() : base(ctor, elementTypes: elementTypes) { }
+            public override Attributes Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                return base.Read(ref reader, typeToConvert, options);
+            }
+        }
+
+
+
+        public _Attributes(IReadOnlyDictionary<string, object?> underlying)
+            : base(underlying)
+        {
+            if (underlying.TryGetValue(sourceLocationKey, out object? sourceLocation))
+                Contract.Requires(sourceLocation is SourceLocation, $"If '{sourceLocationKey}' is specified, it must be of type {nameof(SourceLocation)}");
+        }
+
+        public SourceLocation? SourceLocation
+        {
+            get
+            {
+                return underlying.GetValueOrDefault(sourceLocationKey, null) as SourceLocation;
+            }
+        }
+        private const string sourceLocationKey = "data-loc";
+
+
+        public /*virtual*/ Attributes With(params KeyValuePair<string, object?>[] newProperties)
+        {
+            if (newProperties.Length == 0)
+                return this;
+
+            var newUnderlying = new Dictionary<string, object?>(this.underlying);
+            foreach (var kvp in newProperties)
+                newUnderlying[kvp.Key] = kvp.Value;
+
+            return new _Attributes(newUnderlying);
         }
     }
 }
