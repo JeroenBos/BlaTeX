@@ -15,7 +15,7 @@ using BlaTeX.JSInterop;
 
 namespace BlaTeX.Tests
 {
-    class NodeJSRuntime : IJSRuntime
+    public class NodeJSRuntime : IJSRuntime
     {
         public static NodeJSRuntime CreateDefault()
         {
