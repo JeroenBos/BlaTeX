@@ -24,6 +24,5 @@ if (wrap)
     Console.WriteLine();
     result = $"<KaTeXTest math=\"{input}\">{result}</KaTeXTest>";
 }
-// bleh, PreserveWhitespace doesn't preserve newlines
-var formatted = XElement.Parse(result, LoadOptions.PreserveWhitespace).ToString();
+var formatted = XElement.Parse(result).ToString();
 Console.WriteLine(formatted);
