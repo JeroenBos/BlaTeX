@@ -26,36 +26,3 @@ if (wrap)
 }
 var formatted = XElement.Parse(result).ToString();
 Console.WriteLine(formatted);
-
-SetTextOnClipboard(formatted);
-
-public static void SetTextOnClipboard(string text)
-{
-    var tempFileName = Path.GetTempFileName();
-    File.WriteAllText(tempFileName, text);
-    try
-    {
-        var task = Task.Run(async () =>
-        {
-            var (exitCode, stdOut, stdErr) = await new ProcessStartInfo("bash", $"-c cat {tempFileName} | xclip").WaitForExitAndReadOutputAsync();
-            // if (exitCode == 0)
-            {
-                Console.WriteLine("Placed onto clipboard!");
-            }
-            // else
-            {
-                Console.WriteLine(stdOut);
-                Console.WriteLine(stdErr);
-            }
-        });
-        bool completed = task.Wait(500);
-        if (!completed)
-        {
-            Console.WriteLine("Placing onto clipboard failed (is xclip installed?)");
-        }
-    }
-    finally
-    {
-        File.Delete(tempFileName);
-    }
-}
