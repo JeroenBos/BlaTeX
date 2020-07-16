@@ -5,7 +5,7 @@ using System.IO;
 
 namespace BlaTeX.Tests
 {
-    class Program
+    public class Program
     {
         [DebuggerHidden]
         public static void Main(string[] args) => TestExtensions.DefaultMainTestProjectImplementation(args);

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,7 +11,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="3.2.0" PrivateAssets="all" />
     <PackageReference Include="System.Net.Http.Json" Version="3.2.0" />
-    <PackageReference Include="JBSnorro" Version="0.0.5" />
+    <PackageReference Include="JBSnorro" Version="0.0.6" />
   </ItemGroup>
   <Target Name="SetGlobals" >
     <Exec Command="globals set '$(ProjectName)' '$(ProjectName)' 10" Condition="'$(Configuration)' != 'CI'"/>

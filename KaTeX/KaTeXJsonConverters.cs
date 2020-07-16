@@ -34,6 +34,8 @@ namespace BlaTeX.JSInterop
                     (typeof(HtmlDomNode), typeof(_HtmlDomNode))
                 )
             };
+            yield return _Attributes.JsonConverter.Instance;
+            yield return _SourceLocation.JsonConverter.Instance;
 
             var introducedConverters = new HashSet<JsonConverter>();
             foreach (var polymorphicConverter in polymorphicConverters)

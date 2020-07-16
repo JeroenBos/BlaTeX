@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using JBSnorro;
 using JBSnorro.Extensions;
 
@@ -93,11 +96,11 @@ namespace BlaTeX.JSInterop.KaTeX
     {
         // Span<T> is not part of the polymorphic deserializers because it's indistinguishable from their direct descendants (DomSpan for now only)
         public IReadOnlyList<TChildNode> Children { get; }
-        public IReadOnlyDictionary<string, string> Attributes { get; }
+        public Attributes Attributes { get; }
         public float? Width { get; }
 
         Span<TChildNode> With(Option<TChildNode[]> children = default,
-                              Option<Dictionary<string, string>> attributes = default,
+                              Option<Attributes> attributes = default,
                               Option<float?> width = default,
                               Option<IReadOnlyList<string>> classes = default,
                               Option<float> height = default,
@@ -108,7 +111,7 @@ namespace BlaTeX.JSInterop.KaTeX
     public interface DomSpan : Span<HtmlDomNode>
     {
         new DomSpan With(Option<HtmlDomNode[]> children = default,
-                         Option<Dictionary<string, string>> attributes = default,
+                         Option<Attributes> attributes = default,
                          Option<float?> width = default,
                          Option<IReadOnlyList<string>> classes = default,
                          Option<float> height = default,
@@ -211,10 +214,22 @@ namespace BlaTeX.JSInterop.KaTeX
         // export type = boolean | "ignore" | "warn" | "error" | StrictFunction
         // export type StrictFunction = (errorCode: string, errorMsg: string, token?: Token | AnyParseNode) => boolean | string | undefined;
     }
+    public interface Attributes : IReadOnlyDictionary<string, object?>
+    {
+        SourceLocation? SourceLocation { get; }
+
+    }
+    public interface SourceLocation
+    {
+        int Start { get; }
+        int End { get; }
+        int Length => End - Start;
+    }
 }
 namespace BlaTeX.JSInterop
 {
     public interface Node
     {
     }
+
 }

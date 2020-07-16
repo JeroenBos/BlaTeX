@@ -15,7 +15,7 @@ using BlaTeX.JSInterop;
 
 namespace BlaTeX.Tests
 {
-    class NodeJSRuntime : IJSRuntime
+    public class NodeJSRuntime : IJSRuntime
     {
         public static NodeJSRuntime CreateDefault()
         {
@@ -40,9 +40,13 @@ namespace BlaTeX.Tests
             }
         }
 
-        public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, object[]? args)
+        internal async Task<(int ExitCode, string StandardOutput, string ErrorOutput)> InvokeAsyncImpl(string identifier, params object[]? args)
         {
-            var (exitCode, stdOut, stdErr) = await ProcessExtensions.ExecuteJS(this.Imports, identifier, args, this.Options).ConfigureAwait(false);
+            return await ProcessExtensions.ExecuteJS(this.Imports, identifier, args, this.Options).ConfigureAwait(false);
+        }
+        public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, params object[]? args)
+        {
+            var (exitCode, stdOut, stdErr) = await this.InvokeAsyncImpl(identifier, args);
             Console.WriteLine(stdOut);
             Console.WriteLine(stdErr);
             if (stdOut == "")
