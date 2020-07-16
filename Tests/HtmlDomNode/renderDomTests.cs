@@ -1,11 +1,9 @@
 #nullable enable
-#pragma warning disable 1974 // Dynamic overload resolution for conditional methods may fail
-using Xunit;
 using BlaTeX.JSInterop;
-using System.Threading.Tasks;
-using JBSnorro.Diagnostics;
 using BlaTeX.JSInterop.KaTeX;
-using System.Text.Json;
+using JBSnorro.Diagnostics;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace BlaTeX.Tests
 {
