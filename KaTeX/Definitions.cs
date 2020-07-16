@@ -216,7 +216,7 @@ namespace BlaTeX.JSInterop.KaTeX
     }
     public interface Attributes : IReadOnlyDictionary<string, object?>
     {
-        SourceLocation SourceLocation { get; }
+        SourceLocation? SourceLocation { get; }
 
     }
     public interface SourceLocation
