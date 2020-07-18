@@ -33,8 +33,15 @@ namespace BlaTeX.Tests
         public override string? DisplayName => this.GetType().Name;
         [Parameter]
         public string? Math { get; set; } = default!;
+        /// <summary> If specified, dictates whether the interactive version of the component is tested or not.
+        /// If not specified, it depends on whether <see cref="Action"> is provided.  </summary>
+        [Parameter]
+        public bool? Interactive { get; set; }
         [Parameter]
         public RenderFragment Expected { get; set; } = default!;
+        /// <summary> An action to be executed after the first render but before the snapshot comparison. </summary>
+        [Parameter]
+        public EventCallback<IRenderedComponent<KaTeX>> Action { get; set; }
 
         /// <inheritdoc/>
         protected override async Task Run()
@@ -48,14 +55,26 @@ namespace BlaTeX.Tests
             Services.Add(new ServiceDescriptor(typeof(IJSRuntime), new NodeJSRuntime(new[] { blatexJSPath })));
             Services.Add(new ServiceDescriptor(typeof(IKaTeX), typeof(_KaTeX), ServiceLifetime.Singleton));
 
-            var (id, cut) = this.Renderer.RenderComponent<KaTeX>(new ComponentParameter[] {
-                (nameof(KaTeX.Math), this.Math)
-            });
+            int id;
+            KaTeX cut;
+            var parameters = new ComponentParameter[] { (nameof(KaTeX.Math), this.Math) };
+            bool interactive = this.Interactive ?? this.Action.HasDelegate;
+            if (interactive)
+            {
+                (id, cut) = this.Renderer.RenderComponent<InteractiveKaTeX>(parameters);
+            }
+            else
+            {
+                (id, cut) = this.Renderer.RenderComponent<KaTeX>(parameters);
+            }
 
             if (cut is null)
                 throw new InvalidOperationException("The KaTeX component did not render successfully");
 
-            await WaitForKatexToHaveRendered(cut, id);
+            var renderedCut = await WaitForKatexToHaveRendered(cut, id);
+
+            if (this.Action.HasDelegate)
+                await this.Action.InvokeAsync(renderedCut);
 
             var katexHtml = Htmlizer.GetHtml(Renderer, id);
             var expectedRenderId = Renderer.RenderFragment(this.Expected);
@@ -64,11 +83,12 @@ namespace BlaTeX.Tests
             HtmlEqualityComparer.AssertEqual(expectedHtml, katexHtml);
         }
 
-        private async Task WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
+        private async Task<IRenderedComponent<KaTeX>> WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
         {
             var icut = cut.ToIRenderedComponent(cutId, this.Services);
             using var waiter = new WaitForStateHelper(icut, () => cut.rendered != null, timeout);
             await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
+            return icut!;
         }
 
         /// <inheritdoc/>
@@ -88,15 +108,17 @@ namespace BlaTeX.Tests
                 this.Math = (string)math!;
             if (d.TryGetValue("ChildContent", out object? expected))
                 this.Expected = (RenderFragment)expected;
+            if (d.TryGetValue("Action", out object? action))
+                this.Action = (EventCallback<IRenderedComponent<KaTeX>>)action;
 
-            var unknown = d.Keys.Where(key => key != "math" && key != "ChildContent").ToList();
+            var unknown = d.Keys.Where(key => key != "math" && key != "ChildContent" && key != "Action").ToList();
             if (unknown.Count != 0)
                 throw new ArgumentException($"Unsupported parameter received", unknown[0]);
 
             return base.SetParametersAsync(parameters);
         }
     }
-    static class IRenderedComponentConstructorExtenstion
+    static class IRenderedComponentConstructorExtension
     {
         private static readonly Type RenderedComponentType = typeof(SnapshotTest).Assembly.GetType("Bunit.Rendering.RenderedComponent`1")!.MakeGenericType(typeof(KaTeX));
         private static readonly ConstructorInfo RenderedComponentTypeCtor = RenderedComponentType.GetConstructors()[0];
