@@ -5,7 +5,9 @@
 @* KaTeX.Loading isn't propagated because @(if (Loading != null) { Loading=@Loading }); Doesn't work with complicated delegate error. *@ 
 
 <div id="interactivity" @onclick="OnClick">
-    <KaTeX Math=@Math />
+    <MarkupStringWithComponents>
+        <KaTeX Math=@Math />
+    </MarkupStringWithComponents>
 </div>
 
 @code {

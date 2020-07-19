@@ -86,7 +86,7 @@ namespace BlaTeX.Tests
         private async Task<IRenderedComponent<KaTeX>> WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
         {
             var icut = cut.ToIRenderedComponent(cutId, this.Services);
-            using var waiter = new WaitForStateHelper(icut, () => cut.rendered != null, timeout);
+            using var waiter = new WaitForStateHelper(icut, () => cut.markup != null, timeout);
             await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
             return icut!;
         }

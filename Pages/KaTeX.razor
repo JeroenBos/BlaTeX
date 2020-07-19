@@ -1,8 +1,12 @@
 @inject IKaTeX JS
 
-@if (rendered != null)
+@if (markup != null)
 {
-    @rendered.Value
+    <MarkupStringWithComponents Markup="@markup"
+                                Substitute="@Substitute"
+                                Selector="@Selector" >
+
+    </MarkupStringWithComponents>
 }
 else if (Loading != null)
 {
@@ -14,7 +18,8 @@ else
 }
 
 @code {
-    internal MarkupString? rendered = default;
+    #nullable enable
+    internal string? markup = default;
 
     [Parameter]
     public string Math { get; set; }
@@ -31,9 +36,18 @@ else
     private async Task update()
     {
         if (this.Math == null)
-            this.rendered = null;
+            this.markup = null;
         else
-            this.rendered = (MarkupString)await JS.RenderToString(this.Math);
+            this.markup = await JS.RenderToString(this.Math);
         this.StateHasChanged();
+    }
+
+    internal protected virtual IEnumerable<Range> Selector(string markup)
+    {
+        return Enumerable.Empty<Range>();
+    }
+    internal protected virtual RenderFragment Substitute(string markupFragment)
+    {
+        throw new InvalidOperationException("This method must be overridden");
     }
 }
