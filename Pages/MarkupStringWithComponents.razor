@@ -1,23 +1,22 @@
+@{
+    Range prevRange = 0..0;
+    @foreach(var range in Selector(Markup))
+    {
+        @((MarkupString)Markup[prevRange.End..range.Start])
+        @Substitute(Markup[range])
 
-
-@((MarkupString)Markup1)
-@if (ChildContent != null)
-{
-    @ChildContent
+        prevRange = range;
+    }
+    @((MarkupString)Markup[prevRange.End..])
 }
-@((MarkupString)Markup2)
 
 @code {
     [Parameter]
     public string Markup { get; set; }
-    [Parameter]
-    public int Insert { get; set; }
-
-    public MarkupString Markup1 => (MarkupString)Markup.Substring(0, Insert);
-
-    public MarkupString Markup2 => (MarkupString)Markup.Substring(Insert);
 
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    public Func<string, IEnumerable<Range>> Selector { get; set; }
 
+    [Parameter]
+    public Func<string, RenderFragment> Substitute { get; set; }
 }

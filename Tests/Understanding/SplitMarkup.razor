@@ -1,11 +1,13 @@
 @using Bunit
+@using JBSnorro.Extensions
 @inherits TestComponentBase
 
 <SnapshotTest Description="Helpful description of the test case - displayed if test fails">
     <TestInput>
-        <MarkupStringWithComponents Markup="<div><h1>Text</h1></div>"
-                                    Insert=18>
-            <span><h2>More text</h2></span>
+        <MarkupStringWithComponents Markup="<div><h1>Text</h1>[||]</div>"
+                                    Selector=@(SplitBy("[||]"))
+                                    Substitute=@Substitute>
+            
         </MarkupStringWithComponents>
     </TestInput>
     <ExpectedOutput>
@@ -15,3 +17,14 @@
         </div>
     </ExpectedOutput>
 </SnapshotTest>
+
+@code {
+    Func<string, IEnumerable<Range>> SplitBy(string separator)
+    {
+        return (string s) => s.IndicesOf(separator).Select(i => new Range(i, i + separator.Length));
+    }
+    static RenderFragment Substitute(string item)
+    {
+        return @<span><h2>More text</h2></span>;
+    }
+}
