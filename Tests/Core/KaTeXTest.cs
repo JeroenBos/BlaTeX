@@ -38,6 +38,10 @@ namespace BlaTeX.Tests
         [Parameter]
         public bool? Interactive { get; set; }
         [Parameter]
+        public ComponentParameter? ComponentizedParameters { get; set; }
+        [Parameter]
+        public RenderFragment? TestInput { get; set; }
+        [Parameter]
         public RenderFragment Expected { get; set; } = default!;
         /// <summary> An action to be executed after the first render but before the snapshot comparison. </summary>
         [Parameter]
@@ -57,9 +61,14 @@ namespace BlaTeX.Tests
 
             int id;
             KaTeX cut;
-            var parameters = new ComponentParameter[] { (nameof(KaTeX.Math), this.Math) };
+            var parameters = new List<ComponentParameter> { (nameof(KaTeX.Math), this.Math) };
             bool interactive = this.Interactive ?? this.Action.HasDelegate;
-            if (interactive)
+            if (this.ComponentizedParameters.HasValue)
+            {
+                parameters.Add(this.ComponentizedParameters.Value);
+                (id, cut) = this.Renderer.RenderComponent<ComponentizedKaTeX>(parameters);
+            }
+            else if (interactive)
             {
                 (id, cut) = this.Renderer.RenderComponent<InteractiveKaTeX>(parameters);
             }
@@ -72,7 +81,6 @@ namespace BlaTeX.Tests
                 throw new InvalidOperationException("The KaTeX component did not render successfully");
 
             var renderedCut = await WaitForKatexToHaveRendered(cut, id);
-
             if (this.Action.HasDelegate)
                 await this.Action.InvokeAsync(renderedCut);
 
@@ -110,8 +118,11 @@ namespace BlaTeX.Tests
                 this.Expected = (RenderFragment)expected;
             if (d.TryGetValue("Action", out object? action))
                 this.Action = (EventCallback<IRenderedComponent<KaTeX>>)action;
+            if (d.TryGetValue("ComponentizedParameters", out object? componentizedParameters))
+                this.ComponentizedParameters = (ComponentParameter)componentizedParameters;
 
-            var unknown = d.Keys.Where(key => key != "math" && key != "ChildContent" && key != "Action").ToList();
+
+            var unknown = d.Keys.Where(key => key != "math" && key != "ChildContent" && key != "Action" && key != "ComponentizedParameters").ToList();
             if (unknown.Count != 0)
                 throw new ArgumentException($"Unsupported parameter received", unknown[0]);
 

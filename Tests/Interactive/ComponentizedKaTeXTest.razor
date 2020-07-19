@@ -1,0 +1,24 @@
+@using Bunit
+@using Bunit.Rendering
+@using JBSnorro.Extensions
+@using BlaTeX.Tests
+
+@inherits KaTeXTestComponentBase
+
+<KaTeXTest math="blatex:A" ComponentizedParameters="@aParameter">
+    <div>Hello</div>
+</KaTeXTest>
+
+@code {
+    RenderFragment A = @<A><div>Hello</div></A>;
+    ComponentParameter aParameter => ComponentParameter.CreateParameter("A", A);
+
+    public class ComponentsAsRenderFragments
+    {
+        [Fact]
+        public void a()
+        {
+
+        }
+    }
+}

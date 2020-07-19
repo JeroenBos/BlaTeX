@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JBSnorro.Diagnostics;
 using Xunit;
+using BlaTeX.Pages;
 
 namespace BlaTeX.Tests
 {
@@ -107,6 +108,5 @@ namespace BlaTeX.Tests
             Contract.AssertSequenceEqual(ranges, new[] { new Range(markup.IndexOf("bla"), markup.IndexOf(">T")) });
         }
     }
-
 
 }
