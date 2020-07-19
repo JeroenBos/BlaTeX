@@ -1,0 +1,17 @@
+@using Bunit
+@inherits TestComponentBase
+
+<SnapshotTest Description="Helpful description of the test case - displayed if test fails">
+    <TestInput>
+        <MarkupStringWithComponents Markup="<div><h1>Text</h1></div>"
+                                    Insert=18>
+            <span><h2>More text</h2></span>
+        </MarkupStringWithComponents>
+    </TestInput>
+    <ExpectedOutput>
+        <div>
+            <h1>Text</h1>
+            <span><h2>More text</h2></span>
+        </div>
+    </ExpectedOutput>
+</SnapshotTest>

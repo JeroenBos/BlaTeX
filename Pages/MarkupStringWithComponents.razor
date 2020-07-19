@@ -1,0 +1,23 @@
+
+
+@((MarkupString)Markup1)
+@if (ChildContent != null)
+{
+    @ChildContent
+}
+@((MarkupString)Markup2)
+
+@code {
+    [Parameter]
+    public string Markup { get; set; }
+    [Parameter]
+    public int Insert { get; set; }
+
+    public MarkupString Markup1 => (MarkupString)Markup.Substring(0, Insert);
+
+    public MarkupString Markup2 => (MarkupString)Markup.Substring(Insert);
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+}
