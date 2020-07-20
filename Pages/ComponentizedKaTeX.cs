@@ -146,14 +146,19 @@ namespace BlaTeX.Pages
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
+            var d = parameters.ToDictionary();
             // collect all parameters of type RenderFragment or RenderFragment<string>:
-            this.Fragments = parameters.ToDictionary()
-                                       .Select(pair => KeyValuePair.Create(pair.Key, AsRenderFragment(pair.Value)!))
-                                       .Where(pair => pair.Value != null)
-                                       .ToDictionary(StringComparer.OrdinalIgnoreCase);
+            this.Fragments = d.Select(pair => KeyValuePair.Create(pair.Key, AsRenderFragment(pair.Value)!))
+                              .Where(pair => pair.Value != null)
+                              .ToDictionary(StringComparer.OrdinalIgnoreCase);
 
             // only pass along keys for base type:
-            await base.SetParametersAsync(parameters.FilterKeys(typeof(KaTeX)));
+            var baseParameters = parameters.FilterKeys(typeof(KaTeX));
+            int baseCount = baseParameters.ToDictionary().Count;
+            await base.SetParametersAsync(baseParameters);
+
+            if (baseCount + this.Fragments.Count != d.Count)
+                throw new ArgumentException("Extra argument specified");
 
             static RenderFragment<string>? AsRenderFragment(object obj)
             {

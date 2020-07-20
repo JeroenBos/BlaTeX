@@ -47,6 +47,7 @@ namespace BlaTeX.Tests
         [Parameter]
         public EventCallback<IRenderedComponent<KaTeX>> Action { get; set; }
 
+        public static Task HACK;
         /// <inheritdoc/>
         protected override async Task Run()
         {
@@ -63,9 +64,10 @@ namespace BlaTeX.Tests
             KaTeX cut;
             var parameters = new List<ComponentParameter> { (nameof(KaTeX.Math), this.Math) };
             bool interactive = this.Interactive ?? this.Action.HasDelegate;
-            if (this.ComponentizedParameters.HasValue)
+            if (this.ComponentizedParameters.HasValue || interactive)
             {
-                parameters.Add(this.ComponentizedParameters.Value);
+                if (this.ComponentizedParameters.HasValue)
+                    parameters.Add(this.ComponentizedParameters.Value);
                 (id, cut) = this.Renderer.RenderComponent<ComponentizedKaTeX>(parameters);
             }
             else if (interactive)
@@ -82,7 +84,15 @@ namespace BlaTeX.Tests
 
             var renderedCut = await WaitForKatexToHaveRendered(cut, id);
             if (this.Action.HasDelegate)
-                await this.Action.InvokeAsync(renderedCut);
+            {
+                var t = this.Action.InvokeAsync(renderedCut);
+                Console.WriteLine(t.GetHashCode());
+                await t;
+                Console.WriteLine("HACK is NUll: " + (HACK is null));
+                Console.WriteLine("ReferenceEquals: " + ReferenceEquals(t, HACK));
+                Console.WriteLine("Thinks its Done");
+                await WaitForKatexToHaveRendered(cut, id);
+            }
 
             var katexHtml = Htmlizer.GetHtml(Renderer, id);
             var expectedRenderId = Renderer.RenderFragment(this.Expected);

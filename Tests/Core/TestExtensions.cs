@@ -33,5 +33,26 @@ namespace BlaTeX.Tests
             }
             return result.ClickAsync(e ?? new MouseEventArgs());
         }
+
+        public static Task InvokeAsync<TComponent>(this IRenderedComponentBase<TComponent> componentBase, Func<Task> callback)
+            where TComponent : IComponent
+        {
+            var source = new TaskCompletionSource<object?>();
+            async void action()
+            {
+                try
+                {
+                    await callback();
+                }
+                catch (Exception e)
+                {
+                    source!.SetException(e);
+                    return;
+                }
+                source!.SetResult(null);
+            }
+            componentBase.InvokeAsync(action);
+            return source.Task;
+        }
     }
 }

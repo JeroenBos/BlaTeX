@@ -1,0 +1,127 @@
+@inherits KaTeXTestComponentBase
+
+@* 
+<KaTeXTest math="\blatex{}">
+  <span class="katex">
+    <span class="katex-mathml">
+      <math>
+        <semantics>
+          <mrow>
+            <annotation></annotation>
+          </mrow>
+          <annotation encoding="application/x-tex">\blatex{}</annotation>
+        </semantics>
+      </math>
+    </span>
+    <span class="katex-html" aria-hidden="true">
+      <span class="base">
+        <span class="strut" style="height:0em;vertical-align:0em;"></span>
+        <span data-arg="" data-loc="0,7"></span>
+      </span>
+    </span>
+  </span>
+</KaTeXTest>
+
+<KaTeXTest math="\blatex{0}">
+  <span class="katex">
+    <span class="katex-mathml">
+      <math>
+        <semantics>
+          <mrow>
+            <annotation>0</annotation>
+          </mrow>
+          <annotation encoding="application/x-tex">\blatex{0}</annotation>
+        </semantics>
+      </math>
+    </span>
+    <span class="katex-html" aria-hidden="true">
+      <span class="base">
+        <span class="strut" style="height:0em;vertical-align:0em;"></span>
+        <span data-arg="0" data-loc="0,7"></span>
+      </span>
+    </span>
+  </span>
+</KaTeXTest>
+
+<KaTeXTest math="c \blatex{c}">
+  <span class="katex">
+    <span class="katex-mathml">
+      <math>
+        <semantics>
+          <mrow>
+            <mi>c</mi>
+            <annotation>c</annotation>
+          </mrow>
+          <annotation encoding="application/x-tex">c \blatex{c}</annotation>
+        </semantics>
+      </math>
+    </span>
+    <span class="katex-html" aria-hidden="true">
+      <span class="base">
+        <span class="strut" style="height:0.43056em;vertical-align:0em;"></span>
+        <span class="mord mathit" data-loc="0,1">c</span>
+        <span data-arg="c" data-loc="2,9"></span>
+      </span>
+    </span>
+  </span>
+</KaTeXTest>
+ *@
+
+<KaTeXTest math="c = a"
+           Action="@TTT">
+  @* <div id="interactivity" > *@
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow>
+              <mi>c</mi>
+              <mo>=</mo>
+              <annotation></annotation>
+              <mi>a</mi>
+            </mrow>
+            <annotation encoding="application/x-tex">c = \blatex{} a</annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span class="strut" style="height:0.43056em;vertical-align:0em;"></span>
+          <span class="mord mathit" data-loc="0,1">c</span>
+          <span class="mspace" style="margin-right:0.2777777777777778em;"></span>
+          <span class="mrel" data-loc="2,3">=</span>
+        </span>
+        <span class="base">
+          <span class="strut" style="height:0.43056em;vertical-align:0em;"></span>
+          <span data-arg="" data-loc="4,11"></span>
+          <span class="mord mathit" data-loc="14,15">a</span>
+        </span>
+      </span>
+    </span>
+  @* </div> *@
+</KaTeXTest>
+
+@code {
+  static Task TTT(IRenderedComponent<KaTeX> cut)
+  {
+    return Action(cut, "c = \\blatex{} a");
+  }
+  // <summary> This test mostly serves that adding a \blatex doesn't affect the adjacent nodes. </summary>
+  static async Task Action(IRenderedComponent<KaTeX> cut, string newMath)
+  {
+    var newParameters = ParameterView.FromDictionary(new Dictionary<string, object> { {"Math",  newMath} });
+    
+    var invokeAsynTask = cut.InvokeAsync((Func<Task>)(async () => 
+    {
+      await cut.Instance.SetParametersAsync(newParameters);
+      Contract.Assert(cut.Instance.Math == newMath);
+      Console.WriteLine("Done");
+    }));
+
+    KaTeXTest.HACK = invokeAsynTask;
+    Console.WriteLine(invokeAsynTask.GetHashCode());
+    await invokeAsynTask;
+    // cut.SetParametersAndRender(ComponentParameter.CreateParameter("math", newMath));
+    // var diffs = cut.GetChangesSinceFirstRender();
+  }
+}
