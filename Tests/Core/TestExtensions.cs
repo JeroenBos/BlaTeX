@@ -33,7 +33,7 @@ namespace BlaTeX.Tests
             }
             return result.ClickAsync(e ?? new MouseEventArgs());
         }
-
+        /// <summary> Workaround for https://github.com/egil/bUnit/issues/166. <summary>
         public static Task InvokeAsync<TComponent>(this IRenderedComponentBase<TComponent> componentBase, Func<Task> callback)
             where TComponent : IComponent
         {

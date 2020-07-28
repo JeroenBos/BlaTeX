@@ -42,10 +42,12 @@ else
         this.StateHasChanged();
     }
 
+    /// <summary> Gets the ranges in the markup at which a <see cref="RenderFragment"> is to be rendered instead. </summary>
     internal protected virtual IEnumerable<Range> Selector(string markup)
     {
         return Enumerable.Empty<Range>();
     }
+    /// <summary> Returns the fragment to render at a range from <see cref="Selector(string)">, given the markup at that range. </summary>
     internal protected virtual RenderFragment Substitute(string markupFragment)
     {
         throw new InvalidOperationException("This method must be overridden");

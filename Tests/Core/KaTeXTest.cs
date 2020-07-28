@@ -47,7 +47,6 @@ namespace BlaTeX.Tests
         [Parameter]
         public EventCallback<IRenderedComponent<KaTeX>> Action { get; set; }
 
-        public static Task HACK;
         /// <inheritdoc/>
         protected override async Task Run()
         {
@@ -85,12 +84,7 @@ namespace BlaTeX.Tests
             var renderedCut = await WaitForKatexToHaveRendered(cut, id);
             if (this.Action.HasDelegate)
             {
-                var t = this.Action.InvokeAsync(renderedCut);
-                Console.WriteLine(t.GetHashCode());
-                await t;
-                Console.WriteLine("HACK is NUll: " + (HACK is null));
-                Console.WriteLine("ReferenceEquals: " + ReferenceEquals(t, HACK));
-                Console.WriteLine("Thinks its Done");
+                await this.Action.InvokeAsync(renderedCut);
                 await WaitForKatexToHaveRendered(cut, id);
             }
 

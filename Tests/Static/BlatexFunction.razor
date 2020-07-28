@@ -1,6 +1,5 @@
 @inherits KaTeXTestComponentBase
 
-@* 
 <KaTeXTest math="\blatex{}">
   <span class="katex">
     <span class="katex-mathml">
@@ -65,10 +64,10 @@
     </span>
   </span>
 </KaTeXTest>
- *@
+
 
 <KaTeXTest math="c = a"
-           Action="@TTT">
+           Action="@(cut => Action(cut, "c = \\blatex{} a"))">
   @* <div id="interactivity" > *@
     <span class="katex">
       <span class="katex-mathml">
@@ -102,11 +101,7 @@
 </KaTeXTest>
 
 @code {
-  static Task TTT(IRenderedComponent<KaTeX> cut)
-  {
-    return Action(cut, "c = \\blatex{} a");
-  }
-  // <summary> This test mostly serves that adding a \blatex doesn't affect the adjacent nodes. </summary>
+  /// <summary> This test mostly serves that adding a \blatex doesn't affect the adjacent nodes. </summary>
   static async Task Action(IRenderedComponent<KaTeX> cut, string newMath)
   {
     var newParameters = ParameterView.FromDictionary(new Dictionary<string, object> { {"Math",  newMath} });
@@ -114,12 +109,8 @@
     var invokeAsynTask = cut.InvokeAsync((Func<Task>)(async () => 
     {
       await cut.Instance.SetParametersAsync(newParameters);
-      Contract.Assert(cut.Instance.Math == newMath);
-      Console.WriteLine("Done");
     }));
 
-    KaTeXTest.HACK = invokeAsynTask;
-    Console.WriteLine(invokeAsynTask.GetHashCode());
     await invokeAsynTask;
     // cut.SetParametersAndRender(ComponentParameter.CreateParameter("math", newMath));
     // var diffs = cut.GetChangesSinceFirstRender();

@@ -25,7 +25,7 @@ namespace BlaTeX.Pages
             ("'", "'"),
             ("@(", ")"),
         };
-        public const string BLATEX_ATTR_PREFIX = "blatex:";
+        public const string BLATEX_ATTR_PREFIX = "\\blatex";
         internal protected override IEnumerable<Range> Selector(string markup)
         {
             var delimiterStack = new Stack<string>();
