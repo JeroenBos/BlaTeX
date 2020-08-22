@@ -68,6 +68,8 @@ namespace BlaTeX.JSInterop
 
         public override T Read(ref Utf8JsonReader _reader, Type typeToConvert, JsonSerializerOptions options)
         {
+            using var _ = this.DetectStackoverflow(_reader, typeToConvert);
+
             Utf8JsonReader reader = _reader;
             if (reader.TokenType != JsonTokenType.StartObject)
                 throw new JsonException("Expected object to get property of for explicit type mapping");

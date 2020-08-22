@@ -514,6 +514,8 @@ namespace BlaTeX.JSInterop.KaTeX
             private static readonly Regex expectedFormat = new Regex("[0-9]+,[0-9]+");
             public override SourceLocation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
+                using var _ = new StackoverflowDetector(this, reader, typeToConvert);
+
                 string s = JsonSerializer.Deserialize<string>(ref reader, options);
                 if (string.IsNullOrWhiteSpace(s))
                 {
@@ -603,6 +605,8 @@ namespace BlaTeX.JSInterop.KaTeX
             private JsonConverter() : base(ctor, elementTypes: elementTypes) { }
             public override Attributes Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
+                using var _ = new StackoverflowDetector(this, reader, typeToConvert);
+                
                 return base.Read(ref reader, typeToConvert, options);
             }
         }
