@@ -12,6 +12,7 @@ using JBSnorro.Extensions;
 using JBSnorro.Diagnostics;
 using System.Collections.Generic;
 using BlaTeX.JSInterop;
+using System.Text.Encodings.Web;
 
 namespace BlaTeX.Tests
 {
@@ -32,7 +33,7 @@ namespace BlaTeX.Tests
                 this.Options = new JsonSerializerOptions();
                 this.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 this.Options.AddKaTeXJsonConverters();
-
+                this.Options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
             }
             else
             {
@@ -42,7 +43,17 @@ namespace BlaTeX.Tests
 
         internal async Task<(int ExitCode, string StandardOutput, string ErrorOutput)> InvokeAsyncImpl(string identifier, params object[]? args)
         {
-            return await ProcessExtensions.ExecuteJS(this.Imports, identifier, args, this.Options).ConfigureAwait(false);
+            // do the serialization before the built-in does it (which will ignore JSStrings)
+            // but that one doesn't work because I can't get it to work recursively, see HACK id=0
+            var original_args = args;
+            args = args?.Map(arg => arg as JSString ?? new JSString(JsonSerializer.Serialize(arg, this.Options)));
+            var identifierObj = new JSString(identifier);
+
+            return await ProcessExtensions.ExecuteJS(this.Imports, 
+                                                     identifier: identifierObj,
+                                                     arguments: args, 
+                                                     options: this.Options)
+                                          .ConfigureAwait(false);
         }
         public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, params object[]? args)
         {

@@ -61,7 +61,7 @@ namespace BlaTeX.Tests
             var expectedRenderId = Renderer.RenderFragment(this.Expected);
             var expectedHtml = Htmlizer.GetHtml(Renderer, expectedRenderId);
 
-            VerifySnapshot(katexHtml, expectedHtml);
+            HtmlEqualityComparer.AssertEqual(expectedHtml, katexHtml);
         }
 
         private async Task WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
@@ -70,19 +70,6 @@ namespace BlaTeX.Tests
             using var waiter = new WaitForStateHelper(icut, () => cut.rendered != null, timeout);
             await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
         }
-
-        private void VerifySnapshot(string inputHtml, string expectedHtml)
-        {
-            using var parser = new HtmlParser();
-            var inputNodes = parser.Parse(inputHtml);
-            var expectedNodes = parser.Parse(expectedHtml);
-
-            var diffs = inputNodes.CompareTo(expectedNodes);
-
-            if (diffs.Count > 0)
-                throw new HtmlEqualException(diffs, expectedNodes, inputNodes, Description ?? "Snapshot test failed.");
-        }
-
 
         /// <inheritdoc/>
         public override void Validate()

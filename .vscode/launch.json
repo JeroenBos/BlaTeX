@@ -27,14 +27,15 @@
             "console": "internalConsole",
             "justMyCode": false,
             "symbolOptions": {
-                "searchPaths": [
-                ],
-                "searchMicrosoftSymbolServer": true,
-                // "cachePath": "/symcache",
-                // "moduleFilter": {
-                //     "mode": "loadAllButExcluded",
-                //     "excludedModules": [ "System.Private.CoreLib.dll" ]
-                // }
+                "searchPaths": [],
+                "searchMicrosoftSymbolServer": false,
+                "cachePath": "/symcache",
+                "moduleFilter": {
+                    "mode": "loadOnlyIncluded",
+                    "includedModules": [
+                        "../*"
+                    ]
+                }
             },
         },
     ]
