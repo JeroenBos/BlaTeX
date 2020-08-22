@@ -43,70 +43,72 @@ namespace BlaTeX.Tests
             HtmlEqualityComparer.AssertEqual(result, expected);
         }
 
-        [Fact]
-        public void JsonDictionaryDeserializationUnderstanding()
-        {
-            var options = new JsonSerializerOptions();
-            options.Converters.Add(new DictionaryJsonConverter<object, ReadOnlyDictionary<string, object>>(_ => new ReadOnlyDictionary<string, object>(_)));
-        }
-        [Fact]
-        public async Task CharacterEscapeTest()
-        {
-            var runtime = new NodeJSRuntime(Array.Empty<string>());
-            const string js = "'\\t'";
-            const string serialized = "\"\\t\"";
-            const string expected = "\t";
+		[Fact]
+		public void JsonDictionaryDeserializationUnderstanding()
+		{
+			var options = new JsonSerializerOptions();
+			options.Converters.Add(new DictionaryJsonConverter<object, ReadOnlyDictionary<string, object>>(_ => new ReadOnlyDictionary<string, object>(_)));
+		}
+		[Fact]
+		public async Task CharacterEscapeTest()
+		{
+			var runtime = new NodeJSRuntime(Array.Empty<string>());
+			const string js = "'\\t'";
+			// literal JS:
+			// console.log('\t')
+			const string serialized = "\"\\t\"";
+			const string expected = "\t";
 
-            var output = (await runtime.InvokeAsyncImpl(js, null)).StandardOutput;
-            Assert(output == serialized + "\n"); // newline is standardoutput artifact
+			var output = (await runtime.InvokeAsyncImpl(js, null)).StandardOutput;
+			Assert(output == serialized + "\n"); // newline is standardoutput artifact
 
-            var deserialized = JsonSerializer.Deserialize<string>(serialized, runtime.Options);
-            Assert(deserialized == expected);
+			var deserialized = JsonSerializer.Deserialize<string>(serialized, runtime.Options);
+			Assert(deserialized == expected);
 
-            // combination of both tests above:
-            var result = await runtime.InvokeAsync<string>(js, null).AsTask();
-            Assert(result == expected);
-        }
+			// combination of both tests above:
+			var result = await runtime.InvokeAsync<string>(js, null).AsTask();
+			Assert(result == expected);
+		}
 
-    }
-    public class AttributesDeserializationTests
-    {
-        private JsonSerializerOptions options = NodeJSRuntime.CreateDefault().Options;
+	}
+	public class AttributesDeserializationTests
+	{
+		private JsonSerializerOptions options = NodeJSRuntime.CreateDefault().Options;
 
-        [Fact]
-        public void EmptyAttributesDeserializationTest()
-        {
-            var attributes = JsonSerializer.Deserialize<Attributes>("{}", options);
-            Contract.Assert(attributes.Count == 0);
-        }
-        [Fact]
-        public void StringAttributesDeserializationTest()
-        {
-            var attributes = JsonSerializer.Deserialize<Attributes>("{\"a\":\"\"}", options);
-            Contract.Assert(attributes.Count == 1);
-            Contract.Assert(attributes.ContainsKey("a"));
-            Contract.Assert("".Equals(attributes["a"]));
-        }
-        [Fact]
-        public void SourceLocationAttributesDeserializationTest()
-        {
-            var attributes = JsonSerializer.Deserialize<Attributes>("{\"a\":\"\"}", options);
-            Contract.Assert(attributes.Count == 1);
-            Contract.Assert(attributes.ContainsKey("a"));
-            Contract.Assert("".Equals(attributes["a"]));
-        }
-        [Fact]
-        public void MemberAttributes()
-        {
-            var container = JsonSerializer.Deserialize<ContainsAttributes>("{ \"a\": { \"data-loc\": \"0,1\" }}", options);
-            Contract.Assert(container?.a != null);
-            Contract.Assert(container.a.SourceLocation != null);
-            Contract.Assert(container.a.SourceLocation.Start == 0);
-            Contract.Assert(container.a.SourceLocation.End == 1);
-        }
-        class ContainsAttributes
-        {
-            public Attributes a { get; set; }
-        }
-    }
+		[Fact]
+		public void EmptyAttributesDeserializationTest()
+		{
+			var attributes = JsonSerializer.Deserialize<Attributes>("{}", options);
+			Contract.Assert(attributes.Count == 0);
+		}
+		[Fact]
+		public void StringAttributesDeserializationTest()
+		{
+			var attributes = JsonSerializer.Deserialize<Attributes>("{\"a\":\"\"}", options);
+			Contract.Assert(attributes.Count == 1);
+			Contract.Assert(attributes.ContainsKey("a"));
+			Contract.Assert("".Equals(attributes["a"]));
+		}
+		[Fact]
+		public void SourceLocationAttributesDeserializationTest()
+		{
+			var attributes = JsonSerializer.Deserialize<Attributes>("{\"a\":\"\"}", options);
+			Contract.Assert(attributes.Count == 1);
+			Contract.Assert(attributes.ContainsKey("a"));
+			Contract.Assert("".Equals(attributes["a"]));
+		}
+		[Fact]
+		public void MemberAttributes()
+		{
+			var container = JsonSerializer.Deserialize<ContainsAttributes>("{ \"a\": { \"data-loc\": \"0,1\" }}", options);
+			Contract.Assert(container?.a != null);
+			Contract.Assert(container.a.SourceLocation != null);
+			Contract.Assert(container.a.SourceLocation.Start == 0);
+			Contract.Assert(container.a.SourceLocation.End == 1);
+		}
+		class ContainsAttributes
+		{
+			public Attributes a { get; set; }
+		}
+	}
 }

@@ -1,4 +1,5 @@
 #nullable enable
+using BlaTeX.JSInterop.KaTeX.Syntax;
 using JBSnorro;
 using JBSnorro.Collections.ObjectModel;
 using JBSnorro.Diagnostics;
@@ -16,8 +17,9 @@ using System.Text.RegularExpressions;
 
 namespace BlaTeX.JSInterop.KaTeX
 {
-    internal class _HtmlDomNode : HtmlDomNode
+    internal class _HtmlDomNode : HtmlDomNode, IJSSerializable
     {
+        public string SERIALIZATION_TYPE_ID => IJSSerializable.SERIALIZATION_TYPE_ID_Impl(this);
         public IReadOnlyList<string> classes { get; set; } = default!;
         public float height { get; set; } = default!;
         public float depth { get; set; } = default!;
@@ -51,8 +53,6 @@ namespace BlaTeX.JSInterop.KaTeX
             this.style = style;
         }
 
-        Node VirtualNode.ToNode() => throw new NotImplementedException();
-        string VirtualNode.ToMarkup() => throw new NotImplementedException();
 
         public override bool Equals(object? obj)
         {
@@ -583,7 +583,7 @@ namespace BlaTeX.JSInterop.KaTeX
         [DebuggerHidden]
         int SourceLocation.End => end;
 
-}
+    }
 
     // currently sealed because extension is not supported, but may be opened up later
     sealed class _Attributes : ReadOnlyDictionary<string, object?>, Attributes
@@ -637,5 +637,146 @@ namespace BlaTeX.JSInterop.KaTeX
 
             return new _Attributes(newUnderlying);
         }
+    }
+
+    public class _AnyParseNode : AnyParseNode
+    {
+        public static JsonConverter<AnyParseNode> Instance { get; }
+        public static IJsonConverterIntroducer Introducer { get; }
+        static _AnyParseNode()
+        {
+            // HACK: replace GetDeserializationType with GetASTType when all node subtypes are supported. In that case make _AnyParseNode abstract?
+            Type GetDeserializationType(NodeType type)
+            {
+                try
+                {
+                    return NodeTypeExtensions.GetASTType(type);
+                }
+                catch (ArgumentException)
+                {
+                    // this will trigger a default node to be created instead of a specialized node
+                    return typeof(_AnyParseNode);
+                }
+            }
+            
+            Instance = new ExplicitPolymorphicJsonConverter<AnyParseNode, NodeType>("type", GetDeserializationType);
+            var subtypeConverters = new JsonConverter[] {
+                _BlaTeXNode.JsonConverterInstance,
+            };
+            Introducer = new JsonConverterIntroducerWrapper(Instance, subtypeConverters);
+        }
+
+        public NodeType type { get; set; }
+        public Mode mode { get; set; }
+        // name determined by KaTeX (and used in (de)serialization)
+        public SourceLocation? loc { get; set; }
+
+        NodeType AnyParseNode.Type => type;
+        Mode AnyParseNode.Mode => mode;
+        SourceLocation? AnyParseNode.SourceLocation => loc;
+
+        /// <summary> Ctor for JsonSerializer. </summary>
+        public _AnyParseNode() { }
+        public _AnyParseNode(NodeType type,
+                             Mode mode,
+                             SourceLocation? sourceLocation)
+        {
+            this.type = type;
+            this.mode = mode;
+            this.loc = sourceLocation;
+        }
+
+
+        public override bool Equals(object? obj)
+        {
+            return this.Equals(obj as AnyParseNode);
+        }
+        protected bool Equals([NotNullWhen(true)] AnyParseNode? other)
+        {
+            if (other is null)
+                return false;
+            if (ReferenceEquals(other, this)) // optimization
+                return true;
+
+            if (this.type != other.Type)
+                return false;
+            if (this.mode != other.Mode)
+                return false;
+            if (this.loc?.Equals(other.SourceLocation) ?? other.SourceLocation is { })
+                return false;
+            return true;
+        }
+        public override int GetHashCode() => throw new NotImplementedException();
+
+        public virtual AnyParseNode With(Option<NodeType> type = default,
+                                         Option<Mode> mode = default,
+                                         Option<SourceLocation?> sourceLocation = default)
+        {
+            return new _AnyParseNode(
+                type.ValueOrDefault(this.type),
+                mode.ValueOrDefault(this.mode),
+                sourceLocation.ValueOrDefault(this.loc)
+            );
+        }
+    }
+    public class _BlaTeXNode : _AnyParseNode, BlaTeXNode
+    {
+        public static JsonConverter<BlaTeXNode> JsonConverterInstance => ExactJsonConverter<BlaTeXNode, _BlaTeXNode>.Instance;
+        public string key { get; set; } = default!;
+        public string? arg { get; set; }
+
+        string BlaTeXNode.Key => key;
+        string? BlaTeXNode.Arg => arg;
+
+        /// <summary> Ctor for JsonSerializer. </summary>
+        public _BlaTeXNode() { }
+        public _BlaTeXNode(NodeType type,
+                           Mode mode,
+                           SourceLocation? sourceLocation,
+                           string key,
+                           string? arg)
+            : base(type, mode, sourceLocation)
+        {
+            this.key = key;
+            this.arg = arg;
+        }
+
+
+        public override bool Equals(object? obj)
+        {
+            return this.Equals(obj as BlaTeXNode);
+        }
+        protected bool Equals([NotNullWhen(true)] BlaTeXNode? other)
+        {
+            if (!base.Equals(other))
+                return false;
+
+            if (this.key != other.Key)
+                return false;
+            if (this.arg != other.Arg)
+                return false;
+            return true;
+        }
+        public override int GetHashCode() => throw new NotImplementedException();
+
+        public sealed override AnyParseNode With(Option<NodeType> type = default,
+                                                 Option<Mode> mode = default,
+                                                 Option<SourceLocation?> sourceLocation = default)
+        {
+            return this.With(type, mode, sourceLocation, default, default);
+        }
+        public virtual BlaTeXNode With(Option<NodeType> type = default,
+                                       Option<Mode> mode = default,
+                                       Option<SourceLocation?> sourceLocation = default,
+                                       Option<string> key = default,
+                                       Option<string?> arg = default)
+        {
+            return new _BlaTeXNode(type.ValueOrDefault(this.type),
+                                   mode.ValueOrDefault(this.mode),
+                                   sourceLocation.ValueOrDefault(this.loc),
+                                   key.ValueOrDefault(this.key),
+                                   arg.ValueOrDefault(this.arg));
+        }
+
     }
 }

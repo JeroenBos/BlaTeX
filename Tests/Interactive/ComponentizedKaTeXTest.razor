@@ -1,12 +1,12 @@
 @inherits KaTeXTestComponentBase
 
-<KaTeXTest math="\blatex:A" ComponentizedParameters="@aParameter">
+<KaTeXTest math="\blatex:A" ChildComponentMarkupService="@service">
     <div>Hello</div>
 </KaTeXTest>
 
 @code {
+    static IChildComponentMarkupService service = new BlazorChildComponentMarkupService();
     RenderFragment A = @<A><div>Hello</div></A>;
-    ComponentParameter aParameter => ComponentParameter.CreateParameter("A", A);
 
     public class ComponentsAsRenderFragments
     {

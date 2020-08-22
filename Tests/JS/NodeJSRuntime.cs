@@ -13,6 +13,7 @@ using JBSnorro.Diagnostics;
 using System.Collections.Generic;
 using BlaTeX.JSInterop;
 using System.Text.Encodings.Web;
+using BlaTeX.JSInterop.KaTeX;
 
 namespace BlaTeX.Tests
 {
@@ -25,9 +26,11 @@ namespace BlaTeX.Tests
 
         public JsonSerializerOptions Options { get; }
         public IReadOnlyList<string> Imports { get; }
-        public NodeJSRuntime(IEnumerable<string> imports, JsonSerializerOptions? options = null)
+        public IReadOnlyList<KeyValuePair<Type, string>> IDs { get; }
+        public NodeJSRuntime(IEnumerable<string> imports, IEnumerable<(Type, string)>? jsDeserializableIDs = null, JsonSerializerOptions? options = null)
         {
             this.Imports = imports?.ToReadOnlyList() ?? EmptyCollection<string>.ReadOnlyList;
+            this.IDs = jsDeserializableIDs?.Select(t => KeyValuePair.Create(t.Item1, t.Item2)).ToReadOnlyList() ?? EmptyCollection<KeyValuePair<Type, string>>.ReadOnlyList;
             if (options == null)
             {
                 this.Options = new JsonSerializerOptions();
@@ -52,11 +55,14 @@ namespace BlaTeX.Tests
             return await ProcessExtensions.ExecuteJS(this.Imports, 
                                                      identifier: identifierObj,
                                                      arguments: args, 
-                                                     options: this.Options)
+                                                     jsIdentifiers: this.IDs,
+                                                     options: this.Options,
+                                                     typeIdPropertyName: nameof(IJSSerializable.SERIALIZATION_TYPE_ID))
                                           .ConfigureAwait(false);
         }
         public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, params object[]? args)
         {
+            
             var (exitCode, stdOut, stdErr) = await this.InvokeAsyncImpl(identifier, args);
             Console.WriteLine(stdOut);
             Console.WriteLine(stdErr);
@@ -64,6 +70,7 @@ namespace BlaTeX.Tests
                 return default!;
             try
             {
+                Contract.Assert(!stdOut.Contains(nameof(IJSSerializable.SERIALIZATION_TYPE_ID)));
                 return JsonSerializer.Deserialize<TValue>(stdOut, this.Options);
             }
             catch (JsonException)

@@ -7,10 +7,10 @@ using BlaTeX.Pages;
 
 namespace BlaTeX.Tests
 {
-    public class ComponentsSelector
+    public class BlazorStyledChildComponentsTests
     {
         // returns the range of the entire `blaxex:name=value`, where `=value` is optional
-        private static IEnumerable<Range> Selector(string markup) => new ComponentizedKaTeX().Selector(markup);
+        private static IEnumerable<Range> Selector(string markup) => new BlazorChildComponentMarkupService().Select(markup);
 
         [Fact]
         public void EmptyMarkup()

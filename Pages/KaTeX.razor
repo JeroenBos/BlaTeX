@@ -1,4 +1,5 @@
 @inject IKaTeX JS
+@using BlaTeX.JSInterop.KaTeX.Syntax
 
 @if (markup != null)
 {
@@ -19,37 +20,97 @@ else
 
 @code {
     #nullable enable
-    internal string? markup = default;
 
-    [Parameter]
-    public string Math { get; set; }
+		// this component has the following logic:
+		// - EITHER Math is specified
+		// - OR the AST is specified
 
-    [Parameter]
-    public RenderFragment Loading { get; set; }
+		// if the math is specified, it may contain nested \blatex functions, which need to be rendered specially
+		// The fragments to be rendered are provided by the service
+		// ELSE if the AST is specified 
+		// it may contain nodes of type NodeType.Blatex, in which case a special renderfragment is to be used
 
-    public override async Task SetParametersAsync(ParameterView parameters)
-    {
-        await base.SetParametersAsync(parameters);
-        await this.update();
-    }
 
-    private async Task update()
-    {
-        if (this.Math == null)
-            this.markup = null;
-        else
-            this.markup = await JS.RenderToString(this.Math);
-        this.StateHasChanged();
-    }
+		internal string? markup = default;
 
-    /// <summary> Gets the ranges in the markup at which a <see cref="RenderFragment"> is to be rendered instead. </summary>
-    internal protected virtual IEnumerable<Range> Selector(string markup)
-    {
-        return Enumerable.Empty<Range>();
-    }
-    /// <summary> Returns the fragment to render at a range from <see cref="Selector(string)">, given the markup at that range. </summary>
-    internal protected virtual RenderFragment Substitute(string markupFragment)
-    {
-        throw new InvalidOperationException("This method must be overridden");
-    }
+		[Parameter]
+		public string? Math { get; set; }
+
+		[Parameter]
+		public RenderFragment? Loading { get; set; }
+
+		[Parameter]
+		public IReadOnlyList<AnyParseNode>? AST { get; set; }
+
+		[Parameter]
+		public IChildComponentMarkupService? ChildComponentMarkupService { get; set; }
+
+		public override async Task SetParametersAsync(ParameterView parameters)
+		{
+			parameters.TryGetValue<IReadOnlyList<AnyParseNode>?>(nameof(AST), out var ast);
+			parameters.TryGetValue<string?>(nameof(Math), out var math);
+
+			if (math != null && ast != null)
+				throw new ArgumentException($"You cannot provide both '{nameof(Math)}' and '{nameof(AST)}'");
+
+
+			if (parameters.TryGetValue<IChildComponentMarkupService>(nameof(ChildComponentMarkupService), out var service))
+			{
+				this.ChildComponentMarkupService = service;
+				this.markup = null;
+			}
+
+			if (math != null)
+			{
+				await SetMathParameter(math);
+			}
+			if (ast != null)
+			{
+				await SetASTParameter(ast);
+			}
+
+
+			await base.SetParametersAsync(parameters.Without(nameof(AST), nameof(Math), nameof(ChildComponentMarkupService)));
+			await this.update();
+		}
+
+		private async Task SetASTParameter(IReadOnlyList<AnyParseNode> ast)
+		{
+			var newAST = this.ChildComponentMarkupService?.Select(ast) ?? ast;
+			this.AST = newAST;
+			this.Math = null;
+			this.markup = null;
+			// TODO: implement
+		}
+
+		private async Task SetMathParameter(string math)
+		{
+			var ast = await JS.Parse(math);
+
+			await SetASTParameter(ast);
+		}
+		private async Task update()
+		{
+			if (this.Math == null)
+				this.markup = null;
+			else
+				this.markup = await JS.RenderToString(this.Math);
+			this.StateHasChanged();
+		}
+
+		/// <summary> Gets the ranges in the markup at which a <see cref="RenderFragment"/> is to be rendered instead. </summary>
+		internal protected virtual IEnumerable<Range> Selector(string markup)
+		{
+			return this.ChildComponentMarkupService?.Select(markup) ?? Enumerable.Empty<Range>();
+		}
+		/// <summary> Returns the fragment to render at a range from <see cref="Selector(string)"/>, given the markup at that range. </summary>
+		internal protected virtual RenderFragment Substitute(string markupFragment)
+		{
+			if (this.ChildComponentMarkupService == null)
+				throw new InvalidOperationException($"Cannot substitute: override {nameof(Substitute)} or add service");
+
+			return this.ChildComponentMarkupService.Substitute(markupFragment);
+		}
+
+
 }

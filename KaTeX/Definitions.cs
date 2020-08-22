@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text.Json;
+using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using JBSnorro;
@@ -121,16 +121,15 @@ namespace BlaTeX.JSInterop.KaTeX
         {
             return (DomSpan)((Span<HtmlDomNode>)this).With(children, attributes, width, classes, height, depth, maxFontSize, style);
         }
-
     }
 
 
     public interface VirtualNode
     {
-        /// <summary> Convert into an HTML node.!-- </summary>
-        Node ToNode();
+        /// <summary> Convert into an HTML node. </summary>
+        Node ToNode() => throw new NotImplementedException(); // Task<Node> ToNode(IKaTeX runtime) => runtime.ToNode(this);
         /// <summary> Convert into an HTML markup string. </summary>
-        string ToMarkup();
+        Task<string> ToMarkup(IKaTeX runtime) => runtime.ToMarkup(this);
     }
     public interface MathDomNode : VirtualNode
     {
@@ -224,6 +223,50 @@ namespace BlaTeX.JSInterop.KaTeX
         int Start { get; }
         int End { get; }
         int Length => End - Start;
+    }
+    public enum Mode
+    {
+        Unknown,
+        Math,
+        Text,
+    }
+    namespace Syntax
+    {
+        /// <summary> Follows KaTeX naming convention. </summary>
+        public interface AnyParseNode
+        {
+            NodeType Type { get; }
+            Mode Mode { get; }
+            SourceLocation? SourceLocation { get; }
+        }
+        public interface BlaTeXNode : AnyParseNode
+        {
+            string Key { get; }
+            string? Arg { get; }
+        }
+        /// <summary> Follows KaTeX naming convention. </summary>
+        public enum NodeType
+        {
+            Unknown,
+            Blatex,
+        }
+        public static class NodeTypeExtensions
+        {
+            /// <summary> Gets the type (subtype of <see cref="AnyParseNode">) that represents the specified node type. </summary>
+            public static Type GetASTType(this NodeType type)
+            {
+                switch (type)
+                {
+                    case NodeType.Blatex:
+                        return typeof(BlaTeXNode);
+                    case NodeType.Unknown:
+                    default:
+                        throw new ArgumentException(nameof(type));
+                }
+            }
+            public static JsonConverter<NodeType> JsonConverterInstance => JsonStringEnumConverter<NodeType>.Instance;
+        }
+
     }
 }
 namespace BlaTeX.JSInterop
