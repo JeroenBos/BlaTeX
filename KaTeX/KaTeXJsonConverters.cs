@@ -113,29 +113,7 @@ namespace BlaTeX.JSInterop
         }
     }
 
-    /// <summary> Serializes values of the specified enum type by name and deserializes them from string (case-insensitive). </summary>
-    public class JsonStringEnumConverter<T> : JsonConverter<T> where T : Enum
-    {
-        private static readonly JsonSerializerOptions options;
-        public static JsonStringEnumConverter<T> Instance { get; }
-        static JsonStringEnumConverter()
-        {
-            options = new JsonSerializerOptions();
-            options.Converters.Add(new JsonStringEnumConverter());
-            Instance = new JsonStringEnumConverter<T>();
-        }
-
-        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return JsonSerializer.Deserialize<T>(ref reader, options);
-        }
-
-        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-        {
-            string name = Enum.GetName(typeof(T), value);
-            JsonSerializer.Serialize<string>(name, options);
-        }
-    }
+    
     /// <summary> Indicates that the implementing json converter introduces/requires other json converter. </summary>
     public interface IJsonConverterIntroducer
     {
