@@ -94,6 +94,28 @@ namespace BlaTeX
 		{
 			return componentType.GetBlazorParameters().Select(p => p.Name);
 		}
+		/// <summary> Gets whether the specified parameter view a subset of the specified names. </summary>
+		public static bool ContainsOnly(this ParameterView parameters, params string[] names)
+		{
+			var d = parameters.ToDictionary().ToDictionary();
+			foreach (var name in names)
+				d.Remove(name);
+
+			return d.Count == 0;
+		}
+		/// <summary> Asserts that the specified parameter view a subset of the specified names. </summary>
+		[System.Diagnostics.Conditional("DEBUG")]
+		public static void AssertContainsOnly(this ParameterView parameters, params string[] names)
+		{
+			var d = parameters.ToDictionary().ToDictionary();
+			foreach (var name in names)
+				d.Remove(name);
+
+			if (d.Count == 0)
+				return;
+
+			throw new ContractException("Unrecognized parameters specified: " + d.Select(pair => pair.Key).Join(", "));
+		}
 
 	}
 
