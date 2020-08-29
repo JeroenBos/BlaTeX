@@ -156,9 +156,9 @@ namespace BlaTeX.Pages
 			throw new InvalidOperationException("This method must be overridden");
 		}
 
-		public IReadOnlyList<AnyParseNode> Select(IReadOnlyList<AnyParseNode> ast)
+		public virtual IReadOnlyList<AnyParseNode> Select(IReadOnlyList<AnyParseNode> ast)
 		{
-			throw new NotImplementedException();
+			return ast;
 		}
 		// public override async Task SetParametersAsync(ParameterView parameters)
 		// {
