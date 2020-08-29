@@ -60,6 +60,8 @@ namespace BlaTeX.JSInterop.KaTeX
             if (arguments == null)
                 throw new ArgumentNullException(nameof(arguments));
 
+            arguments = arguments.Map(arg => arg == null ? JSString.Null : arg);
+
             return jsRuntime.InvokeAsync<T>("katex." + name, arguments)
                             .AsTask();
         }

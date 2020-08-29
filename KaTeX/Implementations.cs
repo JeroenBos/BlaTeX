@@ -516,21 +516,60 @@ namespace BlaTeX.JSInterop.KaTeX
             {
                 using var _ = new StackoverflowDetector(this, reader, typeToConvert);
 
-                string s = JsonSerializer.Deserialize<string>(ref reader, options);
-                if (string.IsNullOrWhiteSpace(s))
+                if (reader.TokenType == JsonTokenType.String)
                 {
-                    throw new JsonException("Unexpected empty string as SourceLocation");
-                }
-                else if (!expectedFormat.IsMatch(s))
-                {
-                    throw new JsonException($"Unexpected source location format: '{s}'");
+                    string s = JsonSerializer.Deserialize<string>(ref reader, options);
+                    if (string.IsNullOrWhiteSpace(s))
+                    {
+                        throw new JsonException("Unexpected empty string as SourceLocation");
+                    }
+                    else if (!expectedFormat.IsMatch(s))
+                    {
+                        throw new JsonException($"Unexpected source location format: '{s}'");
+                    }
+                    else
+                    {
+                        int separatorIndex = s.IndexOf(",");
+                        int start = int.Parse(s[..separatorIndex]);
+                        int end = int.Parse(s[(separatorIndex + 1)..]);
+                        return new _SourceLocation(start, end);
+                    }
                 }
                 else
                 {
-                    int separatorIndex = s.IndexOf(",");
-                    int start = int.Parse(s[..separatorIndex]);
-                    int end = int.Parse(s[(separatorIndex + 1)..]);
-                    return new _SourceLocation(start, end);
+                    int? start = null;
+                    int? end = null;
+                    Contract.Assert(reader.TokenType == JsonTokenType.StartObject);
+                    reader.Read();
+
+                    do
+                    {
+                        Contract.Assert(reader.TokenType == JsonTokenType.PropertyName);
+                        string name = reader.GetString();
+                        reader.Read();
+                        switch (name)
+                        {
+                            case "lexer":
+                                // ignore the lexer:
+                                reader.GetTokenAsJson();
+                                break;
+                            case "start":
+                                start = reader.GetInt32();
+                                break;
+                            case "end":
+                                end = reader.GetInt32();
+                                break;
+                            default:
+                                throw new JsonException($"Unexpected property '{name}' in SourceLocation");
+                        }
+                        reader.Read();
+                    } while (reader.TokenType != JsonTokenType.EndObject);
+                    if (start == null)
+                        throw new JsonException("Invalid SourceLocation: 'start' not found");
+                    else if (end == null)
+                        throw new JsonException("Invalid SourceLocation: 'end' not found");
+                    else
+                        return new _SourceLocation(start.Value, end.Value);
                 }
             }
 
@@ -605,8 +644,8 @@ namespace BlaTeX.JSInterop.KaTeX
             private JsonConverter() : base(ctor, elementTypes: elementTypes) { }
             public override Attributes Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                using var _ = new StackoverflowDetector(this, reader, typeToConvert);
-                
+                // base call already detected stackoverflows
+
                 return base.Read(ref reader, typeToConvert, options);
             }
         }
@@ -645,30 +684,65 @@ namespace BlaTeX.JSInterop.KaTeX
 
     public class _AnyParseNode : AnyParseNode
     {
-        public static JsonConverter<AnyParseNode> Instance { get; }
-        public static IJsonConverterIntroducer Introducer { get; }
+        public static JsonConverterCollection Instances { get; }
+        private static JsonConverter<_AnyParseNode> UnspecificInstance { get; } = ExplicitJsonConverter<_AnyParseNode>.Create(typeof(_AnyParseNode));
         static _AnyParseNode()
         {
             // HACK: replace GetDeserializationType with GetASTType when all node subtypes are supported. In that case make _AnyParseNode abstract?
             Type GetDeserializationType(NodeType type)
             {
-                try
-                {
-                    return NodeTypeExtensions.GetASTType(type);
-                }
-                catch (ArgumentException)
-                {
-                    // this will trigger a default node to be created instead of a specialized node
-                    return typeof(_AnyParseNode);
-                }
+                var result = NodeTypeExtensions.GetASTType(type);
+
+                // this will trigger a default node to be created instead of a specialized node
+                return result ?? typeof(_AnyParseNode);
             }
-            
-            Instance = new ExplicitPolymorphicJsonConverter<AnyParseNode, NodeType>("type", GetDeserializationType);
+
+            var instance = new ExplicitPolymorphicJsonConverter<AnyParseNode, NodeType>(
+                "type",
+                GetDeserializationType,
+                getSerializerOrTypeKey: _ => (typeof(_AnyParseNode), null)
+            );
             var subtypeConverters = new JsonConverter[] {
                 _BlaTeXNode.JsonConverterInstance,
+                UnspecificInstance,
+                new EnumStringJsonConverter<Mode>(),
             };
-            Introducer = new JsonConverterIntroducerWrapper(Instance, subtypeConverters);
+            Instances = new JsonConverterCollection(instance, subtypeConverters);
         }
+
+        class _AnyParseNodeJsonConverter : JsonConverter<_AnyParseNode>
+        {
+            public override _AnyParseNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                return (_AnyParseNode)DefaultObjectJsonConverter.Read(ref reader, typeof(_AnyParseNode), options)!;
+                var properties = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ref reader, options)
+                                               .Map<string, JsonElement, object>((key, jsonElement) => jsonElement.Deserialize<object>(options));
+
+                var type = (NodeType)properties["type"]!;
+                var mode = (Mode)properties["mode"]!;
+                var loc = (SourceLocation?)properties["loc"];
+                var result = new _AnyParseNode(type, mode, loc);
+                properties.Remove("type");
+                properties.Remove("mode");
+                properties.Remove("loc");
+                result.UnspecificProperties = properties;
+                return result;
+            }
+
+            public override void Write(Utf8JsonWriter writer, _AnyParseNode value, JsonSerializerOptions options)
+            {
+                var d = value.UnspecificProperties ?? new Dictionary<string, object?>();
+
+                d["type"] = value.type;
+                d["mode"] = value.mode;
+                d["loc"] = value.loc;
+
+                JsonSerializer.Serialize(writer, d, options);
+            }
+        }
+        /// <summary> This replaces the need for a dedicated type for each NodeType. </summary>
+        [JsonExtensionData]
+        public IDictionary<string, object?>? UnspecificProperties { get; set; }
 
         public NodeType type { get; set; }
         public Mode mode { get; set; }

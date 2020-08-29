@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using JBSnorro;
 using JBSnorro.Extensions;
 using JBSnorro.Text.Json;
+using System.Text.Json;
 
 namespace BlaTeX.JSInterop.KaTeX
 {
@@ -231,6 +232,7 @@ namespace BlaTeX.JSInterop.KaTeX
 		Math,
 		Text,
 	}
+
 	namespace Syntax
 	{
 		/// <summary> Follows KaTeX naming convention. </summary>
@@ -318,7 +320,7 @@ namespace BlaTeX.JSInterop.KaTeX
 						return typeof(BlaTeXNode);
 					case NodeType.Unknown:
 					default:
-						throw new ArgumentException(nameof(type));
+						return null!;  // This means there is no dedicated runtime type for this node type
 				}
 			}
 			public static JsonConverter<NodeType> JsonConverterInstance => NodeTypeJsonConverter.Instance;
@@ -330,6 +332,24 @@ namespace BlaTeX.JSInterop.KaTeX
 				{
 					return base.Parse(name.Replace("-", ""));
 				}
+
+				protected override string GetName(NodeType value, JsonSerializerOptions options)
+				{
+					switch (value)
+					{
+						case NodeType.LeftRightLeft:
+							return "leftright-right";
+						case NodeType.AccentToken:
+							return "accent-token";
+						case NodeType.OpToken:
+							return "op-token";
+						case NodeType.ColorToken:
+							return "color-token";
+						default:
+							return value.ToString().ToLowerInvariant();
+					}
+				}
+
 			}
 		}
 

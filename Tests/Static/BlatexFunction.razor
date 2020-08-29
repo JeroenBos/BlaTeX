@@ -3,7 +3,7 @@
 <KaTeXTest math="\blatex{}">
   <span class="katex">
     <span class="katex-mathml">
-      <math>
+      <math xmlns="http://www.w3.org/1998/Math/MathML">
         <semantics>
           <mrow>
             <annotation></annotation>
@@ -15,7 +15,7 @@
     <span class="katex-html" aria-hidden="true">
       <span class="base">
         <span class="strut" style="height:0em;vertical-align:0em;"></span>
-        <span data-arg="" data-loc="0,7"></span>
+        <span data-blatex="" data-loc="0,7"></span>
       </span>
     </span>
   </span>
@@ -24,7 +24,7 @@
 <KaTeXTest math="\blatex{0}">
   <span class="katex">
     <span class="katex-mathml">
-      <math>
+      <math xmlns="http://www.w3.org/1998/Math/MathML">
         <semantics>
           <mrow>
             <annotation>0</annotation>
@@ -36,7 +36,7 @@
     <span class="katex-html" aria-hidden="true">
       <span class="base">
         <span class="strut" style="height:0em;vertical-align:0em;"></span>
-        <span data-arg="0" data-loc="0,7"></span>
+        <span data-blatex="0" data-loc="0,7"></span>
       </span>
     </span>
   </span>
@@ -45,7 +45,7 @@
 <KaTeXTest math="c \blatex{c}">
   <span class="katex">
     <span class="katex-mathml">
-      <math>
+      <math xmlns="http://www.w3.org/1998/Math/MathML">
         <semantics>
           <mrow>
             <mi>c</mi>
@@ -59,7 +59,7 @@
       <span class="base">
         <span class="strut" style="height:0.43056em;vertical-align:0em;"></span>
         <span class="mord mathit" data-loc="0,1">c</span>
-        <span data-arg="c" data-loc="2,9"></span>
+        <span data-blatex="c" data-loc="2,9"></span>
       </span>
     </span>
   </span>
@@ -71,7 +71,7 @@
   @* <div id="interactivity" > *@
     <span class="katex">
       <span class="katex-mathml">
-        <math>
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
           <semantics>
             <mrow>
               <mi>c</mi>
@@ -92,7 +92,7 @@
         </span>
         <span class="base">
           <span class="strut" style="height:0.43056em;vertical-align:0em;"></span>
-          <span data-arg="" data-loc="4,11"></span>
+          <span data-blatex="" data-loc="4,11"></span>
           <span class="mord mathit" data-loc="14,15">a</span>
         </span>
       </span>
@@ -102,17 +102,17 @@
 
 @code {
   /// <summary> This test mostly serves that adding a \blatex doesn't affect the adjacent nodes. </summary>
-  static async Task Action(IRenderedComponent<KaTeX> cut, string newMath)
-  {
-    var newParameters = ParameterView.FromDictionary(new Dictionary<string, object> { {"Math",  newMath} });
-    
-    var invokeAsynTask = cut.InvokeAsync((Func<Task>)(async () => 
-    {
-      await cut.Instance.SetParametersAsync(newParameters);
-    }));
+		static async Task Action(IRenderedComponent<KaTeX> cut, string newMath)
+		{
+			var newParameters = ParameterView.FromDictionary(new Dictionary<string, object> { { "Math", newMath } });
 
-    await invokeAsynTask;
-    // cut.SetParametersAndRender(ComponentParameter.CreateParameter("math", newMath));
-    // var diffs = cut.GetChangesSinceFirstRender();
-  }
+			var invokeAsynTask = cut.InvokeAsync((Func<Task>)(async () =>
+			{
+		await cut.Instance.SetParametersAsync(newParameters);
+			}));
+
+			await invokeAsynTask;
+			// cut.SetParametersAndRender(ComponentParameter.CreateParameter("math", newMath));
+			// var diffs = cut.GetChangesSinceFirstRender();
+		}
 }

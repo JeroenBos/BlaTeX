@@ -49,12 +49,17 @@ namespace BlaTeX.Tests
             // do the serialization before the built-in does it (which will ignore JSStrings)
             // but that one doesn't work because I can't get it to work recursively, see HACK id=0
             var original_args = args;
+            if(args != null)
+                for (int i = 0; i < args.Length; i++)
+                    if (args[i] == null)
+                        throw new ArgumentNullException($"args[{i}]. Use JSString.Null or JSString.Undefined instead.");
+
             args = args?.Map(arg => arg as JSString ?? new JSString(JsonSerializer.Serialize(arg, this.Options)));
             var identifierObj = new JSString(identifier);
 
-            return await ProcessExtensions.ExecuteJS(this.Imports, 
+            return await ProcessExtensions.ExecuteJS(this.Imports,
                                                      identifier: identifierObj,
-                                                     arguments: args, 
+                                                     arguments: args,
                                                      jsIdentifiers: this.IDs,
                                                      options: this.Options,
                                                      typeIdPropertyName: nameof(IJSSerializable.SERIALIZATION_TYPE_ID))
@@ -62,7 +67,7 @@ namespace BlaTeX.Tests
         }
         public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, params object[]? args)
         {
-            
+
             var (exitCode, stdOut, stdErr) = await this.InvokeAsyncImpl(identifier, args);
             Console.WriteLine(stdOut);
             Console.WriteLine(stdErr);

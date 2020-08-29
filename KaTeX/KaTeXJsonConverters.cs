@@ -11,6 +11,7 @@ using JBSnorro;
 using JBSnorro.Extensions;
 using BlaTeX.JSInterop.KaTeX;
 using BlaTeX.JSInterop.KaTeX.Syntax;
+using System.Collections;
 
 namespace BlaTeX.JSInterop
 {
@@ -29,7 +30,7 @@ namespace BlaTeX.JSInterop
         }
         private static IEnumerable<JsonConverter> getJsonConverters()
         {
-            var rootConverters = new JsonConverter[]
+            var rootConverters = new JsonConverterCollection[]
             {
                 new ExactPolymorphicJsonConverter<HtmlDomNode>(
                     (typeof(DomSpan), typeof(_DomSpan)),
@@ -38,12 +39,11 @@ namespace BlaTeX.JSInterop
                 _Attributes.JsonConverter.Instance,
                 _SourceLocation.JsonConverter.Instance,
                 NodeTypeExtensions.JsonConverterInstance,
-                _AnyParseNode.Instance,
+                _AnyParseNode.Instances,
+                JsonElementJsonConverter.Instance,
             };
 
-            var result = new HashSet<JsonConverter>(
-                rootConverters.TransitiveSelect(IJsonConcerterIntroducerExtensions.TryGetIntroducedConverters)
-            );
+            var result = new HashSet<JsonConverter>(rootConverters.SelectMany(_ => _)!);
             return result;
         }
     }
@@ -51,19 +51,25 @@ namespace BlaTeX.JSInterop
     /// type of the deserialized object, and delegates to the corresponding deserializer. </summary>
     public class ExplicitPolymorphicJsonConverter<T, TKey> : JsonConverter<T>
     {
-        private readonly string KeyPropertyName;
-        private readonly Func<TKey, Type> GetTypeToDeserialize;
-        private readonly IEqualityComparer<string> KeyPropertyNameEqualityComparer;
+        private readonly string keyPropertyName;
+        private readonly Func<TKey, Type> getTypeToDeserialize;
+        private readonly IEqualityComparer<string> keyPropertyNameEqualityComparer;
+        private readonly Func<T, (Type?, JsonConverter<T>?)>? getSerializerOrTypeKey;
+        /// <summary>
+        /// <param name="getSerializerOrTypeKey"> This type does not support writing, but you can delegate to another converter with this function. </param>
+        /// </summary>
         public ExplicitPolymorphicJsonConverter(string keyPropertyName,
-                                                Func<TKey, Type> getTypeToDeserialize,
-                                                IEqualityComparer<string>? keyPropertyNameEqualityComparer = null)
+                                                Func<TKey, Type> getTypeKeyToDeserialize,
+                                                IEqualityComparer<string>? keyPropertyNameEqualityComparer = null,
+                                                Func<T, (Type?, JsonConverter<T>?)>? getSerializerOrTypeKey = null)
         {
             Contract.Requires(keyPropertyName != null);
-            Contract.Requires(getTypeToDeserialize != null);
+            Contract.Requires(getTypeKeyToDeserialize != null);
 
-            KeyPropertyName = keyPropertyName;
-            GetTypeToDeserialize = getTypeToDeserialize;
-            KeyPropertyNameEqualityComparer = keyPropertyNameEqualityComparer ?? EqualityComparer<string>.Default;
+            this.keyPropertyName = keyPropertyName;
+            this.getTypeToDeserialize = getTypeKeyToDeserialize;
+            this.keyPropertyNameEqualityComparer = keyPropertyNameEqualityComparer ?? EqualityComparer<string>.Default;
+            this.getSerializerOrTypeKey = getSerializerOrTypeKey;
         }
 
         public override T Read(ref Utf8JsonReader _reader, Type typeToConvert, JsonSerializerOptions options)
@@ -78,14 +84,14 @@ namespace BlaTeX.JSInterop
             while (reader.TokenType == JsonTokenType.PropertyName)
             {
                 string keyName = reader.GetString();
-                if (KeyPropertyNameEqualityComparer.Equals(keyName, this.KeyPropertyName))
+                if (keyPropertyNameEqualityComparer.Equals(keyName, this.keyPropertyName))
                 {
                     reader.Read();
                     TKey keyValue = JsonSerializer.Deserialize<TKey>(ref reader, options);
-                    Type type = this.GetTypeToDeserialize(keyValue);
+                    Type type = this.getTypeToDeserialize(keyValue);
                     if (type == typeof(T))
                     {
-                        throw new ContractException($"{nameof(GetTypeToDeserialize)} may not return 'T' (={typeof(T).FullName})");
+                        throw new ContractException($"{nameof(getTypeToDeserialize)} may not return 'T' (={typeof(T).FullName})");
                     }
 
                     var result = JsonSerializer.Deserialize(ref _reader /*continue with original reader*/, type, options);
@@ -96,7 +102,7 @@ namespace BlaTeX.JSInterop
                     SkipProperty(ref reader, options);
                 }
             }
-            throw new JsonException($"Key '{this.KeyPropertyName}' not found. ");
+            throw new JsonException($"Key '{this.keyPropertyName}' not found. ");
         }
         static void SkipProperty(ref Utf8JsonReader r, JsonSerializerOptions options)
         {
@@ -107,42 +113,65 @@ namespace BlaTeX.JSInterop
 
         public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
         {
-            throw new NotSupportedException("The writer of the derived type should have been resolved instead of this writer");
-            // alternatively we could extract the key from 'value' (using reflection?) and instead do
-            // JsonSerializer.Serialize(writer, value, GetTypeToDeserialize(keyValue), options);
-        }
-    }
+            if (getSerializerOrTypeKey == null)
+                throw new NotSupportedException($"Serialization not supported. {nameof(getSerializerOrTypeKey)} is null and this method has not been overridden");
 
-    
-    /// <summary> Indicates that the implementing json converter introduces/requires other json converter. </summary>
-    public interface IJsonConverterIntroducer
-    {
-        /// <summary> Get all converts introduced/required by the current converter. </summary>
-        IEnumerable<JsonConverter> IntroducedConverters { get; }
-    }
-    public class JsonConverterIntroducerWrapper : IJsonConverterIntroducer
-    {
-        public JsonConverter Instance { get; }
-        public IEnumerable<JsonConverter> IntroducedConverters { get; }
+            var (key, converter) = getSerializerOrTypeKey(value);
+            if ((key == null) == (converter == null))
+                throw new ContractException($"{nameof(getSerializerOrTypeKey)} must return either one of the two return type elements");
+            if (key == typeof(T))
+                throw new ContractException($"{nameof(getSerializerOrTypeKey)} must return not return this converter's key");
+            if (converter == this)
+                throw new ContractException($"{nameof(getSerializerOrTypeKey)} must return not return this converter");
 
-        public JsonConverterIntroducerWrapper(JsonConverter instance, IEnumerable<JsonConverter> introducedConverters)
-        {
-            Contract.Requires(instance != null);
-            Contract.Requires(introducedConverters != null);
-
-            this.Instance = instance;
-            this.IntroducedConverters = introducedConverters;
-        }
-    }
-    public static class IJsonConcerterIntroducerExtensions
-    {
-        public static IEnumerable<JsonConverter> TryGetIntroducedConverters(this JsonConverter converter)
-        {
-            return converter switch
+            if (key != null)
             {
-                IJsonConverterIntroducer introducer => introducer.IntroducedConverters,
-                _ => Enumerable.Empty<JsonConverter>()
-            };
+                using var _ = this.DetectStackoverflow(writer, typeof(T));
+                JsonSerializer.Serialize(writer, value, key, options);
+            }
+            else
+            {
+                converter!.Write(writer, value, options);
+            }
         }
     }
+
+    public struct JsonConverterCollection : IEnumerable<JsonConverter?>
+    {
+        private IReadOnlyList<JsonConverterCollection>? converterCollections;
+        private IReadOnlyList<JsonConverter>? converters;
+
+        public JsonConverterCollection(JsonConverter instance, IEnumerable<JsonConverter> introducedConverters)
+        {
+            this.converters = introducedConverters.Prepend(instance).ToList();
+            this.converterCollections = null;
+        }
+        public JsonConverterCollection(JsonConverterCollection instance, IEnumerable<JsonConverterCollection> introducedConverters)
+        {
+            this.converterCollections = introducedConverters.Prepend(instance).ToList();
+            this.converters = null;
+        }
+
+        public IEnumerator<JsonConverter?> GetEnumerator()
+        {
+            if (converters == null && converterCollections == null)
+                throw new InvalidOperationException("Cannot enumerate default " + nameof(JsonConverterCollection));
+
+            if (converters != null)
+                foreach (var c in converters)
+                    yield return c;
+            if (converterCollections != null)
+                foreach (var collection in converterCollections)
+                    foreach (var c in collection)
+                        yield return c;
+        }
+
+
+        public static implicit operator JsonConverterCollection(JsonConverter converter)
+        {
+            return new JsonConverterCollection(converter, Enumerable.Empty<JsonConverter>());
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
 }
