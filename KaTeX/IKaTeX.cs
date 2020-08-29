@@ -27,6 +27,8 @@ namespace BlaTeX.JSInterop.KaTeX
         Task<HtmlDomNode> RenderToDom(string math);
         Task<string> ToMarkup(VirtualNode node);
         Task<AnyParseNode[]> Parse(string math);
+        Task<string> RenderToString(IReadOnlyList<AnyParseNode> tree, string? math = null);
+        Task<string> RenderToString(AnyParseNode node, string? math = null) => RenderToString(new[] { node }, math);
     }
 
     internal class _KaTeX : IKaTeX
@@ -41,14 +43,15 @@ namespace BlaTeX.JSInterop.KaTeX
             this.jsRuntime = jsRuntime;
         }
 
-        public Task<string> RenderToString(string math) => InvokeAsync<string>("renderToString", arguments: math);
-        public Task<HtmlDomNode> RenderToDom(string math) => InvokeAsync<HtmlDomNode>("__renderToDomTree", arguments: math);
-        public Task<AnyParseNode[]> Parse(string math) => InvokeAsync<AnyParseNode[]>("__parse", arguments: math);
+        public Task<string> RenderToString(string math) => InvokeAsync<string>("renderToString", arguments: math ?? throw new ArgumentNullException(nameof(math)));
+        public Task<string> RenderToString(IReadOnlyList<AnyParseNode> tree, string? math = null) => InvokeAsync<string>("__renderTreeToString", (object?)tree ?? throw new ArgumentNullException(nameof(tree)), math);
+        public Task<HtmlDomNode> RenderToDom(string math) => InvokeAsync<HtmlDomNode>("__renderToDomTree", arguments: math ?? throw new ArgumentNullException(nameof(math)));
+        public Task<AnyParseNode[]> Parse(string math) => InvokeAsync<AnyParseNode[]>("__parse", arguments: math ?? throw new ArgumentNullException(nameof(math)));
         /// <summary> Converters the specified tree to KaTeX's dom representation. <summary>
         /// <param name="tree"> The tree to render. </param>
         /// <param name="math"> If omitted, no MathML will be generated. </param>
-        public Task<DomSpan> RenderToDom(AnyParseNode[] tree, string? math = null) => InvokeAsync<DomSpan>("__parseToDomTree", tree, math);
-        public Task<string> ToMarkup(VirtualNode node) => InvokeAsync<string>(node, "toMarkup");
+        public Task<DomSpan> RenderToDom(AnyParseNode[] tree, string? math = null) => InvokeAsync<DomSpan>("__parseToDomTree", tree ?? throw new ArgumentNullException(nameof(tree)), math);
+        public Task<string> ToMarkup(VirtualNode node) => InvokeAsync<string>(node ?? throw new ArgumentNullException(nameof(node)), "toMarkup");
 
         private Task<T> InvokeAsync<T>(string name, params object?[] arguments)
         {
