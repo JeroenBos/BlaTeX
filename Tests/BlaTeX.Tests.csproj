@@ -8,11 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="bunit" Version="1.0.0-beta-9" />
-    <PackageReference Include="bunit.core" Version="1.0.0-beta-9" />
-    <PackageReference Include="bunit.web" Version="1.0.0-beta-9" />
-    <PackageReference Include="bunit.xunit" Version="1.0.0-beta-9" />
-    <Watch Include="Default" Exclude="../**/obj/**,**/node_modules/**" />
+    <ProjectReference Include="/home/jeroen/git/bUnit/src/bunit.core/bunit.core.csproj" Version="1.0.0-beta-9" />
+    <ProjectReference Include="/home/jeroen/git/bUnit/src/bunit.web/bunit.web.csproj" Version="1.0.0-beta-9" />
+    <ProjectReference Include="/home/jeroen/git/bUnit/src/bunit.xunit/bunit.xunit.csproj" Version="1.0.0-beta-9" />
+  <Watch Include="Default" Exclude="../**/obj/**,**/node_modules/**" />
   </ItemGroup>
 
 
