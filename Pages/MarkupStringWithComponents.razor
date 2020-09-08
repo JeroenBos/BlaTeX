@@ -1,0 +1,22 @@
+@{
+    Range prevRange = 0..0;
+    @foreach(var range in Selector(Markup))
+    {
+        @((MarkupString)Markup[prevRange.End..range.Start])
+        @Substitute(Markup[range])
+
+        prevRange = range;
+    }
+    @((MarkupString)Markup[prevRange.End..])
+}
+
+@code {
+    [Parameter]
+    public string Markup { get; set; }
+
+    [Parameter]
+    public Func<string, IEnumerable<Range>> Selector { get; set; }
+
+    [Parameter]
+    public Func<string, RenderFragment> Substitute { get; set; }
+}

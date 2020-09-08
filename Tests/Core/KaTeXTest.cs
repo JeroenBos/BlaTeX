@@ -7,7 +7,6 @@ using System.IO;
 using System.Threading.Tasks;
 using BlaTeX.Pages;
 using Bunit;
-using Bunit.Diffing;
 using Bunit.Extensions;
 using Bunit.Extensions.WaitForHelpers;
 using Bunit.RazorTesting;
@@ -19,97 +18,154 @@ using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using BlaTeX.JSInterop;
 using BlaTeX.JSInterop.KaTeX;
+using System.Threading;
 
 namespace BlaTeX.Tests
 {
-    /// <summary>
-    /// A component used to create KaTeX snapshot tests.
-    /// Snapshot tests takes the math string and options as inputs, and an Expected section.
-    /// It then compares the result of letting the katex library render the inputs, using semantic HTML comparison.
-    /// </summary>
-    public class KaTeXTest : RazorTestBase
-    {
-        /// <inheritdoc/>
-        public override string? DisplayName => this.GetType().Name;
-        [Parameter]
-        public string? Math { get; set; } = default!;
-        [Parameter]
-        public RenderFragment Expected { get; set; } = default!;
+	/// <summary>
+	/// A component used to create KaTeX snapshot tests.
+	/// Snapshot tests takes the math string and options as inputs, and an Expected section.
+	/// It then compares the result of letting the katex library render the inputs, using semantic HTML comparison.
+	/// </summary>
+	public class KaTeXTest : RazorTestBase
+	{
+		// test-related parameters: 
 
-        /// <inheritdoc/>
-        protected override async Task Run()
-        {
-            Validate();
+		/// <summary> If specified, dictates whether the interactive version of the component is tested or not.
+		/// If not specified, it depends on whether <see cref="Action"> is provided.  </summary>
+		[Parameter]
+		public bool? Interactive { get; set; }
+		[Parameter]
+		public RenderFragment? TestInput { get; set; }
+		[Parameter]
+		public RenderFragment Expected { get; set; } = default!;
+		/// <summary> An action to be executed after the first render but before the snapshot comparison. </summary>
+		[Parameter]
+		public EventCallback<IRenderedComponent<KaTeX>> Action { get; set; }
+		public override string Description => base.Description ?? Math ?? "No description";
 
-            string blatexJSPath = Program.RootFolder + "/wwwroot/js/blatex_wrapper.js";
-            if (!File.Exists(blatexJSPath)) throw new FileNotFoundException("blatex.js not found. You probably need to build it, see readme. ");
 
-            Services.AddDefaultTestContextServices();
-            Services.Add(new ServiceDescriptor(typeof(IJSRuntime), new NodeJSRuntime(new[] { blatexJSPath })));
-            Services.Add(new ServiceDescriptor(typeof(IKaTeX), typeof(_KaTeX), ServiceLifetime.Singleton));
+		// parameter passed on to component under test:
 
-            var (id, cut) = this.Renderer.RenderComponent<KaTeX>(new ComponentParameter[] {
-                (nameof(KaTeX.Math), this.Math)
-            });
+		[Parameter]
+		public string Math { get; set; } = default!;
+		[Parameter]
+		public IChildComponentMarkupService? ChildComponentMarkupService { get; set; }
 
-            if (cut is null)
-                throw new InvalidOperationException("The KaTeX component did not render successfully");
 
-            await WaitForKatexToHaveRendered(cut, id);
 
-            var katexHtml = Htmlizer.GetHtml(Renderer, id);
-            var expectedRenderId = Renderer.RenderFragment(this.Expected);
-            var expectedHtml = Htmlizer.GetHtml(Renderer, expectedRenderId);
+		/// <inheritdoc/>
+		public override string? DisplayName => this.GetType().Name;
 
-            HtmlEqualityComparer.AssertEqual(expectedHtml, katexHtml);
-        }
+		/// <inheritdoc/>
+		protected override async Task Run()
+		{
+			Validate();
 
-        private async Task WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
-        {
-            var icut = cut.ToIRenderedComponent(cutId, this.Services);
-            using var waiter = new WaitForStateHelper(icut, () => cut.rendered != null, timeout);
-            await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
-        }
+			string blatexJSPath = Program.RootFolder + "/wwwroot/js/blatex_wrapper.js";
+			if (!File.Exists(blatexJSPath)) throw new FileNotFoundException("blatex.js not found. You probably need to build it, see readme. ");
 
-        /// <inheritdoc/>
-        public override void Validate()
-        {
-            base.Validate();
-            if (Math is null)
-                throw new ArgumentException($"No {nameof(Math)} specified in the {nameof(KaTeXTest)} component.");
-            if (Expected is null)
-                throw new ArgumentException($"No child contents specified in the {nameof(KaTeXTest)} component.");
-        }
+			Services.AddDefaultTestContextServices();
+			Services.Add(new ServiceDescriptor(typeof(IJSRuntime), new NodeJSRuntime(new[] { blatexJSPath })));
+			Services.Add(new ServiceDescriptor(typeof(IKaTeX), typeof(_KaTeX), ServiceLifetime.Singleton));
 
-        public override Task SetParametersAsync(ParameterView parameters)
-        {
-            var d = parameters.ToDictionary();
-            if (d.TryGetValue("math", out object? math))
-                this.Math = (string)math!;
-            if (d.TryGetValue("ChildContent", out object? expected))
-                this.Expected = (RenderFragment)expected;
+			int id;
+			KaTeX cut;
+			var parameters = new ComponentParameter[]
+			{
+				(nameof(KaTeX.Math), this.Math),
+				(nameof(KaTeX.ChildComponentMarkupService), this.ChildComponentMarkupService),
+			};
+			if (this.Interactive ?? false)
+			{
+				(id, cut) = this.Renderer.RenderComponent<InteractiveKaTeX>(parameters);
+			}
+			else
+			{
+				(id, cut) = this.Renderer.RenderComponent<KaTeX>(parameters);
+			}
 
-            var unknown = d.Keys.Where(key => key != "math" && key != "ChildContent").ToList();
-            if (unknown.Count != 0)
-                throw new ArgumentException($"Unsupported parameter received", unknown[0]);
+			if (cut is null)
+				throw new InvalidOperationException("The KaTeX component did not render successfully");
 
-            return base.SetParametersAsync(parameters);
-        }
-    }
-    static class IRenderedComponentConstructorExtenstion
-    {
-        private static readonly Type RenderedComponentType = typeof(SnapshotTest).Assembly.GetType("Bunit.Rendering.RenderedComponent`1")!.MakeGenericType(typeof(KaTeX));
-        private static readonly ConstructorInfo RenderedComponentTypeCtor = RenderedComponentType.GetConstructors()[0];
+			var renderedCut = await WaitForKatexToHaveRendered(cut, id);
+			if (this.Action.HasDelegate)
+			{
+				await this.Action.InvokeAsync(renderedCut);
+				await WaitForKatexToHaveRendered(cut, id);
+			}
 
-        /// <summary>
-        /// Instantiates and performs a first render of a component of type <typeparamref name="KaTeX"/>.
-        /// </summary>
-        /// <typeparam name="KaTeX">Type of the component to render</typeparam>
-        /// <returns>The rendered <typeparamref name="KaTeX"/></returns>
-        public static IRenderedComponent<KaTeX> ToIRenderedComponent(this KaTeX cut, int cutId, TestServiceProvider services)
-        {
-            return (IRenderedComponent<KaTeX>)RenderedComponentTypeCtor.Invoke(new object[] { services, cutId, cut });
-        }
-    }
+			var katexHtml = Htmlizer.GetHtml(Renderer, id);
+			var expectedRenderId = Renderer.RenderFragment(this.Expected);
+			var expectedHtml = Htmlizer.GetHtml(Renderer, expectedRenderId);
+
+			HtmlEqualityComparer.AssertEqual(expectedHtml, katexHtml);
+		}
+		private async Task<IRenderedComponent<KaTeX>> WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
+		{
+			var icut = cut.ToIRenderedComponent(cutId, this.Services);
+			using var waiter = new WaitForStateHelper(icut, predicate, TimeSpan.FromSeconds(3));
+			await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
+			return icut!;
+
+			bool predicate()
+			{
+				return cut.markup != null;
+			}
+
+		}
+
+		/// <inheritdoc/>
+		public override void Validate()
+		{
+			base.Validate();
+			if (Math is null)
+				throw new ArgumentException($"No {nameof(Math)} specified in the {nameof(KaTeXTest)} component.");
+			if (Expected is null)
+				throw new ArgumentException($"No child contents specified in the {nameof(KaTeXTest)} component.");
+		}
+
+		public override Task SetParametersAsync(ParameterView parameters)
+		{
+			var d = parameters.ToDictionary();
+			foreach (var (key, value) in d)
+			{
+				switch (key)
+				{
+					case "math":
+						this.Math = (string)value!;
+						break;
+					case "ChildContent":
+						this.Expected = (RenderFragment)value;
+						break;
+					case "Action":
+						this.Action = (EventCallback<IRenderedComponent<KaTeX>>)value;
+						break;
+					case "ChildComponentMarkupService":
+						this.ChildComponentMarkupService = (IChildComponentMarkupService)value;
+						break;
+					default:
+						throw new ArgumentException($"Unsupported parameter received: '{key}'", nameof(parameters));
+				}
+
+			}
+			return base.SetParametersAsync(parameters);
+		}
+	}
+	static class IRenderedComponentConstructorExtension
+	{
+		private static readonly Type RenderedComponentType = typeof(SnapshotTest).Assembly.GetType("Bunit.Rendering.RenderedComponent`1")!.MakeGenericType(typeof(KaTeX));
+		private static readonly ConstructorInfo RenderedComponentTypeCtor = RenderedComponentType.GetConstructors()[0];
+
+		/// <summary>
+		/// Instantiates and performs a first render of a component of type <typeparamref name="KaTeX"/>.
+		/// </summary>
+		/// <typeparam name="KaTeX">Type of the component to render</typeparam>
+		/// <returns>The rendered <typeparamref name="KaTeX"/></returns>
+		public static IRenderedComponent<KaTeX> ToIRenderedComponent(this KaTeX cut, int cutId, TestServiceProvider services)
+		{
+			return (IRenderedComponent<KaTeX>)RenderedComponentTypeCtor.Invoke(new object[] { services, cutId, cut });
+		}
+	}
 }
 

@@ -1,4 +1,5 @@
 #nullable enable
+using BlaTeX.JSInterop.KaTeX.Syntax;
 using JBSnorro;
 using JBSnorro.Collections.ObjectModel;
 using JBSnorro.Diagnostics;
@@ -16,8 +17,9 @@ using System.Text.RegularExpressions;
 
 namespace BlaTeX.JSInterop.KaTeX
 {
-    internal class _HtmlDomNode : HtmlDomNode
+    internal class _HtmlDomNode : HtmlDomNode, IJSSerializable
     {
+        public string SERIALIZATION_TYPE_ID => IJSSerializable.SERIALIZATION_TYPE_ID_Impl(this);
         public IReadOnlyList<string> classes { get; set; } = default!;
         public float height { get; set; } = default!;
         public float depth { get; set; } = default!;
@@ -51,8 +53,6 @@ namespace BlaTeX.JSInterop.KaTeX
             this.style = style;
         }
 
-        Node VirtualNode.ToNode() => throw new NotImplementedException();
-        string VirtualNode.ToMarkup() => throw new NotImplementedException();
 
         public override bool Equals(object? obj)
         {
@@ -514,21 +514,62 @@ namespace BlaTeX.JSInterop.KaTeX
             private static readonly Regex expectedFormat = new Regex("[0-9]+,[0-9]+");
             public override SourceLocation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                string s = JsonSerializer.Deserialize<string>(ref reader, options);
-                if (string.IsNullOrWhiteSpace(s))
+                using var _ = new StackoverflowDetector(this, reader, typeToConvert);
+
+                if (reader.TokenType == JsonTokenType.String)
                 {
-                    throw new JsonException("Unexpected empty string as SourceLocation");
-                }
-                else if (!expectedFormat.IsMatch(s))
-                {
-                    throw new JsonException($"Unexpected source location format: '{s}'");
+                    string s = JsonSerializer.Deserialize<string>(ref reader, options);
+                    if (string.IsNullOrWhiteSpace(s))
+                    {
+                        throw new JsonException("Unexpected empty string as SourceLocation");
+                    }
+                    else if (!expectedFormat.IsMatch(s))
+                    {
+                        throw new JsonException($"Unexpected source location format: '{s}'");
+                    }
+                    else
+                    {
+                        int separatorIndex = s.IndexOf(",");
+                        int start = int.Parse(s[..separatorIndex]);
+                        int end = int.Parse(s[(separatorIndex + 1)..]);
+                        return new _SourceLocation(start, end);
+                    }
                 }
                 else
                 {
-                    int separatorIndex = s.IndexOf(",");
-                    int start = int.Parse(s[..separatorIndex]);
-                    int end = int.Parse(s[(separatorIndex + 1)..]);
-                    return new _SourceLocation(start, end);
+                    int? start = null;
+                    int? end = null;
+                    Contract.Assert(reader.TokenType == JsonTokenType.StartObject);
+                    reader.Read();
+
+                    do
+                    {
+                        Contract.Assert(reader.TokenType == JsonTokenType.PropertyName);
+                        string name = reader.GetString();
+                        reader.Read();
+                        switch (name)
+                        {
+                            case "lexer":
+                                // ignore the lexer:
+                                reader.GetTokenAsJson();
+                                break;
+                            case "start":
+                                start = reader.GetInt32();
+                                break;
+                            case "end":
+                                end = reader.GetInt32();
+                                break;
+                            default:
+                                throw new JsonException($"Unexpected property '{name}' in SourceLocation");
+                        }
+                        reader.Read();
+                    } while (reader.TokenType != JsonTokenType.EndObject);
+                    if (start == null)
+                        throw new JsonException("Invalid SourceLocation: 'start' not found");
+                    else if (end == null)
+                        throw new JsonException("Invalid SourceLocation: 'end' not found");
+                    else
+                        return new _SourceLocation(start.Value, end.Value);
                 }
             }
 
@@ -583,7 +624,7 @@ namespace BlaTeX.JSInterop.KaTeX
         [DebuggerHidden]
         int SourceLocation.End => end;
 
-}
+    }
 
     // currently sealed because extension is not supported, but may be opened up later
     sealed class _Attributes : ReadOnlyDictionary<string, object?>, Attributes
@@ -603,6 +644,8 @@ namespace BlaTeX.JSInterop.KaTeX
             private JsonConverter() : base(ctor, elementTypes: elementTypes) { }
             public override Attributes Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
+                // base call already detected stackoverflows
+
                 return base.Read(ref reader, typeToConvert, options);
             }
         }
@@ -637,5 +680,181 @@ namespace BlaTeX.JSInterop.KaTeX
 
             return new _Attributes(newUnderlying);
         }
+    }
+
+    public class _AnyParseNode : AnyParseNode
+    {
+        public static JsonConverterCollection Instances { get; }
+        private static JsonConverter<_AnyParseNode> UnspecificInstance { get; } = ExplicitJsonConverter<_AnyParseNode>.Create(typeof(_AnyParseNode));
+        static _AnyParseNode()
+        {
+            // HACK: replace GetDeserializationType with GetASTType when all node subtypes are supported. In that case make _AnyParseNode abstract?
+            Type GetDeserializationType(NodeType type)
+            {
+                var result = NodeTypeExtensions.GetASTType(type);
+
+                // this will trigger a default node to be created instead of a specialized node
+                return result ?? typeof(_AnyParseNode);
+            }
+
+            var instance = new ExplicitPolymorphicJsonConverter<AnyParseNode, NodeType>(
+                "type",
+                GetDeserializationType,
+                getSerializerOrTypeKey: _ => (typeof(_AnyParseNode), null)
+            );
+            var subtypeConverters = new JsonConverter[] {
+                _BlaTeXNode.JsonConverterInstance,
+                UnspecificInstance,
+                ModeExtensions.Instance,
+            };
+            Instances = new JsonConverterCollection(instance, subtypeConverters);
+        }
+
+        class _AnyParseNodeJsonConverter : JsonConverter<_AnyParseNode>
+        {
+            public override _AnyParseNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                return (_AnyParseNode)DefaultObjectJsonConverter.Read(ref reader, typeof(_AnyParseNode), options)!;
+                var properties = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ref reader, options)
+                                               .Map<string, JsonElement, object>((key, jsonElement) => jsonElement.Deserialize<object>(options));
+
+                var type = (NodeType)properties["type"]!;
+                var mode = (Mode)properties["mode"]!;
+                var loc = (SourceLocation?)properties["loc"];
+                var result = new _AnyParseNode(type, mode, loc);
+                properties.Remove("type");
+                properties.Remove("mode");
+                properties.Remove("loc");
+                result.UnspecificProperties = properties;
+                return result;
+            }
+
+            public override void Write(Utf8JsonWriter writer, _AnyParseNode value, JsonSerializerOptions options)
+            {
+                var d = value.UnspecificProperties ?? new Dictionary<string, object?>();
+
+                d["type"] = value.type;
+                d["mode"] = value.mode;
+                d["loc"] = value.loc;
+
+                JsonSerializer.Serialize(writer, d, options);
+            }
+        }
+        /// <summary> This replaces the need for a dedicated type for each NodeType. </summary>
+        [JsonExtensionData]
+        public IDictionary<string, object?>? UnspecificProperties { get; set; }
+
+        public NodeType type { get; set; }
+        public Mode mode { get; set; }
+        // name determined by KaTeX (and used in (de)serialization)
+        public SourceLocation? loc { get; set; }
+
+        NodeType AnyParseNode.Type => type;
+        Mode AnyParseNode.Mode => mode;
+        SourceLocation? AnyParseNode.SourceLocation => loc;
+
+        /// <summary> Ctor for JsonSerializer. </summary>
+        public _AnyParseNode() { }
+        public _AnyParseNode(NodeType type,
+                             Mode mode,
+                             SourceLocation? sourceLocation)
+        {
+            this.type = type;
+            this.mode = mode;
+            this.loc = sourceLocation;
+        }
+
+
+        public override bool Equals(object? obj)
+        {
+            return this.Equals(obj as AnyParseNode);
+        }
+        protected bool Equals([NotNullWhen(true)] AnyParseNode? other)
+        {
+            if (other is null)
+                return false;
+            if (ReferenceEquals(other, this)) // optimization
+                return true;
+
+            if (this.type != other.Type)
+                return false;
+            if (this.mode != other.Mode)
+                return false;
+            if (this.loc?.Equals(other.SourceLocation) ?? other.SourceLocation is { })
+                return false;
+            return true;
+        }
+        public override int GetHashCode() => throw new NotImplementedException();
+
+        public virtual AnyParseNode With(Option<NodeType> type = default,
+                                         Option<Mode> mode = default,
+                                         Option<SourceLocation?> sourceLocation = default)
+        {
+            return new _AnyParseNode(
+                type.ValueOrDefault(this.type),
+                mode.ValueOrDefault(this.mode),
+                sourceLocation.ValueOrDefault(this.loc)
+            );
+        }
+    }
+    public class _BlaTeXNode : _AnyParseNode, BlaTeXNode
+    {
+        public static JsonConverter<BlaTeXNode> JsonConverterInstance => ExactJsonConverter<BlaTeXNode, _BlaTeXNode>.Instance;
+        public string key { get; set; } = default!;
+        public string? arg { get; set; }
+
+        string BlaTeXNode.Key => key;
+        string? BlaTeXNode.Arg => arg;
+
+        /// <summary> Ctor for JsonSerializer. </summary>
+        public _BlaTeXNode() { }
+        public _BlaTeXNode(NodeType type,
+                           Mode mode,
+                           SourceLocation? sourceLocation,
+                           string key,
+                           string? arg)
+            : base(type, mode, sourceLocation)
+        {
+            this.key = key;
+            this.arg = arg;
+        }
+
+
+        public override bool Equals(object? obj)
+        {
+            return this.Equals(obj as BlaTeXNode);
+        }
+        protected bool Equals([NotNullWhen(true)] BlaTeXNode? other)
+        {
+            if (!base.Equals(other))
+                return false;
+
+            if (this.key != other.Key)
+                return false;
+            if (this.arg != other.Arg)
+                return false;
+            return true;
+        }
+        public override int GetHashCode() => throw new NotImplementedException();
+
+        public sealed override AnyParseNode With(Option<NodeType> type = default,
+                                                 Option<Mode> mode = default,
+                                                 Option<SourceLocation?> sourceLocation = default)
+        {
+            return this.With(type, mode, sourceLocation, default, default);
+        }
+        public virtual BlaTeXNode With(Option<NodeType> type = default,
+                                       Option<Mode> mode = default,
+                                       Option<SourceLocation?> sourceLocation = default,
+                                       Option<string> key = default,
+                                       Option<string?> arg = default)
+        {
+            return new _BlaTeXNode(type.ValueOrDefault(this.type),
+                                   mode.ValueOrDefault(this.mode),
+                                   sourceLocation.ValueOrDefault(this.loc),
+                                   key.ValueOrDefault(this.key),
+                                   arg.ValueOrDefault(this.arg));
+        }
+
     }
 }
