@@ -43,11 +43,14 @@ namespace BlaTeX.Tests
             }
             else
             {
+                int i = 1;
                 foreach (var test in tests)
                 {
+                    Console.WriteLine($"Executing test {i}/{tests.Count}: '{test.Description}'");
                     await test.RunTest().ConfigureAwait(false);
-                }
-            }
+                    i++;
+                }}
+            
         }
 
         void IComponent.Attach(RenderHandle renderHandle) => renderHandle.Render(BuildRenderTree);

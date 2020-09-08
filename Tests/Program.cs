@@ -3,16 +3,33 @@ using JBSnorro.Threading;
 using System;
 using System.Diagnostics;
 using System.IO;
-using NitoAsyncContext = Nito.AsyncEx.AsyncContext;
+using System.Linq;
+using System.Threading.Tasks;
+using XunitAsyncTestSyncContext = Xunit.Sdk.AsyncTestSyncContext;
 
 namespace BlaTeX.Tests
 {
     public class Program
     {
-        [DebuggerHidden]
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            using (new NitoAsyncContext().SynchronizationContext.AsTemporarySynchronizationContext())
+            if (args.Contains("--async"))
+            {
+                var syncContext = new XunitAsyncTestSyncContext(null); // new Nito.AsyncEx.AsyncContext().SynchronizationContext
+                using (syncContext.AsTemporarySynchronizationContext())
+                {
+                    TestExtensions.DefaultMainTestProjectImplementation(args);
+                }
+                var exception = await syncContext.WaitForCompletionAsync();
+
+                var _ = exception switch
+                {
+                    AggregateException a when a.InnerExceptions.Count == 1 => throw a.InnerExceptions[0],
+                    Exception e => throw e,
+                    null => (object)null,
+                };
+            }
+            else
             {
                 TestExtensions.DefaultMainTestProjectImplementation(args);
             }

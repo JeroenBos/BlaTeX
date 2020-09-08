@@ -116,6 +116,14 @@ namespace BlaTeX
 
 			throw new ContractException("Unrecognized parameters specified: " + d.Select(pair => pair.Key).Join(", "));
 		}
+		public static ParameterView ToParameterView(this IDictionary<string, object> dictionary) => ParameterView.FromDictionary(dictionary);
+		public static ParameterView Create(params (string, object)[] parameters)
+		{
+			return parameters.Select(ToKeyValuePair)
+							 .ToDictionary()
+							 .ToParameterView();
+		}
+		public static KeyValuePair<TKey, TValue> ToKeyValuePair<TKey, TValue>(this (TKey, TValue) tuple) => new KeyValuePair<TKey, TValue>(tuple.Item1, tuple.Item2);
 
 	}
 

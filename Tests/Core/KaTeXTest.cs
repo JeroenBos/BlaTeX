@@ -18,6 +18,7 @@ using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using BlaTeX.JSInterop;
 using BlaTeX.JSInterop.KaTeX;
+using System.Threading;
 
 namespace BlaTeX.Tests
 {
@@ -41,6 +42,8 @@ namespace BlaTeX.Tests
 		/// <summary> An action to be executed after the first render but before the snapshot comparison. </summary>
 		[Parameter]
 		public EventCallback<IRenderedComponent<KaTeX>> Action { get; set; }
+		public override string Description => base.Description ?? Math ?? "No description";
+
 
 		// parameter passed on to component under test:
 
@@ -73,8 +76,7 @@ namespace BlaTeX.Tests
 				(nameof(KaTeX.Math), this.Math),
 				(nameof(KaTeX.ChildComponentMarkupService), this.ChildComponentMarkupService),
 			};
-			bool interactive = this.Interactive ?? this.Action.HasDelegate;
-			if (interactive)
+			if (this.Interactive ?? false)
 			{
 				(id, cut) = this.Renderer.RenderComponent<InteractiveKaTeX>(parameters);
 			}
@@ -99,13 +101,18 @@ namespace BlaTeX.Tests
 
 			HtmlEqualityComparer.AssertEqual(expectedHtml, katexHtml);
 		}
-
 		private async Task<IRenderedComponent<KaTeX>> WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
 		{
 			var icut = cut.ToIRenderedComponent(cutId, this.Services);
-			using var waiter = new WaitForStateHelper(icut, () => cut.markup != null, timeout);
+			using var waiter = new WaitForStateHelper(icut, predicate, TimeSpan.FromSeconds(3));
 			await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
 			return icut!;
+
+			bool predicate()
+			{
+				return cut.markup != null;
+			}
+
 		}
 
 		/// <inheritdoc/>

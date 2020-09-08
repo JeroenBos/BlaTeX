@@ -705,7 +705,7 @@ namespace BlaTeX.JSInterop.KaTeX
             var subtypeConverters = new JsonConverter[] {
                 _BlaTeXNode.JsonConverterInstance,
                 UnspecificInstance,
-                new EnumStringJsonConverter<Mode>(),
+                ModeExtensions.Instance,
             };
             Instances = new JsonConverterCollection(instance, subtypeConverters);
         }

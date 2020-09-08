@@ -233,6 +233,10 @@ namespace BlaTeX.JSInterop.KaTeX
 		Text,
 	}
 
+	public static class ModeExtensions
+	{
+		public static JsonConverter<Mode> Instance { get; } = new LowerCaseEnumStringJsonConverter<Mode>();
+	}
 	namespace Syntax
 	{
 		/// <summary> Follows KaTeX naming convention. </summary>

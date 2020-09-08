@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using BlaTeX.JSInterop.KaTeX;
 using BlaTeX.JSInterop.KaTeX.Syntax;
 using Microsoft.JSInterop;
+using JBSnorro.Diagnostics;
 
 namespace BlaTeX.JSInterop.KaTeX
 {
@@ -43,15 +44,62 @@ namespace BlaTeX.JSInterop.KaTeX
             this.jsRuntime = jsRuntime;
         }
 
-        public Task<string> RenderToString(string math) => InvokeAsync<string>("renderToString", arguments: math ?? throw new ArgumentNullException(nameof(math)));
-        public Task<string> RenderToString(IReadOnlyList<AnyParseNode> tree, string? math = null) => InvokeAsync<string>("__renderTreeToString", (object?)tree ?? throw new ArgumentNullException(nameof(tree)), math);
-        public Task<HtmlDomNode> RenderToDom(string math) => InvokeAsync<HtmlDomNode>("__renderToDomTree", arguments: math ?? throw new ArgumentNullException(nameof(math)));
-        public Task<AnyParseNode[]> Parse(string math) => InvokeAsync<AnyParseNode[]>("__parse", arguments: math ?? throw new ArgumentNullException(nameof(math)));
+        public async Task<string> RenderToString(string math)
+        {
+            Contract.Requires(math != null, nameof(math));
+
+            var result = await InvokeAsync<string>("renderToString", arguments: math);
+            Contract.Ensures(result != null);
+            return result;
+        }
+        public async Task<string> RenderToString(IReadOnlyList<AnyParseNode> tree, string? math = null)
+        {
+            Contract.Requires(tree != null, nameof(tree));
+            Contract.RequiresForAll(tree, node => node != null);
+
+            var result = await InvokeAsync<string>("__renderTreeToString", (object?)tree, math);
+            Contract.Ensures(result != null);
+            return result;
+        }
+
+        public async Task<HtmlDomNode> RenderToDom(string math)
+        {
+            Contract.Requires(math != null, nameof(math));
+
+            var result = await InvokeAsync<HtmlDomNode>("__renderToDomTree", arguments: math);
+            Contract.Ensures(result != null);
+            return result;
+        }
+        public async Task<AnyParseNode[]> Parse(string math)
+        {
+            Contract.Requires(math != null, nameof(math));
+
+            var result = await InvokeAsync<AnyParseNode[]>("__parse", arguments: math);
+            Contract.Ensures(result != null);
+            Contract.Ensures(result.All(node => node != null));
+            return result;
+        }
+
         /// <summary> Converters the specified tree to KaTeX's dom representation. <summary>
         /// <param name="tree"> The tree to render. </param>
         /// <param name="math"> If omitted, no MathML will be generated. </param>
-        public Task<DomSpan> RenderToDom(AnyParseNode[] tree, string? math = null) => InvokeAsync<DomSpan>("__parseToDomTree", tree ?? throw new ArgumentNullException(nameof(tree)), math);
-        public Task<string> ToMarkup(VirtualNode node) => InvokeAsync<string>(node ?? throw new ArgumentNullException(nameof(node)), "toMarkup");
+        public async Task<DomSpan> RenderToDom(AnyParseNode[] tree, string? math = null)
+        {
+            Contract.Requires(tree != null, nameof(tree));
+            Contract.RequiresForAll(tree, node => node != null);
+
+            var result = await InvokeAsync<DomSpan>("__parseToDomTree", tree, math);
+            Contract.Ensures(result != null);
+            return result;
+        }
+        public async Task<string> ToMarkup(VirtualNode node)
+        {
+            Contract.Requires(node != null, nameof(node));
+
+            var result = await InvokeAsync<string>(node, "toMarkup");
+            Contract.Ensures(result != null);
+            return result;
+        }
 
         private Task<T> InvokeAsync<T>(string name, params object?[] arguments)
         {
