@@ -29,4 +29,5 @@ jobs:
     - name: test
       run: dotnet test *Tests --configuration CI
       timeout-minutes: 5
-    
+      env:
+        WAIT_FOR_STATE_TIMEOUT_SEC: 30
