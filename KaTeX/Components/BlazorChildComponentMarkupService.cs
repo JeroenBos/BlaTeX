@@ -153,7 +153,6 @@ namespace BlaTeX.Pages
 			{
 				throw new Exception($"Unhandled render fragment with name '{key}'");
 			}
-			throw new InvalidOperationException("This method must be overridden");
 		}
 
 		public virtual IReadOnlyList<AnyParseNode> Select(IReadOnlyList<AnyParseNode> ast)
