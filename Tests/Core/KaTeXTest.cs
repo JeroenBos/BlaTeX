@@ -113,7 +113,7 @@ namespace BlaTeX.Tests
 			var icut = cut.ToIRenderedComponent(cutId, this.Services);
 			Console.WriteLine("DEBUG creating waiter wait");
 			Console.Out.Flush();
-			using var waiter = new WaitForStateHelper(icut, predicate, TimeSpan.FromSeconds(3));
+			using var waiter = new WaitForStateHelper(icut, predicate, TimeSpan.FromSeconds(15));
 			Console.WriteLine("DEBUG going to wait");
 			Console.Out.Flush();
 			await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
