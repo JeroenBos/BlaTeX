@@ -29,6 +29,12 @@
   <ItemGroup>
     <Watch Include="../**/*.cs;../**/*.razor;../**/*.csproj" Exclude="../**/obj/**,**/node_modules/**" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
    
   <Target Name="SetGlobals" >
     <Exec Command="globals set '$(ProjectName)' '$(ProjectName)' 10" Condition="'$(Configuration)' != 'CI'"/>
