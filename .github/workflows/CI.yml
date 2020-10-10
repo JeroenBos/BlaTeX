@@ -28,4 +28,5 @@ jobs:
       run: dotnet build **/*.csproj --configuration CI
     - name: test
       run: dotnet test *Tests --configuration CI
+      timeout-minutes: 5
     
