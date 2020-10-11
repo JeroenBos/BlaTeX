@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+    branches: [ master, trigger_CI ] 
 
 jobs:
   test:
@@ -27,4 +28,6 @@ jobs:
       run: dotnet build **/*.csproj --configuration CI
     - name: test
       run: dotnet test *Tests --configuration CI
-    
+      timeout-minutes: 5
+      env:
+        WAIT_FOR_STATE_TIMEOUT_SEC: 30

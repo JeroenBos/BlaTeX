@@ -104,7 +104,7 @@ namespace BlaTeX.Tests
 		private async Task<IRenderedComponent<KaTeX>> WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
 		{
 			var icut = cut.ToIRenderedComponent(cutId, this.Services);
-			using var waiter = new WaitForStateHelper(icut, predicate, TimeSpan.FromSeconds(3));
+			using var waiter = new WaitForStateHelper(icut, predicate, WaitForStateTimeout);
 			await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
 			return icut!;
 
@@ -151,8 +151,42 @@ namespace BlaTeX.Tests
 			}
 			return base.SetParametersAsync(parameters);
 		}
+		public static TimeSpan WaitForStateTimeout
+		{
+			get
+			{
+
+				const string VAR_NAME = "WAIT_FOR_STATE_TIMEOUT_SEC";
+				var value = Environment.GetEnvironmentVariable(VAR_NAME);
+				if (value != null)
+				{
+					if (int.TryParse(value, out int sec))
+					{
+						if (sec <= 0)
+						{
+							// I considered `return TimeSpan.MaxValue;` here but it doesn't work
+							throw new ArgumentNullException($"Environment variable '{VAR_NAME}' must be strictly positive");
+						}
+						return TimeSpan.FromSeconds(sec);
+					}
+					else
+						throw new ArgumentException($"Environment variable '{VAR_NAME}'='value' is not a value int");
+				}
+
+#if DEBUG
+				// This value is hardcoded because I don't want to provide env args every time I type `dotnet test`
+				return TimeSpan.FromMinutes(60); // TimeSpan.MaxValue doesn't work; 1 hour is long enough
+#elif CI
+				throw new ArgumentNullException($"No environment variable '{VAR_NAME}' provided in CI");
+#else
+				// host is assumed to be ASP.NET Core
+				throw new ArgumentNullException($"No environment variable '{VAR_NAME}' provided");
+#endif
+
+			}
+		}
 	}
-	static class IRenderedComponentConstructorExtension
+	static class IRenderedComponentConstructorExtensions
 	{
 		private static readonly Type RenderedComponentType = typeof(SnapshotTest).Assembly.GetType("Bunit.Rendering.RenderedComponent`1")!.MakeGenericType(typeof(KaTeX));
 		private static readonly ConstructorInfo RenderedComponentTypeCtor = RenderedComponentType.GetConstructors()[0];
