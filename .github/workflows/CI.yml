@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [ master, trigger_CI ] 
+  pull_request:
 
 jobs:
   test:
