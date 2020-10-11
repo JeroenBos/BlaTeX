@@ -91,15 +91,8 @@ namespace BlaTeX.Tests
 			var renderedCut = await WaitForKatexToHaveRendered(cut, id);
 			if (this.Action.HasDelegate)
 			{
-				Console.WriteLine("this.Action.HasDelegate");
-				Console.Out.Flush();
 				await this.Action.InvokeAsync(renderedCut);
-				Console.WriteLine("DEBUG going to WaitForKatexToHaveRendered");
-				Console.Out.Flush();
 				await WaitForKatexToHaveRendered(cut, id);
-				Console.WriteLine("DEBUG waited");
-				Console.Out.Flush();
-
 			}
 
 			var katexHtml = Htmlizer.GetHtml(Renderer, id);
@@ -111,15 +104,8 @@ namespace BlaTeX.Tests
 		private async Task<IRenderedComponent<KaTeX>> WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
 		{
 			var icut = cut.ToIRenderedComponent(cutId, this.Services);
-			Console.WriteLine("DEBUG creating waiter wait");
-			Console.Out.Flush();
-
 			using var waiter = new WaitForStateHelper(icut, predicate, WaitForStateTimeout);
-			Console.WriteLine("DEBUG going to wait");
-			Console.Out.Flush();
 			await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
-			Console.WriteLine("DEBUG waited");
-			Console.Out.Flush();
 			return icut!;
 
 			bool predicate()

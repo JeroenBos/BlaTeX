@@ -37,11 +37,9 @@
   /// <summary> This test mostly serves that adding a \blatex doesn't affect the adjacent nodes. </summary>
 		static Task Action(IRenderedComponent<KaTeX> cut, string newMath)
 		{
-      Console.WriteLine("DEBUG Action");
 			var newParameters = ParameterViewExtensions.Create(("Math", newMath));
 			return cut.InvokeAsync(async () =>
   {
-    Console.WriteLine("DEBUG InvokeAsync");
 	  await cut.Instance.SetParametersAsync(newParameters);
   });
 
