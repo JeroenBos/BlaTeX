@@ -715,6 +715,7 @@ namespace BlaTeX.JSInterop.KaTeX
             public override _AnyParseNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
                 return (_AnyParseNode)DefaultObjectJsonConverter.Read(ref reader, typeof(_AnyParseNode), options)!;
+#pragma warning disable CS0162
                 var properties = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ref reader, options)
                                                .Map<string, JsonElement, object>((key, jsonElement) => jsonElement.Deserialize<object>(options));
 

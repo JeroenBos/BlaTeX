@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [ master, trigger_CI ] 
+  pull_request:
 
 jobs:
   test:
@@ -15,7 +16,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.300
+        dotnet-version: 3.1.401
     - name: Setup NodeJS
       uses: actions/setup-node@v1
       with:
