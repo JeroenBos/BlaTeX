@@ -12,6 +12,9 @@
             "url": "http://localhost:5000",
             "webRoot": "${workspaceFolder}",
             "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
+            "env": {
+                "WAIT_FOR_STATE_TIMEOUT_SEC": "10",
+            }
         },
         {
             "name": "Debug Test",
@@ -19,7 +22,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/Tests/bin/Debug/netcoreapp3.1/BlaTeX.Tests.dll",
             "args": [
-                "Componentized" // no-commit //https://stackoverflow.com/a/20574486/308451
+                "BlaTeX.Tests.Static.C.RazorTests" // no-commit //https://stackoverflow.com/a/20574486/308451
             ],
             "preLaunchTask": "wait_for_build",
             "cwd": "${workspaceFolder}",
@@ -37,6 +40,9 @@
                     ]
                 }
             },
+            "env": {
+                "WAIT_FOR_STATE_TIMEOUT_SEC": "3600",
+            }
         },
     ]
 }
