@@ -8,7 +8,7 @@ To get breakpoints to hit:
 Tests
 - Requirements: Node.js v12.x
 - Tests can be run by running `dotnet test *Tests` or pressing F7
-- Tests can be debuged by selecting them with a regex 
+- Tests can be debugged by selecting them with a regex 
   - in launch.json -> Debug Test -> args for selection tests, or `*` for all
 
 JS

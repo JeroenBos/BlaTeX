@@ -62,7 +62,7 @@ namespace BlaTeX.Tests
 		{
 			Validate();
 
-			string blatexJSPath = Program.RootFolder + "/wwwroot/js/blatex_wrapper.js";
+			string blatexJSPath = Program.RootFolder.Replace("\\", "/") + "/wwwroot/js/blatex_wrapper.js";
 			if (!File.Exists(blatexJSPath)) throw new FileNotFoundException("blatex.js not found. You probably need to build it, see readme. ");
 
 			Services.AddDefaultTestContextServices();

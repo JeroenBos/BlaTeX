@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor" InitialTargets="SetGlobals">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../BlaTeX.csproj" />
-    <PackageReference Include="JBSnorro" Version="0.0.7" />
+    <PackageReference Include="JBSnorro" Version="0.0.8" />
 
     <PackageReference Include="bunit" Version="1.0.0-beta-9" />
     <PackageReference Include="bunit.core" Version="1.0.0-beta-9" />
@@ -35,11 +35,16 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-   
-  <Target Name="SetGlobals" >
-    <Exec Command="globals set '$(ProjectName)' '$(ProjectName)' 10" Condition="'$(Configuration)' != 'CI'"/>
-  </Target>
-  <Target Name="UnsetGlobals" AfterTargets="PostBuildEvent" >
-    <Exec Command="globals unset '$(ProjectName)' '$(ProjectName)'" Condition="'$(Configuration)' != 'CI'" />
-  </Target>
+
+	<!-- https://github.com/dotnet/sdk/issues/1458#issuecomment-420456386 -->
+	<Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml" Condition="$(CopyLocalLockFileAssemblies) == true" AfterTargets="ResolveReferences">
+		<ItemGroup>
+			<ReferenceCopyLocalPaths
+        Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdb')"
+        Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).pdb')" />
+			<ReferenceCopyLocalPaths
+        Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')"
+        Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
+		</ItemGroup>
+	</Target>
 </Project>
