@@ -8,7 +8,7 @@ To get breakpoints to hit:
 Tests
 - Requirements: Node.js v12.x
 - Tests can be run by running `dotnet test *Tests` or pressing F7
-- Tests can be debuged by selecting them with a regex 
+- Tests can be debugged by selecting them with a regex 
   - in launch.json -> Debug Test -> args for selection tests, or `*` for all
 
 JS
@@ -18,11 +18,11 @@ JS
 - `cd js/blatex && rm -r node_modules && yarn install && yarn build && cd .. && npm install && npm run build && cd ..`
 
 
-Submodules:
-  - One-time initialize katex-fonts submodule:
-    - `git submodule add --branch "v0.10.0-rc.1" git@github.com:JeroenBos/KaTeX.git js/blatex`
-    - `cd js/blatex && rmdir submodules/katex-fonts && git submodule add -f https://github.com/KaTeX/katex-fonts.git submodules/katex-fonts`
-  - Update blatex submodule:
-    - `git submodule foreach git pull`
-    - commit the diff file
+Initial clone, including submodules:
+
+```bash
+git clone git@github.com:JeroenBos/BlaTeX.git
+cd BlaTeX
+git submodule update --init --recursive
+```
 

@@ -44,7 +44,7 @@ namespace BlaTeX.Tests
             }
         }
 
-        internal async Task<(int ExitCode, string StandardOutput, string ErrorOutput)> InvokeAsyncImpl(string identifier, params object[]? args)
+        internal async Task<(int ExitCode, string StandardOutput, string ErrorOutput, string DebugOutput)> InvokeAsyncImpl(string identifier, params object[]? args)
         {
             // do the serialization before the built-in does it (which will ignore JSStrings)
             // but that one doesn't work because I can't get it to work recursively, see HACK id=0
@@ -67,8 +67,7 @@ namespace BlaTeX.Tests
         }
         public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, params object[]? args)
         {
-
-            var (exitCode, stdOut, stdErr) = await this.InvokeAsyncImpl(identifier, args);
+            var (exitCode, stdOut, stdErr, debugOut) = await this.InvokeAsyncImpl(identifier, args);
             Console.WriteLine(stdOut);
             Console.WriteLine(stdErr);
             if (stdOut == "")
