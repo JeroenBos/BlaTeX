@@ -5,29 +5,29 @@ using System.Reflection;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
-using BlaTeX.Pages;
 using Bunit;
 using Bunit.Extensions;
 using Bunit.Extensions.WaitForHelpers;
 using Bunit.RazorTesting;
 using Bunit.Rendering;
 using JBSnorro;
+using JBSnorro.Diagnostics;
+using JBSnorro.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using BlaTeX.JSInterop;
 using BlaTeX.JSInterop.KaTeX;
-using System.Threading;
-using JBSnorro.Text;
+using BlaTeX.Pages;
 
 namespace BlaTeX.Tests
 {
-	/// <summary>
-	/// A component used to create KaTeX snapshot tests.
-	/// Snapshot tests takes the math string and options as inputs, and an Expected section.
-	/// It then compares the result of letting the katex library render the inputs, using semantic HTML comparison.
-	/// </summary>
+/// <summary>
+/// A component used to create KaTeX snapshot tests.
+/// Snapshot tests takes the math string and options as inputs, and an Expected section.
+/// It then compares the result of letting the katex library render the inputs, using semantic HTML comparison.
+/// </summary>
 	public class KaTeXTest : RazorTestBase
 	{
 		// test-related parameters: 
@@ -59,15 +59,14 @@ namespace BlaTeX.Tests
 		public override string? DisplayName => this.GetType().Name;
 
 		/// <inheritdoc/>
-		protected override async Task Run()
+		protected override async Task RunAsync()
 		{
 			Validate();
 
-			var blatexJSPath = JSString.Escape(Program.RootFolder.Replace("\\", "/") + "/wwwroot/js/blatex_wrapper.js");
-			if (!File.Exists(blatexJSPath)) throw new FileNotFoundException("blatex.js not found. You probably need to build it, see readme. ");
+			Contract.Assert<BlatexNotFoundException>(File.Exists(NodeJSRuntime.DefaultJSPath.Value.Replace("\\\\", "\\")), "blatex.js not found. You probably need to build it, see readme. ");
 
-			Services.AddDefaultTestContextServices();
-			Services.Add(new ServiceDescriptor(typeof(IJSRuntime), new NodeJSRuntime(new[] { blatexJSPath })));
+			Services.AddDefaultTestContextServices(this, new BunitJSInterop());
+			Services.Add(new ServiceDescriptor(typeof(IJSRuntime), new NodeJSRuntime(new [] { NodeJSRuntime.DefaultJSPath})));
 			Services.Add(new ServiceDescriptor(typeof(IKaTeX), typeof(_KaTeX), ServiceLifetime.Singleton));
 
 			int id;
@@ -79,11 +78,15 @@ namespace BlaTeX.Tests
 			};
 			if (this.Interactive ?? false)
 			{
-				(id, cut) = this.Renderer.RenderComponent<InteractiveKaTeX>(parameters);
+				var component = this.Renderer.RenderComponent<InteractiveKaTeX>(parameters);
+				cut = component.Instance;
+				id = component.ComponentId;
 			}
 			else
 			{
-				(id, cut) = this.Renderer.RenderComponent<KaTeX>(parameters);
+				var component = this.Renderer.RenderComponent<KaTeX>(parameters);
+				cut = component.Instance;
+				id = component.ComponentId;
 			}
 
 			if (cut is null)
@@ -97,7 +100,7 @@ namespace BlaTeX.Tests
 			}
 
 			var katexHtml = Htmlizer.GetHtml(Renderer, id);
-			var expectedRenderId = Renderer.RenderFragment(this.Expected);
+			var expectedRenderId = Renderer.RenderFragment(this.Expected).ComponentId;
 			var expectedHtml = Htmlizer.GetHtml(Renderer, expectedRenderId);
 
 			HtmlEqualityComparer.AssertEqual(expectedHtml, katexHtml);

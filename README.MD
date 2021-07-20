@@ -13,8 +13,8 @@ Tests
 
 JS
 - One-time:
-  - install yarn (v1.22.4)
-  - install npm (v6.14.5)
+  - install yarn (v1.22.10)
+  - install npm (v6.14.11)
 - `cd js/blatex && rm -r node_modules && yarn install && yarn build && cd .. && npm install && npm run build && cd ..`
 
 

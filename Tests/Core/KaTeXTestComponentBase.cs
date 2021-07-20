@@ -39,7 +39,7 @@ namespace BlaTeX.Tests
 			{
 				// this helps debugging tremendously because the foreach just swallows exceptions
 				// I mean it doesn't catch them, but the IDE isn't showing them
-				tests[0].RunTest().Wait();
+				tests[0].RunTestAsync().Wait();
 			}
 			else
 			{
@@ -47,7 +47,7 @@ namespace BlaTeX.Tests
 				foreach (var test in tests)
 				{
 					Console.WriteLine($"Executing test {i}/{tests.Count}: '{test.Description}'");
-					await test.RunTest().ConfigureAwait(false);
+					await test.RunTestAsync().ConfigureAwait(false);
 					i++;
 				}}
 			
