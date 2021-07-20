@@ -15,7 +15,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="3.2.0" PrivateAssets="all" />
     <PackageReference Include="System.Net.Http.Json" Version="3.2.0" />
-    <PackageReference Include="JBSnorro" Version="0.0.9" />
+    <PackageReference Include="JBSnorro" Version="0.0.9" Condition="'$(Configuration)'!='Debug'"/>
+    <Reference Include="JBSnorro" Condition="'$(Configuration)'=='Debug'">
+      <HintPath>..\ASDE\JBSnorro\bin\Debug\net5.0\JBSnorro.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <PropertyGroup>
     <DefaultItemExcludes>$(DefaultItemExcludes);obj;Tests/**/*</DefaultItemExcludes>
