@@ -21,7 +21,8 @@ namespace BlaTeX.Tests
     {
         public static NodeJSRuntime CreateDefault()
         {
-            return new NodeJSRuntime($"{Program.RootFolder}/wwwroot/js/blatex_wrapper.js".ToSingleton());
+            string path = Path.Join(Program.RootFolder, "wwwroot", "js", "blatex_wrapper.js");
+            return new NodeJSRuntime(path.ToSingleton());
         }
 
         public JsonSerializerOptions Options { get; }
@@ -30,6 +31,7 @@ namespace BlaTeX.Tests
         public NodeJSRuntime(IEnumerable<string> imports, IEnumerable<(Type, string)>? jsDeserializableIDs = null, JsonSerializerOptions? options = null)
         {
             this.Imports = imports?.ToReadOnlyList() ?? EmptyCollection<string>.ReadOnlyList;
+            Contract.RequiresForAll(imports, LanguageStringVerifier.ContainsOnlyValidEscapeSequences);
             this.IDs = jsDeserializableIDs?.Select(t => KeyValuePair.Create(t.Item1, t.Item2)).ToReadOnlyList() ?? EmptyCollection<KeyValuePair<Type, string>>.ReadOnlyList;
             if (options == null)
             {
