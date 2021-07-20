@@ -1,18 +1,20 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
-using System.Text.Json;
+
 using JBSnorro;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using JBSnorro.Extensions;
 using JBSnorro.Diagnostics;
-using System.Collections.Generic;
+using JBSnorro.Extensions;
+using JBSnorro.Text;
 using BlaTeX.JSInterop;
-using System.Text.Encodings.Web;
 using BlaTeX.JSInterop.KaTeX;
 
 namespace BlaTeX.Tests
@@ -49,7 +51,7 @@ namespace BlaTeX.Tests
             // do the serialization before the built-in does it (which will ignore JSStrings)
             // but that one doesn't work because I can't get it to work recursively, see HACK id=0
             var original_args = args;
-            if(args != null)
+            if (args != null)
                 for (int i = 0; i < args.Length; i++)
                     if (args[i] == null)
                         throw new ArgumentNullException($"args[{i}]. Use JSString.Null or JSString.Undefined instead.");
