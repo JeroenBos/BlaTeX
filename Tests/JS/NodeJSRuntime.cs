@@ -67,9 +67,12 @@ namespace BlaTeX.Tests
                                                      typeIdPropertyName: nameof(IJSSerializable.SERIALIZATION_TYPE_ID))
                                           .ConfigureAwait(false);
         }
-        public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, params object[]? args)
+        public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, params object?[]? args)
         {
-            var (exitCode, stdOut, stdErr, debugOut) = await this.InvokeAsyncImpl(identifier, args);
+            for (int i = 0; args != null && i < args.Length; i++)
+                args[i] ??= JSString.Null;
+
+            var (exitCode, stdOut, stdErr, debugOut) = await this.InvokeAsyncImpl(identifier, args!);
             Console.WriteLine(stdOut);
             Console.WriteLine(stdErr);
             if (stdOut == "")
