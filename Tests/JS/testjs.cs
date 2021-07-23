@@ -2,6 +2,7 @@ using BlaTeX.JSInterop.KaTeX;
 using JBSnorro;
 using JBSnorro.Collections.ObjectModel;
 using JBSnorro.Diagnostics;
+using JBSnorro.Text;
 using JBSnorro.Text.Json;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace BlaTeX.Tests
 		[Fact]
 		public async Task JSInteropTestViaBlazor()
 		{
-			var imports = $"{Program.RootFolder}/wwwroot/js/blatex_wrapper.js".ToSingleton();
+			var imports = NodeJSRuntime.DefaultJSPath.ToSingleton();
 			var result = await new NodeJSRuntime(imports).InvokeAsync<string>("blatex_wrapper.default.renderToString", "c").AsTask();
 			string expected = @"
 <span class=""katex"">
@@ -52,7 +53,7 @@ namespace BlaTeX.Tests
 		[Fact]
 		public async Task CharacterEscapeTest()
 		{
-			var runtime = new NodeJSRuntime(Array.Empty<string>());
+			var runtime = new NodeJSRuntime(Array.Empty<JSString>());
 			const string js = "'\\t'";
 			// literal JS:
 			// console.log('\t')
