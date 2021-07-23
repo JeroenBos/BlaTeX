@@ -5,6 +5,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.IO;
 using JBSnorro.Diagnostics;
+using JBSnorro.Extensions;
 
 namespace BlaTeX.JSInterop
 {
@@ -62,29 +63,5 @@ namespace BlaTeX.JSInterop
 		internal static Regex Regex { get; } = new Regex(@"Error: Cannot find module '[A-Z]:[^\\][^\n]+(\/|\\)js(\/|\\)blatex_wrapper\.js'");
 		private static readonly string userMessage = $"Cannot find '{string.Join("/", ".", "wwwroot", "js", "blatex_wrapper.js")}' because the path seems malformed. Backslashes seem to be missing";
 		public BlatexNotFoundDueToMalformedPathException(string message) : base(message, userMessage) { }
-	}
-	public static class ExtensionsJBSnorro_0_0_10
-	{
-		/// <summary>
-		/// Gets the string in <paramref name="s"/> between <paramref name="start"/> and <paramref name="end"/>.
-		/// </summary>
-		public static string? Substring(this string s, string start, string? end = null, int startIndex = 0)
-		{
-			Contract.Requires(s != null, nameof(s));
-			Contract.Requires(start != null, nameof(start));
-			Contract.Requires(end != null, nameof(end));
-			int i = s.IndexOf(start, startIndex);
-			if (i == -1)
-				return null;
-
-			if (end == null)
-				return s[i..];
-
-			int endIndex = s.IndexOf(end, i + start.Length);
-			if (endIndex == -1)
-				return null;
-
-			return s[i..endIndex];
-		}
 	}
 }
