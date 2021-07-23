@@ -10,9 +10,9 @@
 	<ItemGroup>
 		<ProjectReference Include="../BlaTeX.csproj" />
 		<!-- Reference JBSnorro locally in DEBUG, otherwise use Nuget package.-->
-		<PackageReference Include="JBSnorro" Version="0.0.9" Condition="'$(Configuration)'!='Debug'"/>
+		<PackageReference Include="JBSnorro" Version="0.0.10" Condition="'$(Configuration)'!='Debug'"/>
 		<Reference Include="JBSnorro" Condition="'$(Configuration)'=='Debug'">
-			<HintPath>..\..\ASDE\JBSnorro\bin\Debug\net5.0\JBSnorro.dll</HintPath>
+			<HintPath>..\..\ASDE\JBSnorro\bin\Debug\netstandard2.1\JBSnorro.dll</HintPath>
 		</Reference>
 		
 		<PackageReference Include="bunit" Version="1.0.0-beta-9" />
