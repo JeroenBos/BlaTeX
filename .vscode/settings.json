@@ -1,7 +1,7 @@
 {
-    "debug.javascript.usePreview": true,
-    "dotnet-test-explorer.testProjectPath": "Tests/**/*",
-    "typescript.validate.enable": false,
-    "javascript.validate.enable": false,
-    "diffEditor.ignoreTrimWhitespace": true,
+	"debug.javascript.usePreview": true,
+	"dotnet-test-explorer.testProjectPath": "Tests/**/*",
+	"typescript.validate.enable": false,
+	"javascript.validate.enable": false,
+	"diffEditor.ignoreTrimWhitespace": true,
 }

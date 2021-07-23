@@ -1,50 +1,50 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <GenerateProgramFile>False</GenerateProgramFile>
-    <LangVersion>preview</LangVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateProgramFile>False</GenerateProgramFile>
+		<LangVersion>preview</LangVersion>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="../BlaTeX.csproj" />
-    <!-- Reference JBSnorro locally in DEBUG, otherwise use Nuget package.-->
-    <PackageReference Include="JBSnorro" Version="0.0.9" Condition="'$(Configuration)'!='Debug'"/>
-    <Reference Include="JBSnorro" Condition="'$(Configuration)'=='Debug'">
-      <HintPath>..\..\ASDE\JBSnorro\bin\Debug\net5.0\JBSnorro.dll</HintPath>
-    </Reference>
-    
-    <PackageReference Include="bunit" Version="1.0.0-beta-9" />
-    <PackageReference Include="bunit.core" Version="1.0.0-beta-9" />
-    <PackageReference Include="bunit.web" Version="1.0.0-beta-9" />
-    <PackageReference Include="bunit.xunit" Version="1.0.0-beta-9" />
-    <PackageReference Include="AngleSharp" Version="0.14.0" />
-    <PackageReference Include="AngleSharp.Css" Version="0.14.0" />
-    <PackageReference Include="AngleSharp.Diffing" Version="0.14.0" />
-    <PackageReference Include="AngleSharp.Wrappers" Version="1.2.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
-    <PackageReference Include="Nito.AsyncEx.Context" Version="5.0.0" />
-    <PackageReference Include="Shouldly" Version="3.0.2" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Watch Include="../**/*.cs;../**/*.razor;../**/*.csproj" Exclude="../**/obj/**,**/node_modules/**" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="../BlaTeX.csproj" />
+		<!-- Reference JBSnorro locally in DEBUG, otherwise use Nuget package.-->
+		<PackageReference Include="JBSnorro" Version="0.0.9" Condition="'$(Configuration)'!='Debug'"/>
+		<Reference Include="JBSnorro" Condition="'$(Configuration)'=='Debug'">
+			<HintPath>..\..\ASDE\JBSnorro\bin\Debug\net5.0\JBSnorro.dll</HintPath>
+		</Reference>
+		
+		<PackageReference Include="bunit" Version="1.0.0-beta-9" />
+		<PackageReference Include="bunit.core" Version="1.0.0-beta-9" />
+		<PackageReference Include="bunit.web" Version="1.0.0-beta-9" />
+		<PackageReference Include="bunit.xunit" Version="1.0.0-beta-9" />
+		<PackageReference Include="AngleSharp" Version="0.14.0" />
+		<PackageReference Include="AngleSharp.Css" Version="0.14.0" />
+		<PackageReference Include="AngleSharp.Diffing" Version="0.14.0" />
+		<PackageReference Include="AngleSharp.Wrappers" Version="1.2.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
+		<PackageReference Include="Nito.AsyncEx.Context" Version="5.0.0" />
+		<PackageReference Include="Shouldly" Version="3.0.2" />
+		<PackageReference Include="xunit" Version="2.4.1" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Watch Include="../**/*.cs;../**/*.razor;../**/*.csproj" Exclude="../**/obj/**,**/node_modules/**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="xunit.runner.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="xunit.runner.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
-  <!-- https://github.com/dotnet/sdk/issues/1458#issuecomment-420456386 -->
-  <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml" Condition="$(CopyLocalLockFileAssemblies) == true" AfterTargets="ResolveReferences">
-    <ItemGroup>
-      <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdb')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).pdb')" />
-      <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
-    </ItemGroup>
-  </Target>
+	<!-- https://github.com/dotnet/sdk/issues/1458#issuecomment-420456386 -->
+	<Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml" Condition="$(CopyLocalLockFileAssemblies) == true" AfterTargets="ResolveReferences">
+		<ItemGroup>
+			<ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdb')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).pdb')" />
+			<ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
+		</ItemGroup>
+	</Target>
 </Project>

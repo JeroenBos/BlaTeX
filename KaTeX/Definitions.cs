@@ -138,10 +138,10 @@ namespace BlaTeX.JSInterop.KaTeX
 		string toText();
 	}
 	/**
-     * This node represents a general purpose MathML node of any type. The
-     * constructor requires the type of node to create (for example, `"mo"` or
-     * `"mspace"`, corresponding to `<mo>` and `<mspace>` tags).
-     */
+	 * This node represents a general purpose MathML node of any type. The
+	 * constructor requires the type of node to create (for example, `"mo"` or
+	 * `"mspace"`, corresponding to `<mo>` and `<mspace>` tags).
+	 */
 	interface MathNode : MathDomNode
 	{
 		MathNodeType Type { get; }

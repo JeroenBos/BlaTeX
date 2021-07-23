@@ -4,16 +4,16 @@
 
 <h3>This component demonstrates calling JS from .NET. </h3>
 <input value="c = \pm \sqrt{a^2 + b^2}" 
-       @oninput="onInputChanged" />
-    
+	   @oninput="onInputChanged" />
+	
 <p></p>
 <KaTeX Math=@math />
 
 @code {
-    private string math;
+	private string math;
 
-    private void onInputChanged(ChangeEventArgs e)
-    {
-        math = (string)e.Value;
-    }
+	private void onInputChanged(ChangeEventArgs e)
+	{
+		math = (string)e.Value;
+	}
 }

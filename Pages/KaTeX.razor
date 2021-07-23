@@ -3,19 +3,19 @@
 
 @if (markup != null)
 {
-    <MarkupStringWithComponents Markup="@markup"
-                                Substitute="@Substitute"
-                                Selector="@Selector" >
+	<MarkupStringWithComponents Markup="@markup"
+								Substitute="@Substitute"
+								Selector="@Selector" >
 
-    </MarkupStringWithComponents>
+	</MarkupStringWithComponents>
 }
 else if (Loading != null)
 {
-    @Loading
+	@Loading
 }
 else
 {   
-    <div> Rendering... </div>
+	<div> Rendering... </div>
 }
 
 @code {
