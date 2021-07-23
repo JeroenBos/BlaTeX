@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using BlaTeX.JSInterop;
 using BlaTeX.JSInterop.KaTeX;
 using System.Threading;
+using JBSnorro.Text;
 
 namespace BlaTeX.Tests
 {
@@ -62,7 +63,7 @@ namespace BlaTeX.Tests
 		{
 			Validate();
 
-			string blatexJSPath = Program.RootFolder.Replace("\\", "/") + "/wwwroot/js/blatex_wrapper.js";
+			var blatexJSPath = JSString.Escape(Program.RootFolder.Replace("\\", "/") + "/wwwroot/js/blatex_wrapper.js");
 			if (!File.Exists(blatexJSPath)) throw new FileNotFoundException("blatex.js not found. You probably need to build it, see readme. ");
 
 			Services.AddDefaultTestContextServices();
