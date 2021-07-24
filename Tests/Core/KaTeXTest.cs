@@ -23,11 +23,11 @@ using BlaTeX.Pages;
 
 namespace BlaTeX.Tests
 {
-/// <summary>
-/// A component used to create KaTeX snapshot tests.
-/// Snapshot tests takes the math string and options as inputs, and an Expected section.
-/// It then compares the result of letting the katex library render the inputs, using semantic HTML comparison.
-/// </summary>
+	/// <summary>
+	/// A component used to create KaTeX snapshot tests.
+	/// Snapshot tests takes the math string and options as inputs, and an Expected section.
+	/// It then compares the result of letting the katex library render the inputs, using semantic HTML comparison.
+	/// </summary>
 	public class KaTeXTest : RazorTestBase
 	{
 		// test-related parameters: 
@@ -66,58 +66,48 @@ namespace BlaTeX.Tests
 			Contract.Assert<BlatexNotFoundException>(File.Exists(NodeJSRuntime.DefaultJSPath.Value.Replace("\\\\", "\\")), "blatex.js not found. You probably need to build it, see readme. ");
 
 			Services.AddDefaultTestContextServices(this, new BunitJSInterop());
-			Services.Add(new ServiceDescriptor(typeof(IJSRuntime), new NodeJSRuntime(new [] { NodeJSRuntime.DefaultJSPath})));
+			Services.Add(new ServiceDescriptor(typeof(IJSRuntime), new NodeJSRuntime(new[] { NodeJSRuntime.DefaultJSPath })));
 			Services.Add(new ServiceDescriptor(typeof(IKaTeX), typeof(_KaTeX), ServiceLifetime.Singleton));
 
-			int id;
-			KaTeX cut;
 			var parameters = new ComponentParameter[]
 			{
 				(nameof(KaTeX.Math), this.Math),
 				(nameof(KaTeX.ChildComponentMarkupService), this.ChildComponentMarkupService),
 			};
+			IRenderedComponent<KaTeX> cut;
 			if (this.Interactive ?? false)
 			{
-				var component = this.Renderer.RenderComponent<InteractiveKaTeX>(parameters);
-				cut = component.Instance;
-				id = component.ComponentId;
+				cut = this.Renderer.RenderComponent<InteractiveKaTeX>(parameters);
 			}
 			else
 			{
-				var component = this.Renderer.RenderComponent<KaTeX>(parameters);
-				cut = component.Instance;
-				id = component.ComponentId;
+				cut = this.Renderer.RenderComponent<KaTeX>(parameters);
 			}
 
-			if (cut is null)
-				throw new InvalidOperationException("The KaTeX component did not render successfully");
+			Contract.Assert(cut is not null, "The KaTeX component did not render successfully");
 
-			var renderedCut = await WaitForKatexToHaveRendered(cut, id);
+			await WaitForKatexToHaveRendered(cut);
 			if (this.Action.HasDelegate)
 			{
-				await this.Action.InvokeAsync(renderedCut);
-				await WaitForKatexToHaveRendered(cut, id);
+				await this.Action.InvokeAsync(cut);
+				await WaitForKatexToHaveRendered(cut);
 			}
-
-			var katexHtml = Htmlizer.GetHtml(Renderer, id);
-			var expectedRenderId = Renderer.RenderFragment(this.Expected).ComponentId;
-			var expectedHtml = Htmlizer.GetHtml(Renderer, expectedRenderId);
+			
+			var katexHtml = cut.Markup;
+			
+			var fragment = (IRenderedFragment)Renderer.RenderFragment(this.Expected);
+			var expectedHtml = fragment.Markup;
 
 			HtmlEqualityComparer.AssertEqual(expectedHtml, katexHtml);
 		}
-		private async Task<IRenderedComponent<KaTeX>> WaitForKatexToHaveRendered(KaTeX cut, int cutId, TimeSpan? timeout = default)
+		private async Task WaitForKatexToHaveRendered(IRenderedComponent<KaTeX> cut)
 		{
-			var icut = cut.ToIRenderedComponent(cutId, this.Services);
-			using var waiter = new WaitForStateHelper(icut, predicate, WaitForStateTimeout);
-			await waiter.WaitTask; // don't just return the task because then the waiter is disposed of too early
-			return icut!;
+			// Use Task.Run to prevent program from exiting in case it's on the main thread
+			await Task.Run(() => cut.WaitForState(predicate, WaitForStateTimeout));
 
-			bool predicate()
-			{
-				return cut.markup != null;
-			}
-
+			bool predicate() => cut.Instance.markup != null;
 		}
+
 
 		/// <inheritdoc/>
 		public override void Validate()
@@ -159,22 +149,18 @@ namespace BlaTeX.Tests
 		{
 			get
 			{
-
 				const string VAR_NAME = "WAIT_FOR_STATE_TIMEOUT_SEC";
 				var value = Environment.GetEnvironmentVariable(VAR_NAME);
 				if (value != null)
 				{
-					if (int.TryParse(value, out int sec))
-					{
-						if (sec <= 0)
-						{
-							// I considered `return TimeSpan.MaxValue;` here but it doesn't work
-							throw new ArgumentNullException($"Environment variable '{VAR_NAME}' must be strictly positive");
-						}
-						return TimeSpan.FromSeconds(sec);
-					}
-					else
+					if (!int.TryParse(value, out int sec))
 						throw new ArgumentException($"Environment variable '{VAR_NAME}'='value' is not a value int");
+					if (sec < -1)
+						throw new ArgumentNullException($"Environment variable '{VAR_NAME}' must be -1 or higher");
+
+					if (sec == -1)
+						return System.Threading.Timeout.InfiniteTimeSpan;
+					return TimeSpan.FromSeconds(sec);
 				}
 
 #if DEBUG
@@ -188,21 +174,6 @@ namespace BlaTeX.Tests
 #endif
 
 			}
-		}
-	}
-	static class IRenderedComponentConstructorExtensions
-	{
-		private static readonly Type RenderedComponentType = typeof(SnapshotTest).Assembly.GetType("Bunit.Rendering.RenderedComponent`1")!.MakeGenericType(typeof(KaTeX));
-		private static readonly ConstructorInfo RenderedComponentTypeCtor = RenderedComponentType.GetConstructors()[0];
-
-		/// <summary>
-		/// Instantiates and performs a first render of a component of type <typeparamref name="KaTeX"/>.
-		/// </summary>
-		/// <typeparam name="KaTeX">Type of the component to render</typeparam>
-		/// <returns>The rendered <typeparamref name="KaTeX"/></returns>
-		public static IRenderedComponent<KaTeX> ToIRenderedComponent(this KaTeX cut, int cutId, TestServiceProvider services)
-		{
-			return (IRenderedComponent<KaTeX>)RenderedComponentTypeCtor.Invoke(new object[] { services, cutId, cut });
 		}
 	}
 }
