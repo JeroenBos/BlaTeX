@@ -145,7 +145,7 @@ namespace BlaTeX.Pages
 
 			string key = markupFragment[BLATEX_ATTR_PREFIX.Length..keyEndIndex];
 			string value = markupFragment[valueStartIndex..].Trim();
-			if (this.Fragments.TryGetValue(key, out RenderFragment<string> renderFragment))
+			if (this.Fragments.TryGetValue(key, out RenderFragment<string>? renderFragment))
 			{
 				return renderFragment(value);
 			}

@@ -16,6 +16,7 @@ using JBSnorro.Extensions;
 using JBSnorro.Text;
 using BlaTeX.JSInterop;
 using BlaTeX.JSInterop.KaTeX;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BlaTeX.Tests
 {
@@ -47,7 +48,7 @@ namespace BlaTeX.Tests
 			}
 		}
 
-		internal async Task<(int ExitCode, string StandardOutput, string ErrorOutput, string DebugOutput)> InvokeAsyncImpl(string identifier, params object[]? args)
+		internal async Task<(int ExitCode, string StandardOutput, string ErrorOutput, string DebugOutput)> InvokeAsyncImpl(string identifier, params object?[]? args)
 		{
 			// do the serialization before the built-in does it (which will ignore JSSourceCodes)
 			// but that one doesn't work because I can't get it to work recursively, see HACK id=0
@@ -57,18 +58,18 @@ namespace BlaTeX.Tests
 					if (args[i] == null)
 						throw new ArgumentNullException($"args[{i}]. Use JSSourceCode.Null or JSSourceCode.Undefined instead.");
 
-			args = args?.Map(arg => arg as JSSourceCode ?? new JSSourceCode(JsonSerializer.Serialize(arg, this.Options)));
+			var mappedArgs = args?.Map(arg => arg as JSSourceCode ?? new JSSourceCode(JsonSerializer.Serialize(arg, this.Options)));
 			var identifierObj = new JSSourceCode(identifier);
 
 			return await ProcessExtensions.ExecuteJS(this.Imports,
 													 identifier: identifierObj,
-													 arguments: args,
+													 arguments: mappedArgs,
 													 jsIdentifiers: this.IDs,
 													 options: this.Options,
 													 typeIdPropertyName: nameof(IJSSerializable.SERIALIZATION_TYPE_ID))
 										  .ConfigureAwait(false);
 		}
-		public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, params object[]? args)
+		public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, params object?[]? args)
 		{
 			var (exitCode, stdOut, stdErr, debugOut) = await this.InvokeAsyncImpl(identifier, args);
 			Console.WriteLine(stdOut);
@@ -78,7 +79,10 @@ namespace BlaTeX.Tests
 			try
 			{
 				Contract.Assert(!stdOut.Contains(nameof(IJSSerializable.SERIALIZATION_TYPE_ID)));
-				return JsonSerializer.Deserialize<TValue>(stdOut, this.Options);
+				var result = JsonSerializer.Deserialize<TValue>(stdOut, this.Options);
+				if (result == null)
+					throw new JsonException("According to IJSRuntime.InvokeAsync, we're not allowed to return null here");
+				return result;
 			}
 			catch (JsonException)
 			{
@@ -87,7 +91,7 @@ namespace BlaTeX.Tests
 			}
 		}
 
-		ValueTask<TValue> IJSRuntime.InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object[] args)
+		ValueTask<TValue> IJSRuntime.InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
 		{
 			return this.InvokeAsync<TValue>(identifier, args);
 		}
