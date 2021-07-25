@@ -66,7 +66,7 @@ namespace BlaTeX.Tests
 			Contract.Assert<BlatexNotFoundException>(File.Exists(NodeJSRuntime.DefaultJSPath.Value.Replace("\\\\", "\\")), "blatex.js not found. You probably need to build it, see readme. ");
 
 			Services.AddDefaultTestContextServices(this, new BunitJSInterop());
-			Services.Add(new ServiceDescriptor(typeof(IJSRuntime), new NodeJSRuntime(new[] { NodeJSRuntime.DefaultJSPath })));
+			Services.Add(new ServiceDescriptor(typeof(IJSRuntime), NodeJSRuntime.CreateDefault()));
 			Services.Add(new ServiceDescriptor(typeof(IKaTeX), typeof(_KaTeX), ServiceLifetime.Singleton));
 
 			var parameters = new ComponentParameter[]

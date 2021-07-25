@@ -19,8 +19,9 @@ namespace BlaTeX.Tests
 		[Fact]
 		public async Task JSInteropTestViaBlazor()
 		{
-			var imports = NodeJSRuntime.DefaultJSPath.ToSingleton();
-			var result = await new NodeJSRuntime(imports).InvokeAsync<string>("blatex_wrapper.default.renderToString", "c").AsTask();
+			var result = await NodeJSRuntime.CreateDefault()
+				                            .InvokeAsync<string>("blatex_wrapper.default.renderToString", "c")
+											.AsTask();
 			string expected = @"
 <span class=""katex"">
 	<span class=""katex-mathml"">

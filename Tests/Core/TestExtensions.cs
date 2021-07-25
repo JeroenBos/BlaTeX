@@ -26,7 +26,7 @@ namespace BlaTeX.Tests
 			while (!result.HasAttribute("blazor:onclick"))
 			{
 				result = result.ParentElement;
-				if (result.ParentElement == null)
+				if (result?.ParentElement == null)
 				{
 					throw new Exception("No element or ancestor listens for click events, i.e. has the attribute @onclick");
 				}

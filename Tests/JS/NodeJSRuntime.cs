@@ -25,9 +25,10 @@ namespace BlaTeX.Tests
 		public static JSString DefaultJSPath { get; } = JSString.Escape(Path.Join(Program.RootFolder, "wwwroot", "js", "blatex_wrapper.js"));
 		public static NodeJSRuntime CreateDefault()
 		{
-			return new NodeJSRuntime(DefaultJSPath.ToSingleton());
+			return new NodeJSRuntime(DefaultJSPath.ToSingleton()) { Trace = true };
 		}
 
+		public bool Trace { get; init; }
 		public JsonSerializerOptions Options { get; }
 		public IReadOnlyList<JSString> Imports { get; }
 		public IReadOnlyList<KeyValuePair<Type, string>> IDs { get; }
@@ -74,6 +75,16 @@ namespace BlaTeX.Tests
 			var (exitCode, stdOut, stdErr, debugOut) = await this.InvokeAsyncImpl(identifier, args);
 			Console.WriteLine(stdOut);
 			Console.WriteLine(stdErr);
+			if (stdErr != "")
+			{
+				System.Diagnostics.Debug.WriteLine("stdErr:");
+				System.Diagnostics.Debug.WriteLine(stdErr);
+			}
+			if (this.Trace)
+			{
+				System.Diagnostics.Debug.WriteLine("stdOut:");
+				System.Diagnostics.Debug.WriteLine(stdOut);
+			}
 			if (stdOut == "")
 				return default!;
 			try
