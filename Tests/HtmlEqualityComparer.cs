@@ -2,6 +2,7 @@ using AngleSharp.Diffing.Core;
 using AngleSharp.Dom;
 using Bunit;
 using Bunit.Diffing;
+using Bunit.Rendering;
 using JBSnorro;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace BlaTeX
 		[DebuggerHidden]
 		public static IEnumerable<IDiff> ComputeDifference(string x, string y, out (INodeList X, INodeList Y) nodes)
 		{
-			using var parser = new HtmlParser();
+			using var parser = new BunitHtmlParser();
 			nodes = (parser.Parse(x), parser.Parse(y));
 			var diffs = nodes.X.CompareTo(nodes.Y);
 			return diffs;
