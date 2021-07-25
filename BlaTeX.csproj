@@ -6,6 +6,7 @@
 		<LangVersion>preview</LangVersion>
 		<BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking> <!-- Workaround for "Mono.Cecil.ResolutionException: Failed to resolve System.Threading.CancellationToken"-->
 		<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+			<DefaultItemExcludes>$(DefaultItemExcludes);js\**</DefaultItemExcludes>
 	</PropertyGroup>
 
 	<ItemGroup>
