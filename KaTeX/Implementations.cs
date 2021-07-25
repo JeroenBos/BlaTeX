@@ -291,9 +291,10 @@ namespace BlaTeX.JSInterop.KaTeX
 				return false;
 			if (this.maxExpand != other.MaxExpand)
 				return false;
-			if (this.allowedProtocols?.SequenceEqual(other.AllowedProtocols) ?? other.AllowedProtocols is { })
-				return false;
-			return true;
+			if (this.allowedProtocols is null)
+				return other.AllowedProtocols is null;
+			else
+				return other.AllowedProtocols is not null && this.allowedProtocols.SequenceEqual(other.AllowedProtocols);
 		}
 		public override int GetHashCode() => throw new NotImplementedException();
 
@@ -518,7 +519,7 @@ namespace BlaTeX.JSInterop.KaTeX
 
 				if (reader.TokenType == JsonTokenType.String)
 				{
-					string s = JsonSerializer.Deserialize<string>(ref reader, options);
+					string? s = JsonSerializer.Deserialize<string>(ref reader, options);
 					if (string.IsNullOrWhiteSpace(s))
 					{
 						throw new JsonException("Unexpected empty string as SourceLocation");
@@ -545,7 +546,7 @@ namespace BlaTeX.JSInterop.KaTeX
 					do
 					{
 						Contract.Assert(reader.TokenType == JsonTokenType.PropertyName);
-						string name = reader.GetString();
+						string? name = reader.GetString();
 						reader.Read();
 						switch (name)
 						{

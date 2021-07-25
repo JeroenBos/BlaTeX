@@ -6,14 +6,6 @@
 
 @code {
 	static IChildComponentMarkupService service = new BlazorChildComponentMarkupService();
-	RenderFragment A = @<A><div>Hello</div></A>;
+	RenderFragment hello = @<Identity><div>Hello</div></Identity>;
 
-	public class ComponentsAsRenderFragments
-	{
-		[Fact]
-		public void a()
-		{
-
-		}
-	}
 }

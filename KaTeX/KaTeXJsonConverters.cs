@@ -72,7 +72,7 @@ namespace BlaTeX.JSInterop
 			this.getSerializerOrTypeKey = getSerializerOrTypeKey;
 		}
 
-		public override T Read(ref Utf8JsonReader _reader, Type typeToConvert, JsonSerializerOptions options)
+		public override T? Read(ref Utf8JsonReader _reader, Type typeToConvert, JsonSerializerOptions options)
 		{
 			using var _ = this.DetectStackoverflow(_reader, typeToConvert);
 
@@ -83,19 +83,21 @@ namespace BlaTeX.JSInterop
 			reader.Read();
 			while (reader.TokenType == JsonTokenType.PropertyName)
 			{
-				string keyName = reader.GetString();
+				string? keyName = reader.GetString();
 				if (keyPropertyNameEqualityComparer.Equals(keyName, this.keyPropertyName))
 				{
 					reader.Read();
-					TKey keyValue = JsonSerializer.Deserialize<TKey>(ref reader, options);
+					TKey? keyValue = JsonSerializer.Deserialize<TKey>(ref reader, options);
+					Contract.Assert<JsonException>(keyValue is not null, "key must not be null");
+
 					Type type = this.getTypeToDeserialize(keyValue);
 					if (type == typeof(T))
 					{
 						throw new ContractException($"{nameof(getTypeToDeserialize)} may not return 'T' (={typeof(T).FullName})");
 					}
 
-					var result = JsonSerializer.Deserialize(ref _reader /*continue with original reader*/, type, options);
-					return (T)(object)result;
+					object? result = JsonSerializer.Deserialize(ref _reader /*continue with original reader*/, type, options);
+					return (T?)result;
 				}
 				else
 				{

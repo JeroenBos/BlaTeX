@@ -21,7 +21,7 @@ namespace BlaTeX
 				if (parameters.TryGetValue<object>(key, out var value))
 					result.Add(key, value);
 			}
-			return ParameterView.FromDictionary(result);
+			return ParameterView.FromDictionary(result!);
 		}
 		/// <summary> Extracts a new parameter view with only the specified keys, omitting them if not present. </summary>
 		public static ParameterView FilterKeys(this ParameterView parameters, Type baseType)
@@ -38,7 +38,7 @@ namespace BlaTeX
 			{
 				result[key] = dict[key];
 			}
-			return ParameterView.FromDictionary(result);
+			return ParameterView.FromDictionary(result!);
 		}
 		/// <summary> Extracts a new parameter view with only the specified keys, throwing if a key is not present. </summary>
 		public static ParameterView Select(this ParameterView parameters, Type baseType)
@@ -65,8 +65,8 @@ namespace BlaTeX
 			Contract.Requires(parameterName != null);
 
 			var result = parameters.ToDictionary().ToDictionary();
-			result[parameterName] = value;
-			return ParameterView.FromDictionary(result);
+			result[parameterName] = value!;
+			return ParameterView.FromDictionary(result!);
 		}
 		/// <summary> Creates a new parameter view excluding the specified parameter names if present. </summary>
 		public static ParameterView Without(this ParameterView parameters, params string[] parameterNamesToExclude)
@@ -78,7 +78,7 @@ namespace BlaTeX
 			{
 				result.Remove(exclude);
 			}
-			return ParameterView.FromDictionary(result);
+			return ParameterView.FromDictionary(result!);
 		}
 		/// <summary> Get all parameter properties on the specified type. </summary>
 		public static IEnumerable<PropertyInfo> GetBlazorParameters(this Type componentType)
@@ -116,7 +116,7 @@ namespace BlaTeX
 
 			throw new ContractException("Unrecognized parameters specified: " + d.Select(pair => pair.Key).Join(", "));
 		}
-		public static ParameterView ToParameterView(this IDictionary<string, object> dictionary) => ParameterView.FromDictionary(dictionary);
+		public static ParameterView ToParameterView(this IDictionary<string, object> dictionary) => ParameterView.FromDictionary(dictionary!);
 		public static ParameterView Create(params (string, object)[] parameters)
 		{
 			return parameters.Select(ToKeyValuePair)
