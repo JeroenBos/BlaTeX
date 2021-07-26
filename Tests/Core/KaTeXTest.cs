@@ -20,6 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using BlaTeX.JSInterop;
 using BlaTeX.JSInterop.KaTeX;
 using BlaTeX.Pages;
+using InteractiveKaTeX = BlaTeX.Pages.InteractiveKaTeX; // prevents errors in VS
 
 namespace BlaTeX.Tests
 {
@@ -58,16 +59,20 @@ namespace BlaTeX.Tests
 		/// <inheritdoc/>
 		public override string? DisplayName => this.GetType().Name;
 
+		public static void AddKaTeXTestDefaultServices(TestContextBase ctx)
+		{
+			Contract.Assert<BlatexNotFoundException>(File.Exists(NodeJSRuntime.DefaultJSPath.Value.Replace("\\\\", "\\")), "blatex.js not found. You probably need to build it, see readme. ");
+
+			ctx.Services.AddDefaultTestContextServices(ctx, new BunitJSInterop());
+			ctx.Services.Add(new ServiceDescriptor(typeof(IJSRuntime), NodeJSRuntime.CreateDefault()));
+			ctx.Services.Add(new ServiceDescriptor(typeof(IKaTeX), typeof(_KaTeX), ServiceLifetime.Singleton));
+		}
 		/// <inheritdoc/>
 		protected override async Task RunAsync()
 		{
 			Validate();
 
-			Contract.Assert<BlatexNotFoundException>(File.Exists(NodeJSRuntime.DefaultJSPath.Value.Replace("\\\\", "\\")), "blatex.js not found. You probably need to build it, see readme. ");
-
-			Services.AddDefaultTestContextServices(this, new BunitJSInterop());
-			Services.Add(new ServiceDescriptor(typeof(IJSRuntime), NodeJSRuntime.CreateDefault()));
-			Services.Add(new ServiceDescriptor(typeof(IKaTeX), typeof(_KaTeX), ServiceLifetime.Singleton));
+			AddKaTeXTestDefaultServices(this);
 
 			var parameters = new ComponentParameter[]
 			{
@@ -95,10 +100,9 @@ namespace BlaTeX.Tests
 			
 			var katexHtml = cut.Markup;
 			
-			var fragment = (IRenderedFragment)Renderer.RenderFragment(this.Expected);
-			var expectedHtml = fragment.Markup;
+			var expectedFragment = (IRenderedFragment)Renderer.RenderFragment(this.Expected);
 
-			HtmlEqualException? exception = HtmlEqualityComparer.ComputeException(expectedHtml, katexHtml);
+			HtmlEqualException? exception = HtmlEqualityComparer.ComputeException(expectedFragment.Nodes, cut.Nodes);
 			if (exception != null)
 			{
 				Console.WriteLine(exception.Message);
@@ -106,7 +110,7 @@ namespace BlaTeX.Tests
 				throw exception;
 			}
 		}
-		private async Task WaitForKatexToHaveRendered(IRenderedComponent<KaTeX> cut)
+		internal static async Task WaitForKatexToHaveRendered(IRenderedComponent<KaTeX> cut)
 		{
 			// Use Task.Run to prevent program from exiting in case it's on the main thread
 			await Task.Run(() => cut.WaitForState(predicate, WaitForStateTimeout));
