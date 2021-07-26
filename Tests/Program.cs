@@ -21,7 +21,7 @@ namespace BlaTeX.Tests
 				var syncContext = new XunitAsyncTestSyncContext(null); // new Nito.AsyncEx.AsyncContext().SynchronizationContext
 				using (syncContext.AsTemporarySynchronizationContext())
 				{
-					TestExtensions.DefaultMainTestProjectImplementation(args);
+					await TestExtensions.DefaultMainTestProjectImplementation(args);
 				}
 				var exception = await syncContext.WaitForCompletionAsync();
 
@@ -35,7 +35,7 @@ namespace BlaTeX.Tests
 			else
 			{
 				// HelperToFindTestTypes(args);
-				TestExtensions.DefaultMainTestProjectImplementation(args);
+				await TestExtensions.DefaultMainTestProjectImplementation(args);
 			}
 		}
 		public static string RootFolder
