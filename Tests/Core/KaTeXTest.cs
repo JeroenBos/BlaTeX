@@ -98,7 +98,13 @@ namespace BlaTeX.Tests
 			var fragment = (IRenderedFragment)Renderer.RenderFragment(this.Expected);
 			var expectedHtml = fragment.Markup;
 
-			HtmlEqualityComparer.AssertEqual(expectedHtml, katexHtml);
+			HtmlEqualException? exception = HtmlEqualityComparer.ComputeException(expectedHtml, katexHtml);
+			if (exception != null)
+			{
+				Console.WriteLine(exception.Message);
+				System.Diagnostics.Debug.WriteLine(exception.Message);
+				throw exception;
+			}
 		}
 		private async Task WaitForKatexToHaveRendered(IRenderedComponent<KaTeX> cut)
 		{
