@@ -248,8 +248,7 @@ namespace BlaTeX.JSInterop.KaTeX
 		}
 		public interface BlaTeXNode : AnyParseNode
 		{
-			string Key { get; }
-			string? Arg { get; }
+			_AnyParseNode[] Args { get; }
 		}
 		/// <summary> Follows KaTeX naming convention. </summary>
 		public enum NodeType
