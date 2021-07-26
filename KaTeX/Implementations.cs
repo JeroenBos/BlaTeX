@@ -802,23 +802,19 @@ namespace BlaTeX.JSInterop.KaTeX
 	public class _BlaTeXNode : _AnyParseNode, BlaTeXNode
 	{
 		public static JsonConverter<BlaTeXNode> JsonConverterInstance => ExactJsonConverter<BlaTeXNode, _BlaTeXNode>.Instance;
-		public string key { get; set; } = default!;
-		public string? arg { get; set; }
+		public _AnyParseNode[] args { get; set; } = default!;
 
-		string BlaTeXNode.Key => key;
-		string? BlaTeXNode.Arg => arg;
+		_AnyParseNode[] BlaTeXNode.Args => args;
 
 		/// <summary> Ctor for JsonSerializer. </summary>
 		public _BlaTeXNode() { }
 		public _BlaTeXNode(NodeType type,
 						   Mode mode,
 						   SourceLocation? sourceLocation,
-						   string key,
-						   string? arg)
+						   _AnyParseNode[] args)
 			: base(type, mode, sourceLocation)
 		{
-			this.key = key;
-			this.arg = arg;
+			this.args = args;
 		}
 
 
@@ -831,9 +827,7 @@ namespace BlaTeX.JSInterop.KaTeX
 			if (!base.Equals(other))
 				return false;
 
-			if (this.key != other.Key)
-				return false;
-			if (this.arg != other.Arg)
+			if (this.args?.SequenceEqual(other.Args) ?? other.Args is not null)
 				return false;
 			return true;
 		}
@@ -843,19 +837,17 @@ namespace BlaTeX.JSInterop.KaTeX
 												 Option<Mode> mode = default,
 												 Option<SourceLocation?> sourceLocation = default)
 		{
-			return this.With(type, mode, sourceLocation, default, default);
+			return this.With(type, mode, sourceLocation, default);
 		}
 		public virtual BlaTeXNode With(Option<NodeType> type = default,
 									   Option<Mode> mode = default,
 									   Option<SourceLocation?> sourceLocation = default,
-									   Option<string> key = default,
-									   Option<string?> arg = default)
+									   Option<_AnyParseNode[]> args = default)
 		{
 			return new _BlaTeXNode(type.ValueOrDefault(this.type),
 								   mode.ValueOrDefault(this.mode),
 								   sourceLocation.ValueOrDefault(this.loc),
-								   key.ValueOrDefault(this.key),
-								   arg.ValueOrDefault(this.arg));
+								   args.ValueOrDefault(this.args));
 		}
 
 	}
