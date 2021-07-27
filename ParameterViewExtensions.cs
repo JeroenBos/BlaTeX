@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Components;
 using System.Linq;
 using System.Reflection;
 using JBSnorro.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace BlaTeX
 {
@@ -104,7 +106,7 @@ namespace BlaTeX
 			return d.Count == 0;
 		}
 		/// <summary> Asserts that the specified parameter view a subset of the specified names. </summary>
-		[System.Diagnostics.Conditional("DEBUG")]
+		// [System.Diagnostics.Conditional("DEBUG")]
 		public static void AssertContainsOnly(this ParameterView parameters, params string[] names)
 		{
 			var d = parameters.ToDictionary().ToDictionary();
@@ -116,7 +118,7 @@ namespace BlaTeX
 
 			throw new ContractException("Unrecognized parameters specified: " + d.Select(pair => pair.Key).Join(", "));
 		}
-		[System.Diagnostics.Conditional("DEBUG")]
+		// [System.Diagnostics.Conditional("DEBUG")]
 		public static void AssertMissingOrNotNull(this ParameterView parameters, params string[] names)
 		{
 			foreach (string name in names)
@@ -129,7 +131,7 @@ namespace BlaTeX
 		/// <summary>
 		/// Asserts that after setting the parameter if present, the value would not be null.
 		/// </summary>
-		[System.Diagnostics.Conditional("DEBUG")]
+		// [System.Diagnostics.Conditional("DEBUG")]
 		public static void AssertPresent<T>(this ParameterView parameters, T? currentValue, string name, string message = "Mandatory argument missing") where T : class
 		{
 			if (parameters.TryGetValue<T?>(name, out var argument))
@@ -142,15 +144,44 @@ namespace BlaTeX
 				throw new ArgumentException(message, name);
 			}
 		}
-		public static ParameterView ToParameterView(this IDictionary<string, object> dictionary) => ParameterView.FromDictionary(dictionary!);
+		public static ParameterView ToParameterView(this IDictionary<string, object?> dictionary) => ParameterView.FromDictionary(dictionary);
+		/// <summary>
+		/// Creates a <see cref="ParameterView"/> from a all public properties of a type <typeparamref name="T"/>, e.g. a record or anonymous type.
+		/// </summary>
+		public static ParameterView Create<T>(T value) where T : class
+		{
+			Contract.Requires(value != null);
+			return typeof(T).GetProperties()
+							.Where(pi => !pi.IsIndexer())
+							.Select(pi => KeyValuePair.Create(pi.Name, pi.GetValue(value)))
+							.ToDictionary()
+							.ToParameterView();
+		}
 		public static ParameterView Create(params (string, object)[] parameters)
 		{
 			return parameters.Select(ToKeyValuePair)
 							 .ToDictionary()
 							 .ToParameterView();
 		}
+		/// <inheritdoc cref="ComponentBase.SetParametersAsync(ParameterView)"/>
+		public static Task SetParametersAsync(this ComponentBase component, params (string, object)[] parameters)
+		{
+			Contract.Requires(component != null);
+
+			var parameterView = Create(parameters);
+			return component.SetParametersAsync(parameterView);
+		}
+		/// <summary>
+		/// Sets parameters supplied by the component's parent in the render tree, created from all public properties on <paramref name="value"/>.
+		/// </summary>
+		/// <see cref="Create{T}(T)"/>
+		public static Task SetParametersAsync<T>(this ComponentBase component, T value) where T : class
+		{
+			Contract.Requires(component != null);
+
+			var parameterView = Create(value);
+			return component.SetParametersAsync(parameterView);
+		}
 		public static KeyValuePair<TKey, TValue> ToKeyValuePair<TKey, TValue>(this (TKey, TValue) tuple) => new KeyValuePair<TKey, TValue>(tuple.Item1, tuple.Item2);
-
 	}
-
 }

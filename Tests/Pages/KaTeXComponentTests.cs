@@ -19,7 +19,7 @@ namespace BlaTeX.Tests.Pages
 	using KaTeX = BlaTeX.Pages.KaTeX;
 	public class KaTeXComponentTests
 	{
-		private static TestContext CreateTestContext(Option<string> renderToStringReturnValue = default)
+		protected static TestContext CreateTestContext(Option<string> renderToStringReturnValue = default)
 		{
 			var ctx = new TestContext();
 			ctx.Services.AddDefaultTestContextServices(ctx, new BunitJSInterop());
