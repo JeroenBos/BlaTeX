@@ -13,9 +13,9 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using BlaTeX.Tests.Mocks;
-using BlaTeX.Pages;
+using BlaTeX.Components;
 
-namespace BlaTeX.Tests.Pages
+namespace BlaTeX.Tests.Components
 {
 	public class InterpolatedMarkupTests
 	{

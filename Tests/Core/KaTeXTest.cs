@@ -19,8 +19,8 @@ using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using BlaTeX.JSInterop;
 using BlaTeX.JSInterop.KaTeX;
-using BlaTeX.Pages;
-using InteractiveKaTeX = BlaTeX.Pages.InteractiveKaTeX; // prevents errors in VS
+using BlaTeX.Components;
+using InteractiveKaTeX = BlaTeX.Components.InteractiveKaTeX; // prevents errors in VS
 
 namespace BlaTeX.Tests
 {
@@ -97,9 +97,9 @@ namespace BlaTeX.Tests
 				await this.Action.InvokeAsync(cut);
 				await WaitForKatexToHaveRendered(cut);
 			}
-			
+
 			var katexHtml = cut.Markup;
-			
+
 			var expectedFragment = (IRenderedFragment)Renderer.RenderFragment(this.Expected);
 
 			HtmlEqualException? exception = HtmlEqualityComparer.ComputeException(expectedFragment.Nodes, cut.Nodes);

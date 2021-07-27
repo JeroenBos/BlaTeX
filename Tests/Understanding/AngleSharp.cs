@@ -5,7 +5,7 @@ using Bunit;
 using Bunit.Extensions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using KaTeX = BlaTeX.Pages.KaTeX; // prevents errors in VS
+using KaTeX = BlaTeX.Components.KaTeX; // prevents errors in VS
 using BlaTeX.JSInterop.KaTeX;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
