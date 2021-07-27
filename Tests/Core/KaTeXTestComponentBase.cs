@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using BlaTeX.Pages;
+using BlaTeX.Components;
 using Bunit.Rendering;
 using JBSnorro;
 using Microsoft.AspNetCore.Components;
@@ -49,8 +49,9 @@ namespace BlaTeX.Tests
 					Console.WriteLine($"Executing test {i}/{tests.Count}: '{test.Description}'");
 					await test.RunTestAsync().ConfigureAwait(false);
 					i++;
-				}}
-			
+				}
+			}
+
 		}
 
 		void IComponent.Attach(RenderHandle renderHandle) => renderHandle.Render(BuildRenderTree);

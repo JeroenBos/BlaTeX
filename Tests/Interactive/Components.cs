@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JBSnorro.Diagnostics;
 using Xunit;
-using BlaTeX.Pages;
+using JBSnorro.Diagnostics;
+using BlaTeX.Components;
 
 namespace BlaTeX.Tests
 {

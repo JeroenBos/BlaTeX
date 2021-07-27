@@ -14,9 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using BlaTeX.Tests.Mocks;
 
-namespace BlaTeX.Tests.Pages
+namespace BlaTeX.Tests.Components
 {
-	using KaTeX = BlaTeX.Pages.KaTeX;
+	using KaTeX = BlaTeX.Components.KaTeX;
 	public class KaTeXComponentTests
 	{
 		protected static TestContext CreateTestContext(Option<string> renderToStringReturnValue = default)
