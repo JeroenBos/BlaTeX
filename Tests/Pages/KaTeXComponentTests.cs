@@ -23,7 +23,7 @@ namespace BlaTeX.Tests.Pages
 		{
 			var ctx = new TestContext();
 			ctx.Services.AddDefaultTestContextServices(ctx, new BunitJSInterop());
-			ctx.Services.Add<IKaTeX>(new MockKaTeXRuntime().With(renderToStringReturnValue));
+			ctx.Services.Add<IKaTeXRuntime>(new MockKaTeXRuntime().With(renderToStringReturnValue));
 
 			return ctx;
 		}

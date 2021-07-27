@@ -10,7 +10,7 @@ using JBSnorro;
 
 namespace BlaTeX.Tests.Mocks
 {
-	record MockKaTeXRuntime : IKaTeX
+	record MockKaTeXRuntime : IKaTeXRuntime
 	{
 		public string RenderToStringReturnValue { get; init; } = "<div diff:ignore></div>";
 		public IReadOnlyList<AnyParseNode> ParseReturnValue { get; init; } = DummyParseNodeList.Instance;

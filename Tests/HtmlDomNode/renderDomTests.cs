@@ -10,11 +10,11 @@ namespace BlaTeX.Tests
 	public class HtmlDomNodeTests
 	{
 		private NodeJSRuntime jsRuntime;
-		private readonly IKaTeX KaTeX;
+		private readonly IKaTeXRuntime KaTeX;
 		public HtmlDomNodeTests()
 		{
 			jsRuntime = NodeJSRuntime.CreateDefault();
-			KaTeX = IKaTeX.Create(jsRuntime);
+			KaTeX = IKaTeXRuntime.Create(jsRuntime);
 		}
 
 		[Fact]

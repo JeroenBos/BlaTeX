@@ -17,11 +17,11 @@ namespace BlaTeX.Tests
 	public class KaTeXTypesSerializationTests
 	{
 		private NodeJSRuntime jsRuntime;
-		private readonly IKaTeX KaTeX;
+		private readonly IKaTeXRuntime KaTeX;
 		public KaTeXTypesSerializationTests()
 		{
 			jsRuntime = NodeJSRuntime.CreateDefault();
-			KaTeX = IKaTeX.Create(jsRuntime);
+			KaTeX = IKaTeXRuntime.Create(jsRuntime);
 		}
 
 		[Fact]
