@@ -60,15 +60,15 @@ else
 	{
 		parameters.AssertContainsOnly(nameof(AST), nameof(Math), nameof(ChildComponentMarkupService));
 
-		parameters.TryGetValue<IReadOnlyList<AnyParseNode>?>(nameof(AST), out var ast);
-		parameters.TryGetValue<string?>(nameof(Math), out var math);
+		bool mathSpecified = parameters.TryGetValue<string?>(nameof(Math), out var math);
+		bool astSpecified = parameters.TryGetValue<IReadOnlyList<AnyParseNode>?>(nameof(AST), out var ast);
 
-		if ((ast ?? this.AST) == null && (math ?? this.Math) == null)
+		if ((astSpecified ? ast : this.AST) == null && (mathSpecified ? math : this.Math) == null)
 		{
 			throw new ArgumentException($"You cannot provide both null '{nameof(Math)}' and null '{nameof(AST)}'");
 			// but it should be allowed to leave them untouched (provided they were set in the past)
 		}
-		if ((ast ?? this.AST) != null && (math ?? this.Math) != null)
+		if ((astSpecified ? ast : this.AST) != null && (mathSpecified ? math : this.Math) != null)
 		{
 			throw new ArgumentException($"You cannot provide both nonnull '{nameof(Math)}' and nonnull '{nameof(AST)}'");
 			// but it should be allowed to specify only one if that's the only one that's currently set
