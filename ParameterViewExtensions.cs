@@ -106,7 +106,7 @@ namespace BlaTeX
 			return d.Count == 0;
 		}
 		/// <summary> Asserts that the specified parameter view a subset of the specified names. </summary>
-		[System.Diagnostics.Conditional("DEBUG")]
+		// [System.Diagnostics.Conditional("DEBUG")]
 		public static void AssertContainsOnly(this ParameterView parameters, params string[] names)
 		{
 			var d = parameters.ToDictionary().ToDictionary();
@@ -118,7 +118,7 @@ namespace BlaTeX
 
 			throw new ContractException("Unrecognized parameters specified: " + d.Select(pair => pair.Key).Join(", "));
 		}
-		[System.Diagnostics.Conditional("DEBUG")]
+		// [System.Diagnostics.Conditional("DEBUG")]
 		public static void AssertMissingOrNotNull(this ParameterView parameters, params string[] names)
 		{
 			foreach (string name in names)
@@ -131,7 +131,7 @@ namespace BlaTeX
 		/// <summary>
 		/// Asserts that after setting the parameter if present, the value would not be null.
 		/// </summary>
-		[System.Diagnostics.Conditional("DEBUG")]
+		// [System.Diagnostics.Conditional("DEBUG")]
 		public static void AssertPresent<T>(this ParameterView parameters, T? currentValue, string name, string message = "Mandatory argument missing") where T : class
 		{
 			if (parameters.TryGetValue<T?>(name, out var argument))
