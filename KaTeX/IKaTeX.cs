@@ -27,7 +27,7 @@ namespace BlaTeX.JSInterop.KaTeX
 		Task<string> RenderToString(string math);
 		Task<HtmlDomNode> RenderToDom(string math);
 		Task<string> ToMarkup(VirtualNode node);
-		Task<AnyParseNode[]> Parse(string math);
+		Task<IReadOnlyList<AnyParseNode>> Parse(string math);
 		Task<string> RenderToString(IReadOnlyList<AnyParseNode> tree, string? math = null);
 		Task<string> RenderToString(AnyParseNode node, string? math = null) => RenderToString(new[] { node }, math);
 	}
@@ -70,7 +70,7 @@ namespace BlaTeX.JSInterop.KaTeX
 			Contract.Ensures(result != null);
 			return result;
 		}
-		public async Task<AnyParseNode[]> Parse(string math)
+		public async Task<IReadOnlyList<AnyParseNode>> Parse(string math)
 		{
 			Contract.Requires(math != null, nameof(math));
 

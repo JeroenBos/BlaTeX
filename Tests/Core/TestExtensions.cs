@@ -6,7 +6,10 @@ using Bunit;
 using JBSnorro.Diagnostics;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -97,5 +100,63 @@ namespace BlaTeX.Tests
 			=> ContextMenuAsync(element, new MouseEventArgs { Detail = detail, ScreenX = screenX, ScreenY = screenY, ClientX = clientX, ClientY = clientY, Button = button, Buttons = buttons, CtrlKey = ctrlKey, ShiftKey = shiftKey, AltKey = altKey, MetaKey = metaKey, Type = type! });
 		/// <inheritdoc cref="MouseEventDispatchExtensions.ContextMenu"/>
 		public static Task ContextMenuAsync(this IElement element, MouseEventArgs eventArgs) => element.TriggerEventAsync("oncontextmenu", eventArgs);
+	}
+	public static class MyRenderedComponentRenderExtensions
+	{
+		public static void Add<T>(this TestServiceProvider services, T value) where T : notnull
+		{
+			services.Add(new ServiceDescriptor(typeof(T), value));
+		}
+
+		/// <summary>
+		/// Render the component under test again with the provided <paramref name="parameters"/>.
+		/// The difference with <see cref="RenderedComponentRenderExtensions.SetParametersAndRender"/> is that this will not swallow exceptions.
+		/// </summary>
+		/// <param name="renderedComponent">The rendered component to re-render with new parameters.</param>
+		/// <param name="parameters">Parameters to pass to the component upon rendered.</param>
+		/// <typeparam name="TComponent">The type of the component.</typeparam>
+		public static void SetParametersAndRerender<TComponent>(this IRenderedComponentBase<TComponent> renderedComponent, params ComponentParameter[] parameters)
+			where TComponent : IComponent
+		{
+			if (renderedComponent is null)
+				throw new ArgumentNullException(nameof(renderedComponent));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
+
+			SetParametersAndRerender(renderedComponent, ToParameterView(parameters));
+		}
+		/// <summary>
+		/// Render the component under test again with the provided <paramref name="parameters"/>.
+		/// The difference with <see cref="RenderedComponentRenderExtensions.SetParametersAndRender"/> is that this will not swallow exceptions.
+		/// <param name="renderedComponent">The rendered component to re-render with new parameters.</param>
+		/// <param name="parameters">Parameters to pass to the component upon rendered.</param>
+		/// </summary>
+		public static void SetParametersAndRerender<TComponent>(this IRenderedComponentBase<TComponent> renderedComponent, ParameterView parameters)
+			where TComponent : IComponent
+		{
+			if (renderedComponent is null)
+				throw new ArgumentNullException(nameof(renderedComponent));
+
+			var result = renderedComponent.InvokeAsync(() => renderedComponent.Instance.SetParametersAsync(parameters));
+
+			if (!result.IsCompleted)
+			{
+				result.GetAwaiter().GetResult();
+			}
+			else if (result.Status == TaskStatus.Faulted)
+			{
+				throw result.Exception!.InnerException!;
+			}
+		}
+
+		private static readonly Func<IReadOnlyCollection<ComponentParameter>, ParameterView> toParameterView = fetchToParameterView();
+		private static Func<IReadOnlyCollection<ComponentParameter>, ParameterView> fetchToParameterView()
+		{
+			var mi = typeof(RenderedComponentRenderExtensions).GetMethod(nameof(ToParameterView), BindingFlags.Static | BindingFlags.NonPublic)!;
+			return mi.CreateDelegate<Func<IReadOnlyCollection<ComponentParameter>, ParameterView>>();
+		}
+		/// <summary> Converts the component parameters to a parameter view, with contract assertions. </summary>
+		public static ParameterView ToParameterView(IReadOnlyCollection<ComponentParameter> parameters) => toParameterView(parameters);
+
 	}
 }
