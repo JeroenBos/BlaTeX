@@ -143,7 +143,7 @@ namespace BlaTeX
 				throw new ArgumentException(message, name);
 			}
 		}
-		public static ParameterView ToParameterView(this IDictionary<string, object> dictionary) => ParameterView.FromDictionary(dictionary!);
+		public static ParameterView ToParameterView(this IDictionary<string, object?> dictionary) => ParameterView.FromDictionary(dictionary);
 		public static ParameterView Create(params (string, object)[] parameters)
 		{
 			return parameters.Select(ToKeyValuePair)
