@@ -37,10 +37,17 @@
 		<Watch Include="../**/*.cs;../**/*.razor;../**/*.csproj" Exclude="../**/obj/**,**/node_modules/**" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<None Update="xunit.runner.json">
+	<ItemGroup Condition="'$(Configuration)'=='Debug'">
+		<ContentWithTargetPath Include="Properties/xunit.runner.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
+			<TargetPath>xunit.runner.json</TargetPath>
+		</ContentWithTargetPath>
+	</ItemGroup>
+	<ItemGroup Condition="'$(Configuration)'=='CI'">
+		<ContentWithTargetPath Include="Properties/xunit.runner.CI.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<TargetPath>xunit.runner.json</TargetPath>
+		</ContentWithTargetPath>
 	</ItemGroup>
 
 	<!-- https://github.com/dotnet/sdk/issues/1458#issuecomment-420456386 -->
