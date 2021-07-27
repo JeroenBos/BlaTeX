@@ -20,7 +20,7 @@ namespace BlaTeX.Tests.Understanding
 			using var ctx = new TestContext();
 			ctx.Services.AddDefaultTestContextServices(ctx, new BunitJSInterop());
 			ctx.Services.Add(new ServiceDescriptor(typeof(IJSRuntime), NodeJSRuntime.CreateDefault()));
-			ctx.Services.Add(new ServiceDescriptor(typeof(IKaTeX), typeof(_KaTeX), ServiceLifetime.Singleton));
+			ctx.Services.Add(new ServiceDescriptor(typeof(IKaTeXRuntime), typeof(KaTeXRuntime), ServiceLifetime.Singleton));
 
 			var cut = ctx.RenderComponent<KaTeX>(ComponentParameter.CreateParameter("Math", "c"));
 

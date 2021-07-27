@@ -15,14 +15,14 @@ using JBSnorro.Diagnostics;
 
 namespace BlaTeX.JSInterop.KaTeX
 {
-	public interface IKaTeX
+	public interface IKaTeXRuntime
 	{
-		public static IKaTeX Create(IJSRuntime jsRuntime)
+		public static IKaTeXRuntime Create(IJSRuntime jsRuntime)
 		{
 			if (jsRuntime == null)
 				throw new ArgumentNullException(nameof(jsRuntime));
 
-			return new _KaTeX(jsRuntime);
+			return new KaTeXRuntime(jsRuntime);
 		}
 		Task<string> RenderToString(string math);
 		Task<HtmlDomNode> RenderToDom(string math);
@@ -32,11 +32,11 @@ namespace BlaTeX.JSInterop.KaTeX
 		Task<string> RenderToString(AnyParseNode node, string? math = null) => RenderToString(new[] { node }, math);
 	}
 
-	internal class _KaTeX : IKaTeX
+	internal class KaTeXRuntime : IKaTeXRuntime
 	{
 		private readonly IJSRuntime jsRuntime;
 
-		public _KaTeX(IJSRuntime jsRuntime)
+		public KaTeXRuntime(IJSRuntime jsRuntime)
 		{
 			if (jsRuntime == null)
 				throw new ArgumentNullException(nameof(jsRuntime));

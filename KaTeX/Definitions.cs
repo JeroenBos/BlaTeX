@@ -131,7 +131,7 @@ namespace BlaTeX.JSInterop.KaTeX
 		/// <summary> Convert into an HTML node. </summary>
 		Node ToNode() => throw new NotImplementedException(); // Task<Node> ToNode(IKaTeX runtime) => runtime.ToNode(this);
 		/// <summary> Convert into an HTML markup string. </summary>
-		Task<string> ToMarkup(IKaTeX runtime) => runtime.ToMarkup(this);
+		Task<string> ToMarkup(IKaTeXRuntime runtime) => runtime.ToMarkup(this);
 	}
 	public interface MathDomNode : VirtualNode
 	{

@@ -65,7 +65,7 @@ namespace BlaTeX.Tests
 
 			ctx.Services.AddDefaultTestContextServices(ctx, new BunitJSInterop());
 			ctx.Services.Add(new ServiceDescriptor(typeof(IJSRuntime), NodeJSRuntime.CreateDefault()));
-			ctx.Services.Add(new ServiceDescriptor(typeof(IKaTeX), typeof(_KaTeX), ServiceLifetime.Singleton));
+			ctx.Services.Add(new ServiceDescriptor(typeof(IKaTeXRuntime), typeof(KaTeXRuntime), ServiceLifetime.Singleton));
 		}
 		/// <inheritdoc/>
 		protected override async Task RunAsync()

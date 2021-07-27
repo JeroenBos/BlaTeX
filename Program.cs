@@ -23,7 +23,7 @@ namespace BlaTeX
 			builder.RootComponents.Add<App>("app");
 
 			builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-			builder.Services.AddSingleton(serviceType: typeof(IKaTeX), implementationType: typeof(_KaTeX));
+			builder.Services.AddSingleton(serviceType: typeof(IKaTeXRuntime), implementationType: typeof(KaTeXRuntime));
 
 			var host = builder.Build();
 
