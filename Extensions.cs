@@ -116,6 +116,32 @@ namespace BlaTeX
 
 			throw new ContractException("Unrecognized parameters specified: " + d.Select(pair => pair.Key).Join(", "));
 		}
+		[System.Diagnostics.Conditional("DEBUG")]
+		public static void AssertMissingOrNotNull(this ParameterView parameters, params string[] names)
+		{
+			foreach (string name in names)
+			{
+				if (parameters.TryGetValue<object>(name, out var argument))
+					if (argument is null)
+						throw new ArgumentNullException(name);
+			}
+		}
+		/// <summary>
+		/// Asserts that after setting the parameter if present, the value would not be null.
+		/// </summary>
+		[System.Diagnostics.Conditional("DEBUG")]
+		public static void AssertPresent<T>(this ParameterView parameters, T? currentValue, string name, string message = "Mandatory argument missing") where T : class
+		{
+			if (parameters.TryGetValue<T?>(name, out var argument))
+			{
+				if (argument is null)
+					throw new ArgumentNullException(name);
+			}
+			else if (currentValue is null)
+			{
+				throw new ArgumentException(message, name);
+			}
+		}
 		public static ParameterView ToParameterView(this IDictionary<string, object> dictionary) => ParameterView.FromDictionary(dictionary!);
 		public static ParameterView Create(params (string, object)[] parameters)
 		{
