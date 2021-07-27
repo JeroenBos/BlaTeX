@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using System.Linq;
 using System.Reflection;
 using JBSnorro.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace BlaTeX
 {
@@ -150,7 +151,5 @@ namespace BlaTeX
 							 .ToParameterView();
 		}
 		public static KeyValuePair<TKey, TValue> ToKeyValuePair<TKey, TValue>(this (TKey, TValue) tuple) => new KeyValuePair<TKey, TValue>(tuple.Item1, tuple.Item2);
-
 	}
-
 }
