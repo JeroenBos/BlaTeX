@@ -14,9 +14,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="3.2.0" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.0-preview.6.21355.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0-preview.6.21355.2" PrivateAssets="all" />
 		<!-- Reference JBSnorro locally in DEBUG, otherwise use Nuget package.-->
 		<PackageReference Include="JBSnorro" Version="0.0.10" Condition="'$(Configuration)'!='Debug'" />
 		<Reference Include="JBSnorro" Condition="'$(Configuration)'=='Debug'">
