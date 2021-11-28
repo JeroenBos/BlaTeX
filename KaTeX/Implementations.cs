@@ -718,7 +718,7 @@ namespace BlaTeX.JSInterop.KaTeX
 				return (_AnyParseNode)DefaultObjectJsonConverter.Read(ref reader, typeof(_AnyParseNode), options)!;
 #pragma warning disable CS0162
 				var properties = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ref reader, options)
-											   .Map<string, JsonElement, object>((key, jsonElement) => jsonElement.Deserialize<object>(options));
+											   .Map<string, JsonElement, object>((key, jsonElement) => JsonElementExtensions.Deserialize<object>(jsonElement, options));
 
 				var type = (NodeType)properties["type"]!;
 				var mode = (Mode)properties["mode"]!;
