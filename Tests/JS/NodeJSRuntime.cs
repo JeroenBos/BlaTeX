@@ -17,6 +17,7 @@ using JBSnorro.Text;
 using BlaTeX.JSInterop;
 using BlaTeX.JSInterop.KaTeX;
 using System.Diagnostics.CodeAnalysis;
+using JBSnorro.Csx;
 
 namespace BlaTeX.Tests
 {
@@ -49,7 +50,7 @@ namespace BlaTeX.Tests
 			}
 		}
 
-		internal async Task<(int ExitCode, string StandardOutput, string ErrorOutput, string DebugOutput)> InvokeAsyncImpl(string identifier, params object?[]? args)
+		internal async Task<DebugProcessOutput> InvokeAsyncImpl(string identifier, params object?[]? args)
 		{
 			// do the serialization before the built-in does it (which will ignore JSSourceCodes)
 			// but that one doesn't work because I can't get it to work recursively, see HACK id=0
