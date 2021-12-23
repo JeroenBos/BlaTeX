@@ -36,6 +36,7 @@ namespace BlaTeX.Tests
 		public NodeJSRuntime(IEnumerable<JSString> imports, IEnumerable<(Type, string)>? jsDeserializableIDs = null, JsonSerializerOptions? options = null)
 		{
 			this.Imports = imports?.ToReadOnlyList() ?? EmptyCollection<JSString>.ReadOnlyList;
+			Contract.Requires(Contract.ForAll(imports, jss => File.Exists(jss.Value)), "Consider rebuilding that JS stack");
 			this.IDs = jsDeserializableIDs?.Select(t => KeyValuePair.Create(t.Item1, t.Item2)).ToReadOnlyList() ?? EmptyCollection<KeyValuePair<Type, string>>.ReadOnlyList;
 			if (options == null)
 			{
