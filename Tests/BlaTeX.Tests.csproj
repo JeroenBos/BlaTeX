@@ -13,7 +13,7 @@
 		<!-- Reference JBSnorro locally in DEBUG, otherwise use Nuget package.-->
 		<PackageReference Include="JBSnorro" Version="0.0.10" Condition="'$(Configuration)'!='Debug'" />
 		<Reference Include="JBSnorro" Condition="'$(Configuration)'=='Debug'">
-			<HintPath>..\..\ASDE\JBSnorro\bin\Debug\net6.0\JBSnorro.dll</HintPath>
+			<HintPath>..\..\JBSnorro\JBSnorro\bin\Debug\net6.0\JBSnorro.dll</HintPath>
 		</Reference>
 		
 		<PackageReference Include="bunit" Version="1.2.36-preview" />
