@@ -11,7 +11,7 @@
 	<ItemGroup>
 		<ProjectReference Include="../BlaTeX.csproj" />
 		<!-- Reference JBSnorro locally in DEBUG, otherwise use Nuget package.-->
-		<PackageReference Include="JBSnorro" Version="0.0.10" Condition="'$(Configuration)'!='Debug'" />
+		<PackageReference Include="JBSnorro" Version="0.0.11" Condition="'$(Configuration)'!='Debug'" />
 		<Reference Include="JBSnorro" Condition="'$(Configuration)'=='Debug'">
 			<HintPath>..\..\JBSnorro\JBSnorro\bin\Debug\net6.0\JBSnorro.dll</HintPath>
 		</Reference>
