@@ -17,6 +17,7 @@ using JBSnorro.Text;
 using BlaTeX.JSInterop;
 using BlaTeX.JSInterop.KaTeX;
 using System.Diagnostics.CodeAnalysis;
+using JBSnorro.Csx;
 
 namespace BlaTeX.Tests
 {
@@ -35,6 +36,7 @@ namespace BlaTeX.Tests
 		public NodeJSRuntime(IEnumerable<JSString> imports, IEnumerable<(Type, string)>? jsDeserializableIDs = null, JsonSerializerOptions? options = null)
 		{
 			this.Imports = imports?.ToReadOnlyList() ?? EmptyCollection<JSString>.ReadOnlyList;
+			Contract.Requires(Contract.ForAll(imports, jss => File.Exists(jss.Value)), "Consider rebuilding that JS stack");
 			this.IDs = jsDeserializableIDs?.Select(t => KeyValuePair.Create(t.Item1, t.Item2)).ToReadOnlyList() ?? EmptyCollection<KeyValuePair<Type, string>>.ReadOnlyList;
 			if (options == null)
 			{
@@ -49,7 +51,7 @@ namespace BlaTeX.Tests
 			}
 		}
 
-		internal async Task<(int ExitCode, string StandardOutput, string ErrorOutput, string DebugOutput)> InvokeAsyncImpl(string identifier, params object?[]? args)
+		internal async Task<DebugProcessOutput> InvokeAsyncImpl(string identifier, params object?[]? args)
 		{
 			// do the serialization before the built-in does it (which will ignore JSSourceCodes)
 			// but that one doesn't work because I can't get it to work recursively, see HACK id=0
