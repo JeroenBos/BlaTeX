@@ -14,7 +14,7 @@ namespace BlaTeX.Tests.Understanding
 {
 	public class AngleSharp
 	{
-		[Fact]
+		[@Fact]
 		public async Task TryGetIgnoreDiffAngleSharpWorking()
 		{
 			using var ctx = new TestContext();
@@ -29,7 +29,7 @@ namespace BlaTeX.Tests.Understanding
 			const string expectedHtml = @"<span diff:ignore></span>";
 			cut.MarkupMatches(expectedHtml);
 		}
-		[Fact]
+		[@Fact]
 		public async Task TryGetIgnoreDiffAngleSharpWorkingSimpler()
 		{
 			// Arrage
@@ -44,7 +44,7 @@ namespace BlaTeX.Tests.Understanding
 			const string expectedHtml = @"<span diff:ignore></span>";
 			cut.MarkupMatches(expectedHtml);
 		}
-		[Fact]
+		[@Fact]
 		public async Task TryGetIgnoreDiffAngleSharpWorkingThroughHowItsDoneInKaTeXTest()
 		{
 			// Arrage

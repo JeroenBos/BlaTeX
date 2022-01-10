@@ -17,7 +17,7 @@ namespace BlaTeX.Tests
 			KaTeX = IKaTeXRuntime.Create(jsRuntime);
 		}
 
-		[Fact]
+		[@Fact]
 		public async Task SingleCharacterRenderToDomContainsSourceLocation()
 		{
 			var domNode = await KaTeX.RenderToDom("c") as DomSpan;

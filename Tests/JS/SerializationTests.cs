@@ -24,7 +24,7 @@ namespace BlaTeX.Tests
 			KaTeX = IKaTeXRuntime.Create(jsRuntime);
 		}
 
-		[Fact]
+		[@Fact]
 		public async Task SerializeSqrtParseNode()
 		{
 			var node = new _AnyParseNode(NodeType.Sqrt, Mode.Math, new _SourceLocation(0, 4));

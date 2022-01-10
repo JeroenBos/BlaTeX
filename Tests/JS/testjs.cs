@@ -16,7 +16,7 @@ namespace BlaTeX.Tests
 {
 	public class JSIntegrationTests
 	{
-		[Fact]
+		[@Fact]
 		public async Task JSInteropTestViaBlazor()
 		{
 			var result = await NodeJSRuntime.CreateDefault()
@@ -45,13 +45,13 @@ namespace BlaTeX.Tests
 			HtmlEqualityComparer.AssertEqual(result, expected);
 		}
 
-		[Fact]
+		[@Fact]
 		public void JsonDictionaryDeserializationUnderstanding()
 		{
 			var options = new JsonSerializerOptions();
 			options.Converters.Add(new DictionaryJsonConverter<object, ReadOnlyDictionary<string, object>>(_ => new ReadOnlyDictionary<string, object>(_)));
 		}
-		[Fact]
+		[@Fact]
 		public async Task CharacterEscapeTest()
 		{
 			var runtime = new NodeJSRuntime(Array.Empty<JSString>());
@@ -77,13 +77,13 @@ namespace BlaTeX.Tests
 	{
 		private JsonSerializerOptions options = NodeJSRuntime.CreateDefault().Options;
 
-		[Fact]
+		[@Fact]
 		public void EmptyAttributesDeserializationTest()
 		{
 			var attributes = JsonSerializer.Deserialize<Attributes>("{}", options);
 			Contract.Assert(attributes.Count == 0);
 		}
-		[Fact]
+		[@Fact]
 		public void StringAttributesDeserializationTest()
 		{
 			var attributes = JsonSerializer.Deserialize<Attributes>("{\"a\":\"\"}", options);
@@ -91,7 +91,7 @@ namespace BlaTeX.Tests
 			Contract.Assert(attributes.ContainsKey("a"));
 			Contract.Assert("".Equals(attributes["a"]));
 		}
-		[Fact]
+		[@Fact]
 		public void SourceLocationAttributesDeserializationTest()
 		{
 			var attributes = JsonSerializer.Deserialize<Attributes>("{\"a\":\"\"}", options);
@@ -99,7 +99,7 @@ namespace BlaTeX.Tests
 			Contract.Assert(attributes.ContainsKey("a"));
 			Contract.Assert("".Equals(attributes["a"]));
 		}
-		[Fact]
+		[@Fact]
 		public void MemberAttributes()
 		{
 			var container = JsonSerializer.Deserialize<ContainsAttributes>("{ \"a\": { \"data-loc\": \"0,1\" }}", options);

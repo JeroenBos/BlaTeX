@@ -7,7 +7,7 @@ namespace BlaTeX.Tests.Understanding
 {
 	public class ParameterViewNullRefUnderstanding
 	{
-		[Fact]
+		[@Fact]
 		public void AParameterInAParameterViewCanBeNull()
 		{
 			// There's annoying null deref warnings in the setter on a ParameterView. Let's see if these warnings actually can be ignored:

@@ -12,7 +12,7 @@ namespace BlaTeX.Tests
 		// returns the range of the entire `blaxex:name=value`, where `=value` is optional
 		private static IEnumerable<Range> Selector(string markup) => new BlazorChildComponentMarkupService().Select(markup);
 
-		[Fact]
+		[@Fact]
 		public void EmptyMarkup()
 		{
 			const string markup = "";
@@ -22,7 +22,7 @@ namespace BlaTeX.Tests
 			Contract.Assert(ranges.Count == 0);
 		}
 
-		[Fact]
+		[@Fact]
 		public void SimpleMarkup()
 		{
 			const string markup = "blatex:a";
@@ -31,7 +31,7 @@ namespace BlaTeX.Tests
 			Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length) });
 		}
 
-		[Fact]
+		[@Fact]
 		public void SimpleMarkupWithValue()
 		{
 			const string markup = "blatex:a=b";
@@ -40,7 +40,7 @@ namespace BlaTeX.Tests
 			Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length) });
 		}
 
-		[Fact]
+		[@Fact]
 		public void SimpleMarkupWithDelimitedValue()
 		{
 			const string markup = "blatex:a='b'";
@@ -49,7 +49,7 @@ namespace BlaTeX.Tests
 			Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length) });
 		}
 
-		[Fact]
+		[@Fact]
 		public void SimpleMarkupWithDelimitedValueDoesntIncludeTrailingWhitespace()
 		{
 			const string markup = "blatex:a='b' ";
@@ -57,7 +57,7 @@ namespace BlaTeX.Tests
 
 			Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length - 1) });
 		}
-		[Fact]
+		[@Fact]
 		public void SimpleMarkupWithParenthesesDelimiters()
 		{
 			const string markup = "blatex:a=(b)";
@@ -65,7 +65,7 @@ namespace BlaTeX.Tests
 
 			Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length) });
 		}
-		[Fact]
+		[@Fact]
 		public void SimpleMarkupWithParenthesesDelimitersDoesntIncludeTrailingWhitespace()
 		{
 			const string markup = "blatex:a=(b) ";
@@ -73,7 +73,7 @@ namespace BlaTeX.Tests
 
 			Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length - 1) });
 		}
-		[Fact]
+		[@Fact]
 		public void SimpleMarkupWithBlazorParenthesesDelimiters()
 		{
 			const string markup = "blatex:a=@(b)";
@@ -81,7 +81,7 @@ namespace BlaTeX.Tests
 
 			Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length) });
 		}
-		[Fact]
+		[@Fact]
 		public void SimpleMarkupWithBlazorParenthesesDelimitersDoesntIncludeTrailingWhitespace()
 		{
 			const string markup = "blatex:a=@(b) ";
@@ -90,7 +90,7 @@ namespace BlaTeX.Tests
 			Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length - 1) });
 		}
 
-		[Fact]
+		[@Fact]
 		public void EmbeddedSimpleMarkupWithBlazor()
 		{
 			const string markup = "<div blatex:a=@(b)/>";
@@ -99,7 +99,7 @@ namespace BlaTeX.Tests
 			Contract.AssertSequenceEqual(ranges, new[] { new Range(markup.IndexOf("bla"), markup.IndexOf("/>")) });
 		}
 
-		[Fact]
+		[@Fact]
 		public void EmbeddedSimpleMarkupWithBlazor2()
 		{
 			const string markup = "<div blatex:a=@(b)>Text</div>";

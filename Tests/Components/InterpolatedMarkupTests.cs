@@ -29,7 +29,7 @@ namespace BlaTeX.Tests.Components
 		}
 		static readonly Func<string, IEnumerable<Range>> dummySelector = s => throw new NotImplementedException();
 
-		[Fact]
+		[SkippableFact]
 		public async Task CreatingWithoutArgumentsThrows()
 		{
 			var cut = new InterpolatedMarkup();
@@ -38,7 +38,7 @@ namespace BlaTeX.Tests.Components
 			await Assert.ThrowsAsync<ArgumentException>(() => cut.SetParametersAsync(new { Markup = "" }));
 			await Assert.ThrowsAsync<ArgumentException>(nameof(InterpolatedMarkup.Substitute), () => cut.SetParametersAsync(new { Markup = "", Selector = dummySelector }));
 		}
-		[Fact]
+		[@Fact]
 		public async Task CreatingWithNullArgumentsThrows()
 		{
 			var cut = new InterpolatedMarkup();
@@ -47,7 +47,7 @@ namespace BlaTeX.Tests.Components
 			await Assert.ThrowsAsync<ArgumentNullException>(nameof(InterpolatedMarkup.Selector), () => cut.SetParametersAsync(new { Markup = "", Selector = (Func<string, IEnumerable<Range>>)null }));
 			await Assert.ThrowsAsync<ArgumentNullException>(nameof(InterpolatedMarkup.Substitute), () => cut.SetParametersAsync(new { Markup = "", Selector = dummySelector, Substitute = (object)null }));
 		}
-		[Fact]
+		[@Fact]
 		public async Task CreatingWithWrongTypeThrows()
 		{
 			var cut = new InterpolatedMarkup();

@@ -29,14 +29,14 @@ namespace BlaTeX.Tests.Components
 		}
 
 
-		[Fact]
+		[@Fact]
 		public async Task CannotSetNullMathAndAST()
 		{
 			var cut = new KaTeX();
 
 			await Assert.ThrowsAsync<ArgumentException>(() => cut.SetParametersAsync(ParameterView.Empty));
 		}
-		[Fact]
+		[@Fact]
 		public void CannotSetNullMathAndASTAfterTheyveBeenSet()
 		{
 			using var ctx = CreateTestContext();
@@ -45,7 +45,7 @@ namespace BlaTeX.Tests.Components
 			Assert.Throws<ArgumentException>(() => cut.SetParametersAndRerender(ComponentParameter.CreateParameter("Math", null)));
 			Assert.Equal(1, cut.RenderCount);
 		}
-		[Fact]
+		[@Fact]
 		public void CanSetMathAgain()
 		{
 			using var ctx = CreateTestContext();
@@ -54,7 +54,7 @@ namespace BlaTeX.Tests.Components
 			cut.SetParametersAndRerender(ComponentParameter.CreateParameter("Math", "b"));
 			Assert.Equal(2, cut.RenderCount);
 		}
-		[Fact]
+		[@Fact]
 		public void SettingsMarkupServiceToNullIsPossible()
 		{
 			using var ctx = CreateTestContext();

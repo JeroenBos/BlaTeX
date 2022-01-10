@@ -28,7 +28,7 @@ namespace BlaTeX.Tests
 		/// <summary>
 		/// Entry point for the test.
 		/// </summary>
-		[Fact]
+		[@Fact]
 		public virtual async Task RazorTests()
 		{
 			// this simulates the work done by Xunit.Sdk.RazorTestDiscoverer (in Bunit.Xunit.dll)
