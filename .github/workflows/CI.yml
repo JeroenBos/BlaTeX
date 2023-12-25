@@ -24,9 +24,9 @@ jobs:
       with:
         node-version: '12.18.1'
     - name: yarn
-      run: cd js/blatex && yarn install && yarn build && cd ..
+      run: cd js/blatex && yarn install && yarn build
     - name: npm
-      run: cd js && npm install && npm run build && cd ..
+      run: cd js && npm install && npm run build
     - name: build
       run: dotnet build **/*.csproj --configuration CI
     - name: test
