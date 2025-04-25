@@ -10,7 +10,7 @@
     },
     "private": true,
     "dependencies": {
-        "blatex": "file:blatex"
+        "@jeroenbos/katex": "0.16.22-1"
     },
     "devDependencies": {
         "clean-webpack-plugin": "0.1.19",

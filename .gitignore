@@ -439,3 +439,6 @@ wwwroot/css/katex
 
 
 **/launchSettings.json
+
+# because it has a GH PAT
+.npmrc
