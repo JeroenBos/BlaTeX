@@ -8,9 +8,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-      packages: read
   
     steps:
     - uses: actions/checkout@v4
@@ -18,6 +15,7 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
+        token: ${{ secrets.GH_PACKAGES_TOKEN }}
 
     - run: cd js && npm install && npm run build
     
