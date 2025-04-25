@@ -15,9 +15,18 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
-        token: ${{ secrets.GH_PACKAGES_TOKEN }}
 
-    - run: cd js && npm install && npm run build
+    - name: Authenticate against GitHub Packages
+      run: cd js && cat ./.npmrc.example | sed 's|<https://my.1password.com.*>|${{ secrets.GH_PACKAGES_TOKEN }}|g' > ./.npmrc
+
+    - name: debug
+      run: cat js/.npmrc
+      
+    - name: npm install
+      run: cd js && npm install
+      
+    - name: npm build
+      run: cd js && npm run build
     
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
