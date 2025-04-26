@@ -16,7 +16,7 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.203 # select a 'version' from an sdk in https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/9.0/releases.json
-    - name: build
+    - name: Build .NET
       run: dotnet build src/BlaTeX.csproj --configuration CI
 
     - name: Setup NodeJS
@@ -28,11 +28,8 @@ jobs:
     - name: npm install
       run: cd js && npm install
 
-    - name: debug 🚧
-      run: ls
-
-    - name: test
-      run: dotnet test "tests/BlaTeX.Tests.csproj" --configuration CI
+    - name: Test
+      run: dotnet test tests/BlaTeX.Tests.csproj --configuration CI
       timeout-minutes: 5
       env:
         WAIT_FOR_STATE_TIMEOUT_SEC: 30
