@@ -16,15 +16,15 @@ namespace BlaTeX;
 public partial class BlazorChildComponentMarkupService : IChildComponentMarkupService
 {
     /// <summary> All child fragments will be placed in this collection. </summary>
-    public IReadOnlyDictionary<string, RenderFragment<string>> Fragments { get; set; } = default!;
+    public IReadOnlyDictionary<string, RenderFragment<string>> Fragments { get; } = new Dictionary<string, RenderFragment<string>>();
 
-    private readonly IReadOnlyList<(string Opening, string Closing)> Delimiters = new[] {
+    private readonly IReadOnlyList<(string Opening, string Closing)> Delimiters = [
         ("\"", "\""),
         ("(", ")"),
         ("{", "}"),
         ("'", "'"),
         ("@(", ")"),
-    };
+    ];
     public const string BLATEX_ATTR_PREFIX = "blatex:";
     public IEnumerable<Range> Select(string markup)
     {
@@ -176,7 +176,7 @@ public partial class BlazorChildComponentMarkupService : IChildComponentMarkupSe
     // }
 }
 
-[System.Serializable]
+[Serializable]
 public class SyntaxError : Exception
 {
     public static readonly SyntaxError OutOfRange = new SyntaxError("Syntax error: end of string encountered");

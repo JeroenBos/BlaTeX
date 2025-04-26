@@ -578,10 +578,11 @@ class _SourceLocation : SourceLocation
         private JsonConverter() { }
     }
 
-    public int start { get; set; } = default!;
-    public int end { get; set; } = default!;
+    public required int start { get; init; }
+    public required int end { get; init; }
 
 
+    [SetsRequiredMembers]
     public _SourceLocation(int start, int end)
     {
         this.start = start;
@@ -796,16 +797,17 @@ public class _AnyParseNode : AnyParseNode
 public class _BlaTeXNode : _AnyParseNode, BlaTeXNode
 {
     public static JsonConverter<BlaTeXNode> JsonConverterInstance => ExactJsonConverter<BlaTeXNode, _BlaTeXNode>.Instance;
-    public _AnyParseNode[] args { get; set; } = default!;
+    public required _AnyParseNode[] args { get; init; }
 
     _AnyParseNode[] BlaTeXNode.Args => args;
 
     /// <summary> Ctor for JsonSerializer. </summary>
     public _BlaTeXNode() { }
+    [SetsRequiredMembers]
     public _BlaTeXNode(NodeType type,
-                        Mode mode,
-                        SourceLocation? sourceLocation,
-                        _AnyParseNode[] args)
+                       Mode mode,
+                       SourceLocation? sourceLocation,
+                       _AnyParseNode[] args)
         : base(type, mode, sourceLocation)
     {
         this.args = args;
