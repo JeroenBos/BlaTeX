@@ -14,7 +14,7 @@ if (Args.Count != 1)
 string input = Args[0];
 Console.WriteLine($"Rendering \"{input}\":");
 
-var imports = new[] { $"{Program.RootFolder}/wwwroot/js/blatex_wrapper.js" };
+var imports = new[] { $"{Program.RootFolder}/js/node_modules/@jeroenbos/katex/katex.js" };
 var result = await new NodeJSRuntime(imports).InvokeAsync<string>("blatex_wrapper.default.renderToString", new[] { input }).AsTask();
 
 bool wrap = true;
