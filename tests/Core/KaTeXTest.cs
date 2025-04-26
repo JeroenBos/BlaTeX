@@ -20,7 +20,7 @@ public class KaTeXTest : RazorTestBase
     [Parameter]
     public RenderFragment? TestInput { get; set; }
     [Parameter]
-    public RenderFragment Expected { get; set; }
+    public required RenderFragment Expected { get; set; }
     /// <summary> An action to be executed after the first render but before the snapshot comparison. </summary>
     [Parameter]
     public EventCallback<IRenderedComponent<KaTeX>> Action { get; set; }
@@ -41,7 +41,7 @@ public class KaTeXTest : RazorTestBase
 
     public static void AddKaTeXTestDefaultServices(TestContextBase ctx)
     {
-        Contract.Assert<BlatexNotFoundException>(File.Exists(NodeJSRuntime.DefaultJSPath.Value.Replace("\\\\", "\\")), "blatex.js not found. You probably need to build it, see readme. ");
+        Contract.Assert<FileNotFoundException>(File.Exists(NodeJSRuntime.DefaultKaTeXPath.Value.Replace("\\\\", "\\")), $"'{Path.GetFileName(NodeJSRuntime.DefaultKaTeXPath)}' not found, see README.");
 
         ctx.Services.AddDefaultTestContextServices(ctx, new BunitJSInterop());
         ctx.Services.Add(new ServiceDescriptor(typeof(IJSRuntime), NodeJSRuntime.CreateDefault()));

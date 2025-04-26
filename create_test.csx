@@ -1,9 +1,9 @@
 // real reference:
-#r "./Tests/bin/Debug/netcoreapp3.1/BlaTeX.Tests.dll"
+#r "./tests/bin/Debug/netcoreapp3.1/BlaTeX.Tests.dll"
 // path hints:
-#r "./Tests/bin/Debug/netcoreapp3.1/BlaTeX.dll"
-#r "./Tests/bin/Debug/netcoreapp3.1/JBSnorro.dll"
-#r "./Tests/bin/Debug/netcoreapp3.1/Microsoft.JSInterop.dll"
+#r "./tests/bin/Debug/netcoreapp3.1/BlaTeX.dll"
+#r "./tests/bin/Debug/netcoreapp3.1/JBSnorro.dll"
+#r "./tests/bin/Debug/netcoreapp3.1/Microsoft.JSInterop.dll"
 using BlaTeX.Tests;
 using System.Xml.Linq;
 using JBSnorro;

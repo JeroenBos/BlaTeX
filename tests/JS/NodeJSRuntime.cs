@@ -11,10 +11,10 @@ namespace BlaTeX.Tests;
 
 public class NodeJSRuntime : IJSRuntime
 {
-    public static JSString DefaultJSPath { get; } = JSString.Escape(Path.Join(RootFolder, "wwwroot", "js", "blatex_wrapper.js"));
+    public static JSString DefaultKaTeXPath { get; } = JSString.Escape(Path.Join(RootFolder, "js", "node_modules", "@jeroenbos", "katex", "katex.js"));
     public static NodeJSRuntime CreateDefault()
     {
-        return new NodeJSRuntime(DefaultJSPath.ToSingleton()) { Trace = true };
+        return new NodeJSRuntime(DefaultKaTeXPath.ToSingleton()) { Trace = true };
     }
 
     public bool Trace { get; init; }
