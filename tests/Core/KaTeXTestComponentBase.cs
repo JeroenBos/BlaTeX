@@ -7,7 +7,7 @@ namespace BlaTeX.Tests;
 public abstract class KaTeXTestComponentBase : IComponent
 {
     [Parameter]
-    public RenderFragment<KaTeX> KaTeX { get; set; } = default!;
+    public required RenderFragment<KaTeX> KaTeX { get; set; }
 
     /// <summary>
     /// Renders the component to the supplied <see cref="RenderTreeBuilder"/>.
