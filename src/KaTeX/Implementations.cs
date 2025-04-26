@@ -138,30 +138,32 @@ internal class _DomSpan : _Span<HtmlDomNode>, DomSpan
 
 internal class _Span<TChildNode> : _HtmlDomNode, Span<TChildNode> where TChildNode : VirtualNode
 {
-    public TChildNode[]? children { get; set; } = default!;
-    public Attributes? attributes { get; set; } = default!;
+    public TChildNode[] children { get; set; }
+    public Attributes attributes { get; set; }
     public float? width { get; set; }
     [DebuggerHidden]
-    IReadOnlyList<TChildNode>? Span<TChildNode>.Children => children;
+    IReadOnlyList<TChildNode> Span<TChildNode>.Children => children;
     [DebuggerHidden]
-    Attributes? Span<TChildNode>.Attributes => attributes;
+    Attributes Span<TChildNode>.Attributes => attributes;
     [DebuggerHidden]
     float? Span<TChildNode>.Width => width;
 
     /// <summary> Ctor for JsonSerializer. </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public _Span() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public _Span(TChildNode[]? children,
-                    Attributes? attributes,
-                    float? width,
-                    IReadOnlyList<string>? classes,
-                    float height,
-                    float depth,
-                    float maxFontSize,
-                    _CssStyle? style)
+                 Attributes? attributes,
+                 float? width,
+                 IReadOnlyList<string>? classes,
+                 float height,
+                 float depth,
+                 float maxFontSize,
+                 _CssStyle? style)
         : base(classes, height, depth, maxFontSize, style)
     {
-        this.children = children;
-        this.attributes = attributes;
+        this.children = children ?? [];
+        this.attributes = attributes ?? Attributes.Empty;
         this.width = width;
     }
     public override bool Equals(object? obj)
@@ -175,38 +177,38 @@ internal class _Span<TChildNode> : _HtmlDomNode, Span<TChildNode> where TChildNo
 
         if (this.width != other.Width)
             return false;
-        if (this.children?.SequenceEqual(other.Children!) ?? other.Children is { })
+        if (!this.children.SequenceEqual(other.Children))
             return false;
-        if (this.attributes?.Equals(other.Attributes) ?? other.Attributes is { })
+        if (this.attributes.Equals(other.Attributes))
             return false;
         return true;
     }
     public override int GetHashCode() => throw new NotImplementedException();
-    public sealed override HtmlDomNode With(Option<IReadOnlyList<string>> classes = default(Option<IReadOnlyList<string>>),
-                                            Option<float> height = default(Option<float>),
-                                            Option<float> depth = default(Option<float>),
-                                            Option<float> maxFontSize = default(Option<float>),
-                                            Option<CssStyle> style = default(Option<CssStyle>))
-    {
-        return With(default, default, default, classes, height, depth, maxFontSize, style);
-    }
-    public virtual Span<TChildNode> With(Option<TChildNode[]> children = default,
-                                            Option<Attributes> attributes = default,
-                                            Option<float?> width = default,
-                                            Option<IReadOnlyList<string>> classes = default,
+    public sealed override HtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
                                             Option<float> height = default,
                                             Option<float> depth = default,
                                             Option<float> maxFontSize = default,
                                             Option<CssStyle> style = default)
     {
+        return With(default, default, default, classes, height, depth, maxFontSize, style);
+    }
+    public virtual Span<TChildNode> With(Option<TChildNode[]> children = default,
+                                         Option<Attributes> attributes = default,
+                                         Option<float?> width = default,
+                                         Option<IReadOnlyList<string>> classes = default,
+                                         Option<float> height = default,
+                                         Option<float> depth = default,
+                                         Option<float> maxFontSize = default,
+                                         Option<CssStyle> style = default)
+    {
         return new _Span<TChildNode>(children.ValueOrDefault(this.children),
-                                        attributes.ValueOrDefault(this.attributes),
-                                        width.ValueOrDefault(this.width),
-                                        classes.ValueOrDefault(this.classes),
-                                        height.ValueOrDefault(this.height),
-                                        depth.ValueOrDefault(this.depth),
-                                        maxFontSize.ValueOrDefault(this.maxFontSize),
-                                        (_CssStyle?)style.ValueOrDefault(this.style));
+                                     attributes.ValueOrDefault(this.attributes),
+                                     width.ValueOrDefault(this.width),
+                                     classes.ValueOrDefault(this.classes),
+                                     height.ValueOrDefault(this.height),
+                                     depth.ValueOrDefault(this.depth),
+                                     maxFontSize.ValueOrDefault(this.maxFontSize),
+                                     (_CssStyle?)style.ValueOrDefault(this.style));
     }
 }
 

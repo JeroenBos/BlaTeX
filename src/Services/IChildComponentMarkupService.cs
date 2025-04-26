@@ -1,5 +1,4 @@
 using BlaTeX.JSInterop.KaTeX.Syntax;
-using Microsoft.AspNetCore.Components;
 
 namespace BlaTeX;
 

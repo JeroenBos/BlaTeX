@@ -25,9 +25,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        # select a 'version' from https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/6.0/releases.json
-        dotnet-version: 9.0.4
-        include-prerelease: true
+        dotnet-version: 9.0.203 # select a 'version' from an sdk in https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/9.0/releases.json
     - name: build
       run: dotnet build src/BlaTeX.csproj --configuration CI
     - name: test

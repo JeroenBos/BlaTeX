@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Diagnostics.CodeAnalysis;
+using System.Collections;
 
 namespace BlaTeX.JSInterop.KaTeX
 {
@@ -87,8 +89,8 @@ namespace BlaTeX.JSInterop.KaTeX
     public interface Span<TChildNode> : HtmlDomNode where TChildNode : VirtualNode
     {
         // Span<T> is not part of the polymorphic deserializers because it's indistinguishable from their direct descendants (DomSpan for now only)
-        public IReadOnlyList<TChildNode>? Children { get; }
-        public Attributes? Attributes { get; }
+        public IReadOnlyList<TChildNode> Children { get; }
+        public Attributes Attributes { get; }
         public float? Width { get; }
 
         Span<TChildNode> With(Option<TChildNode[]> children = default,
@@ -209,6 +211,28 @@ namespace BlaTeX.JSInterop.KaTeX
     {
         SourceLocation? SourceLocation { get; }
 
+        public static Attributes Empty { get; } = new EmptyAttributes();
+        private sealed class EmptyAttributes : Attributes
+        {
+            public object? this[string key] => throw new KeyNotFoundException(key);
+            public SourceLocation? SourceLocation => null;
+            public IEnumerable<string> Keys => [];
+            public IEnumerable<object?> Values => [];
+            public int Count => 0;
+            public bool ContainsKey(string key) => false;
+            public IEnumerator<KeyValuePair<string, object?>> GetEnumerator()
+            {
+                yield break;
+            }
+
+            public bool TryGetValue(string key, [MaybeNullWhen(false)] out object? value)
+            {
+                value = null;
+                return false;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
     }
     public interface SourceLocation
     {
