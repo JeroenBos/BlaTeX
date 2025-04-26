@@ -4,7 +4,7 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlaTeX", "src\BlaTeX.csproj", "{5292DA98-CBEC-6C94-2770-0A40513C3912}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlaTeX.Tests", "Tests\BlaTeX.Tests.csproj", "{25FECCFA-F7AB-0A37-32B2-2B1E2A77D459}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlaTeX.Tests", "tests\BlaTeX.Tests.csproj", "{25FECCFA-F7AB-0A37-32B2-2B1E2A77D459}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
