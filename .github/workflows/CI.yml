@@ -1,35 +1,50 @@
+---
 name: CI
 
-on:
+'on':
   push:
-    branches: [ master ] 
+    branches: [master]
   pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-22.04
-  
+
     steps:
-    - uses: actions/checkout@v4
-      
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.203 # select a 'version' from an sdk in https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/9.0/releases.json
-    - name: Build .NET
-      run: dotnet build src/BlaTeX.csproj --configuration CI
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.203  # select a 'version' from an sdk in https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/9.0/releases.json
 
-    - name: Setup NodeJS
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-    - name: Authenticate against GitHub Packages
-      run: cd js && cat ./.npmrc.example | sed 's|<https://my.1password.com.*>|${{ secrets.GH_PACKAGES_TOKEN }}|g' > ./.npmrc
-    - name: npm install
-      run: cd js && npm install
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-    - name: Test
-      run: dotnet test tests/BlaTeX.Tests.csproj --configuration CI
-      timeout-minutes: 5
-      env:
-        WAIT_FOR_STATE_TIMEOUT_SEC: 30
+      - name: Install @JeroenBos/KaTeX in the background
+        id: js
+        run: |
+          log='/tmp/npm-install.log'
+          {
+            trap "echo \"export pid_$BASHPID=\$?\" >> /tmp/exit_codes.env" EXIT
+
+            # Authenticate against GitHub Packages
+            cat ./.npmrc.example | sed 's|<https://my.1password.com.*>|${{ secrets.GH_PACKAGES_TOKEN }}|g' > ./.npmrc
+
+            npm install
+          } &>> "$log" &
+
+          echo "pid=$!"     | tee --append $GITHUB_OUTPUT
+          echo "log=$log"   | tee --append $GITHUB_OUTPUT
+        working-directory: js
+
+      - name: Build .NET
+        run: dotnet build src/BlaTeX.csproj --configuration CI
+
+      - name: Await installation @JeroenBos/KaTeX
+        run: ./.github/wait_for_process.sh ${{ steps.js.outputs.pid }} "${{ steps.js.outputs.log }}"
+
+      - name: Test
+        run: dotnet test tests/BlaTeX.Tests.csproj --configuration CI
+        timeout-minutes: 5
+        env:
+          WAIT_FOR_STATE_TIMEOUT_SEC: 30
