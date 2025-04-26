@@ -11,16 +11,6 @@ jobs:
   
     steps:
     - uses: actions/checkout@v4
-    - name: Setup NodeJS
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-
-    - name: Authenticate against GitHub Packages
-      run: cd js && cat ./.npmrc.example | sed 's|<https://my.1password.com.*>|${{ secrets.GH_PACKAGES_TOKEN }}|g' > ./.npmrc
-      
-    - name: npm install
-      run: cd js && npm install
       
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
@@ -28,8 +18,21 @@ jobs:
         dotnet-version: 9.0.203 # select a 'version' from an sdk in https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/9.0/releases.json
     - name: build
       run: dotnet build src/BlaTeX.csproj --configuration CI
+
+    - name: Setup NodeJS
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - name: Authenticate against GitHub Packages
+      run: cd js && cat ./.npmrc.example | sed 's|<https://my.1password.com.*>|${{ secrets.GH_PACKAGES_TOKEN }}|g' > ./.npmrc
+    - name: npm install
+      run: cd js && npm install
+
+    - name: debug 🚧
+      run: ls
+
     - name: test
-      run: dotnet test tests/BlaTeX.Tests.csproj --configuration CI
+      run: dotnet test "tests/BlaTeX.Tests.csproj" --configuration CI
       timeout-minutes: 5
       env:
         WAIT_FOR_STATE_TIMEOUT_SEC: 30
