@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install @JeroenBos/KaTeX in the background
+      - name: Install @JeroenBos/KaTeX (in the background)
         id: js
         run: |
           log='/tmp/npm-install.log'
@@ -40,7 +40,7 @@ jobs:
       - name: Build .NET
         run: dotnet build src/BlaTeX.csproj --configuration CI
 
-      - name: Await installation @JeroenBos/KaTeX
+      - name: Install @JeroenBos/KaTeX (await background)
         run: ./.github/wait_for_process.sh ${{ steps.js.outputs.pid }} "${{ steps.js.outputs.log }}"
 
       - name: Test

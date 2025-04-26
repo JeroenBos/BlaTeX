@@ -20,7 +20,7 @@ public class KaTeXTest : RazorTestBase
     [Parameter]
     public RenderFragment? TestInput { get; set; }
     [Parameter]
-    public required RenderFragment Expected { get; init; }
+    public RenderFragment Expected { get; set; }
     /// <summary> An action to be executed after the first render but before the snapshot comparison. </summary>
     [Parameter]
     public EventCallback<IRenderedComponent<KaTeX>> Action { get; set; }
@@ -30,7 +30,7 @@ public class KaTeXTest : RazorTestBase
     // parameter passed on to component under test:
 
     [Parameter]
-    public required string Math { get; init; }
+    public required string Math { get; set; }
     [Parameter]
     public IChildComponentMarkupService? ChildComponentMarkupService { get; set; }
 
@@ -117,7 +117,7 @@ public class KaTeXTest : RazorTestBase
             switch (key)
             {
                 case "math":
-                    this.Math = (string)value!;
+                    this.Math = (string)(value ?? throw new ArgumentNullException(nameof(Math)));
                     break;
                 case "ChildContent":
                     this.Expected = (RenderFragment)(value ?? throw new ArgumentNullException(nameof(Expected)));
