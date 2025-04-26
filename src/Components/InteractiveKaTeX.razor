@@ -1,0 +1,28 @@
+@page "/interactive"
+@inherits KaTeX
+
+
+@* KaTeX.Loading isn't propagated because @(if (Loading != null) { Loading=@Loading }); Doesn't work with complicated delegate error. *@ 
+
+<div id="interactivity"
+     @onclick="OnClick">
+    <InterpolatedMarkup> @* These don't do anything anymore *@
+    </InterpolatedMarkup>
+</div>
+
+@code {
+    [Parameter]
+    public bool Immutable { get; set; }
+
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        await base.SetParametersAsync(parameters);
+    }
+
+    private void OnClick(MouseEventArgs e)
+    {
+        this.Math = null;
+        this.StateHasChanged();
+    }
+}

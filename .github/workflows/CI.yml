@@ -26,12 +26,12 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         # select a 'version' from https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/6.0/releases.json
-        dotnet-version: 6.0.100
+        dotnet-version: 9.0.4
         include-prerelease: true
     - name: build
-      run: dotnet build **/*.csproj --configuration CI
+      run: dotnet build src/BlaTeX.csproj --configuration CI
     - name: test
-      run: dotnet test *Tests --configuration CI
+      run: dotnet test tests/BlaTeX.Tests.csproj --configuration CI
       timeout-minutes: 5
       env:
         WAIT_FOR_STATE_TIMEOUT_SEC: 30

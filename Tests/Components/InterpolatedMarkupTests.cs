@@ -4,8 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BlaTeX.JSInterop.KaTeX;
-using BlaTeX.JSInterop.KaTeX.Syntax;
 using Bunit;
 using Bunit.Extensions;
 using JBSnorro;
@@ -13,7 +11,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using BlaTeX.Tests.Mocks;
-using BlaTeX.Components;
 
 namespace BlaTeX.Tests.Components
 {

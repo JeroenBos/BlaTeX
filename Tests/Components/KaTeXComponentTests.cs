@@ -4,8 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BlaTeX.JSInterop.KaTeX;
-using BlaTeX.JSInterop.KaTeX.Syntax;
 using Bunit;
 using Bunit.Extensions;
 using JBSnorro;
@@ -16,7 +14,6 @@ using BlaTeX.Tests.Mocks;
 
 namespace BlaTeX.Tests.Components
 {
-	using KaTeX = BlaTeX.Components.KaTeX;
 	public class KaTeXComponentTests
 	{
 		protected static TestContext CreateTestContext(Option<string> renderToStringReturnValue = default)

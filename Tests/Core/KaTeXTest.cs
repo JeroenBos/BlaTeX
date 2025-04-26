@@ -1,26 +1,13 @@
-#nullable enable
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using Bunit;
 using Bunit.Extensions;
-using Bunit.Extensions.WaitForHelpers;
 using Bunit.RazorTesting;
-using Bunit.Rendering;
-using JBSnorro;
 using JBSnorro.Diagnostics;
-using JBSnorro.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Xunit;
 using Microsoft.Extensions.DependencyInjection;
-using BlaTeX.JSInterop;
-using BlaTeX.JSInterop.KaTeX;
-using BlaTeX.Components;
-using InteractiveKaTeX = BlaTeX.Components.InteractiveKaTeX; // prevents errors in VS
 
 namespace BlaTeX.Tests
 {

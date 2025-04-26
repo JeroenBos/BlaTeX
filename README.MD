@@ -18,11 +18,4 @@ JS
 - `cd js/blatex && rm -r node_modules && yarn install && yarn build && cd .. && npm install && npm run build && cd ..`
 
 
-Initial clone, including submodules:
-
-```bash
-git clone git@github.com:JeroenBos/BlaTeX.git
-cd BlaTeX
-git submodule update --init --recursive
-```
 
