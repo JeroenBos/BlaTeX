@@ -1,23 +1,23 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "wait_for_build",
-			"command": "bash",
-			"type": "shell",
-			"args": [
-				"-c",
-				// wait at least 3 seconds for the watcher to set its flag:
-				"globals set 'BlaTeX.Tests' 'wait_for_build' 3 && globals wait 'BlaTeX.Tests'",
-			],
-			"presentation": {
-				"echo": true,
-				"reveal": "never",
-				"focus": false,
-				"panel": "shared",
-				"showReuseMessage": true,
-				"clear": false
-			}
-		}
-	]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "wait_for_build",
+            "command": "bash",
+            "type": "shell",
+            "args": [
+                "-c",
+                // wait at least 3 seconds for the watcher to set its flag:
+                "globals set 'BlaTeX.Tests' 'wait_for_build' 3 && globals wait 'BlaTeX.Tests'",
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        }
+    ]
 }
