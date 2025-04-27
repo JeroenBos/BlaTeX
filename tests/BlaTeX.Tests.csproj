@@ -13,22 +13,21 @@
         <ProjectReference Include="../src/BlaTeX.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <!-- <PackageReference Include="JBSnorro" Version="0.0.33" Condition="'$(Configuration)' != 'Debug'" /> -->
+        <PackageReference Include="JBSnorro" Version="0.0.33" Condition="'$(Configuration)' != 'Debug'" />
         <ProjectReference Include="../../JBSnorro/JBSnorro/JBSnorro.csproj"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="bunit" Version="1.2.49" />
-        <PackageReference Include="bunit.core" Version="1.2.49" />
-        <PackageReference Include="bunit.web" Version="1.2.49" />
-        <PackageReference Include="bunit.web.testcomponents" Version="1.2.49" />
-        <PackageReference Include="AngleSharp" Version="0.16.0" />
-        <PackageReference Include="AngleSharp.Css" Version="0.16.0" />
-        <PackageReference Include="AngleSharp.Diffing" Version="0.16.0" />
-        <PackageReference Include="AngleSharp.Wrappers" Version="2.0.0" />
-        <PackageReference Include="Nito.AsyncEx.Context" Version="5.0.0" />
-        <PackageReference Include="Shouldly" Version="3.0.2" />
+        <PackageReference Include="bunit" Version="1.39.5" />
+        <PackageReference Include="bunit.core" Version="1.39.5" />
+        <PackageReference Include="bunit.web" Version="1.39.5" />
+        <PackageReference Include="bunit.web.testcomponents" Version="1.23.9" />
+        <PackageReference Include="AngleSharp" Version="1.2.0" />
+        <PackageReference Include="AngleSharp.Css" Version="1.0.0-beta.144" />
+        <PackageReference Include="AngleSharp.Diffing" Version="1.0.0" />
+        <PackageReference Include="Nito.AsyncEx.Context" Version="5.1.2" />
+        <PackageReference Include="Shouldly" Version="4.3.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-        <PackageReference Include="xunit" Version="2.4.1" />
+        <PackageReference Include="xunit" Version="2.9.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

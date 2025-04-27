@@ -28,23 +28,14 @@ public abstract class KaTeXTestComponentBase : IComponent
         // because my testing library doesn't support that, but I want debugging!
         using var razorRenderer = new TestComponentRenderer();
         var tests = razorRenderer.GetRazorTestsFromComponent(this.GetType()).ToReadOnlyList();
-        if (tests.Count == 1)
+       
+        int i = 1;
+        foreach (var test in tests)
         {
-            // this helps debugging tremendously because the foreach just swallows exceptions
-            // I mean it doesn't catch them, but the IDE isn't showing them
-            tests[0].RunTestAsync().Wait();
+            Console.WriteLine($"Executing test {i}/{tests.Count}: '{test.Description}'");
+            await test.RunTestAsync().ConfigureAwait(true);
+            i++;
         }
-        else
-        {
-            int i = 1;
-            foreach (var test in tests)
-            {
-                Console.WriteLine($"Executing test {i}/{tests.Count}: '{test.Description}'");
-                await test.RunTestAsync().ConfigureAwait(false);
-                i++;
-            }
-        }
-
     }
 
     void IComponent.Attach(RenderHandle renderHandle) => renderHandle.Render(BuildRenderTree);

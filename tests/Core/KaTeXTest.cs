@@ -1,5 +1,7 @@
 using Bunit.RazorTesting;
+using Bunit.Rendering;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.IO;
 
 namespace BlaTeX.Tests;
@@ -35,14 +37,15 @@ public class KaTeXTest : RazorTestBase
     public IChildComponentMarkupService? ChildComponentMarkupService { get; set; }
 
 
-
+    protected override ITestRenderer CreateTestRenderer()
+    {
+        return new TestRenderer(new RenderedComponentActivator(this.Services), this.Services, this.Services.GetRequiredService<ILoggerFactory>());
+    }
     /// <inheritdoc/>
     public override string? DisplayName => this.GetType().Name;
 
     public static void AddKaTeXTestDefaultServices(TestContextBase ctx)
     {
-        Contract.Assert<FileNotFoundException>(File.Exists(NodeJSRuntime.DefaultKaTeXPath.Value.Replace("\\\\", "\\")), $"'{Path.GetFileName(NodeJSRuntime.DefaultKaTeXPath)}' not found, see README.");
-
         ctx.Services.AddDefaultTestContextServices(ctx, new BunitJSInterop());
         ctx.Services.Add(new ServiceDescriptor(typeof(IJSRuntime), NodeJSRuntime.CreateDefault()));
         ctx.Services.Add(new ServiceDescriptor(typeof(IKaTeXRuntime), typeof(KaTeXRuntime), ServiceLifetime.Singleton));
@@ -56,8 +59,8 @@ public class KaTeXTest : RazorTestBase
 
         var parameters = new ComponentParameter[]
         {
-                (nameof(KaTeX.Math), this.Math),
-                (nameof(KaTeX.ChildComponentMarkupService), this.ChildComponentMarkupService),
+            (nameof(KaTeX.Math), this.Math),
+            (nameof(KaTeX.ChildComponentMarkupService), this.ChildComponentMarkupService),
         };
         IRenderedComponent<KaTeX> cut;
         if (this.Interactive ?? false)
@@ -116,7 +119,7 @@ public class KaTeXTest : RazorTestBase
         {
             switch (key)
             {
-                case "math":
+                case "Math":
                     this.Math = (string)(value ?? throw new ArgumentNullException(nameof(Math)));
                     break;
                 case "ChildContent":

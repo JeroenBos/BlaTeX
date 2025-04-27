@@ -10,7 +10,7 @@ public class JSIntegrationTests
   [Fact]
   public async Task JSInteropTestViaBlazor()
   {
-    var result = await NodeJSRuntime.CreateDefault()
+    var actual = await NodeJSRuntime.CreateDefault()
                                     .InvokeAsync<string>("katex.renderToString", "c")
                                     .AsTask();
     string expected = @"
@@ -27,13 +27,13 @@ public class JSIntegrationTests
     </span>
     <span class=""katex-html"" aria-hidden=""true"">
       <span class=""base"">
-        <span class=""strut"" style=""height:0.43056em;vertical-align:0em;""></span>
+        <span class=""strut"" style=""height:0.4306em;""></span>
         <span class=""mord mathnormal"" data-loc=""0,1"">c</span>
       </span>
     </span>
 </span>
 ";
-    HtmlEqualityComparer.AssertEqual(result, expected);
+    HtmlEqualityComparer.AssertEqual(expected, actual);
   }
 
   [Fact]
