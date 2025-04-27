@@ -12,7 +12,6 @@ defaults:
     
 jobs:
   test:
-    name: test
     strategy:
       matrix:
         os: [ubuntu-22.04] # , windows-latest]
