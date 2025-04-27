@@ -102,7 +102,7 @@ public class NodeJSRuntime : IJSRuntime
         get
         {
             var dir = new DirectoryInfo(Environment.CurrentDirectory);
-            while (dir.Name.ToLowerInvariant() != "blatex") // relevant since the systemwide UTF8 setting
+            while (dir.Name != "BlaTeX")
             {
                 dir = dir.Parent;
                 if (dir == null)
