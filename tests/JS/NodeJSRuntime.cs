@@ -101,7 +101,6 @@ public class NodeJSRuntime : IJSRuntime
     {
         get
         {
-            throw new Exception(System.Text.Encoding.Default.EncodingName);
             var dir = new DirectoryInfo(Environment.CurrentDirectory);
             while (dir.Name.ToLowerInvariant() != "blatex") // relevant since the systemwide UTF8 setting
             {

@@ -7,10 +7,9 @@ using System.Linq;
 
 namespace BlaTeX;
 
-public class HtmlEqualityComparer : IDifferenceComparer<string, IDiff>
+public static class HtmlEqualityComparer
 {
     private const string defaultMessage = "Html unequal";
-    public static HtmlEqualityComparer Instance { get; } = new HtmlEqualityComparer();
 
     public static IReadOnlyList<IDiff> ComputeDifference(INodeList expected, INodeList renderedInput)
     {
@@ -113,14 +112,6 @@ public class HtmlEqualityComparer : IDifferenceComparer<string, IDiff>
 
         return null;
     }
-
-
-
-    protected HtmlEqualityComparer() { }
-
-
-    [DebuggerHidden]
-    IEnumerable<IDiff> IDifferenceComparer<string, IDiff>.ComputeDifference(string x, string y) => ComputeDifference(x, y);
 
     [DebuggerHidden]
     public static IEnumerable<IDiff> ComputeDifference(string x, string y) => ComputeDifference(x, y, out var _);
