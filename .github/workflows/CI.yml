@@ -6,10 +6,17 @@ name: CI
     branches: [master]
   pull_request:
 
+defaults:
+  run:
+    shell: bash
+    
 jobs:
   test:
-    runs-on: ubuntu-22.04
-
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
