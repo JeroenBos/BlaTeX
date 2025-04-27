@@ -19,8 +19,6 @@ else
 }
 
 @code {
-#nullable enable
-
     // this component has the following logic:
     // - EITHER Math is specified
     // - OR the AST is specified
@@ -33,7 +31,7 @@ else
     /// <summary>
     /// Caches the markup created from <see cref="Math"/> or <see cref="AST"/>.
     /// </summary>
-    internal string? markup = default;
+    internal string? markup;
 
 
     /// <summary>

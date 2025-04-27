@@ -2,7 +2,6 @@ using Bunit.RazorTesting;
 using Bunit.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.IO;
 
 namespace BlaTeX.Tests;
 
