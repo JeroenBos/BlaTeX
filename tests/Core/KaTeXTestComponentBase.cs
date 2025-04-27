@@ -32,7 +32,8 @@ public abstract class KaTeXTestComponentBase : IComponent
         int i = 1;
         foreach (var test in tests)
         {
-            Console.WriteLine($"Executing test {i}/{tests.Count}: '{test.Description}'");
+            if (tests.Count != 1)
+                Console.WriteLine($"Executing test {i}/{tests.Count}: '{test.Description}'");
             await test.RunTestAsync().ConfigureAwait(true);
             i++;
         }

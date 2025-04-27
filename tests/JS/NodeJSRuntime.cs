@@ -63,7 +63,6 @@ public class NodeJSRuntime : IJSRuntime
     public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, params object?[]? args)
     {
         var (exitCode, stdOut, stdErr, debugOut) = await this.InvokeAsyncImpl(identifier, args);
-        Console.WriteLine(stdOut);
         Console.WriteLine(stdErr);
         if (stdErr != "")
         {
