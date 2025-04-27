@@ -1,4 +1,0 @@
-[submodule "js/blatex"]
-	path = js/blatex
-	url = https://github.com/JeroenBos/KaTeX.git
-	branch = develop

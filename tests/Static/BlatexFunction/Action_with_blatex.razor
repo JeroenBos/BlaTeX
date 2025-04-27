@@ -1,0 +1,52 @@
+@using BlaTeX.Components
+@inherits KaTeXTestComponentBase
+
+<KaTeXTest math="c = a"
+           Action="@(cut => Action(cut, "c = \\blatex{} a"))">
+    @* <div id="interactivity" > *@
+    <span class="katex">
+        <span class="katex-mathml">
+            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                <semantics>
+                    <mrow>
+                        <mi>c</mi>
+                        <mo>=</mo>
+                        <annotation></annotation>
+                        <mi>a</mi>
+                    </mrow>
+                    <annotation encoding="application/x-tex">c = \blatex{} a</annotation>
+                </semantics>
+            </math>
+        </span>
+        <span class="katex-html" aria-hidden="true">
+            <span class="base">
+                <span class="strut" style="height:0.4306em;"></span>
+                <span class="mord mathnormal" data-loc="0,1">c</span>
+                <span class="mspace" style="margin-right:0.2778em;"></span>
+                <span class="mrel" data-loc="2,3">=</span>
+            </span>
+            <span class="base">
+                <span class="strut" style="height:0.4306em;"></span>
+                <span data-loc="4,11">
+                    <span data-blatex="" data-loc="4,11"></span>
+                </span>
+                <span class="mord mathnormal" data-loc="14,15">a</span>
+            </span>
+        </span>
+    </span>
+</KaTeXTest>
+
+@code {
+    /// <summary> This test mostly serves that adding a \blatex doesn't affect the adjacent nodes. </summary>
+    static Task Action(IRenderedComponent<KaTeX> cut, string newMath)
+    {
+        var newParameters = ParameterViewExtensions.Create(("Math", newMath));
+        return cut.InvokeAsync(async () =>
+{
+    await cut.Instance.SetParametersAsync(newParameters);
+});
+
+        // cut.SetParametersAndRender(ComponentParameter.CreateParameter("math", newMath));
+        // var diffs = cut.GetChangesSinceFirstRender();
+    }
+}

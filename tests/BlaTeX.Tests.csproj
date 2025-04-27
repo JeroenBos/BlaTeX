@@ -1,0 +1,88 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <GenerateProgramFile>false</GenerateProgramFile>
+        <LangVersion>preview</LangVersion>
+        <IsPackable>false</IsPackable>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../src/BlaTeX.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="JBSnorro" Version="0.0.33" Condition="'$(Configuration)' != 'Debug'" />
+        <ProjectReference Include="../../JBSnorro/JBSnorro/JBSnorro.csproj" Condition="'$(Configuration)' == 'Debug'" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="bunit" Version="1.39.5" />
+                <PackageReference Include="bunit.core" Version="1.39.5" />
+        <PackageReference Include="bunit.web" Version="1.39.5" /> 
+                <PackageReference Include="bunit.web.testcomponents" Version="1.23.9" />
+        <PackageReference Include="AngleSharp" Version="1.2.0" />
+        <PackageReference Include="AngleSharp.Css" Version="1.0.0-beta.144" />
+        <PackageReference Include="AngleSharp.Diffing" Version="1.0.0" />
+        <PackageReference Include="Nito.AsyncEx.Context" Version="5.1.2" />
+        <PackageReference Include="Shouldly" Version="4.3.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
+        <PackageReference Include="xunit" Version="2.9.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+        
+    <ItemGroup>
+        <Watch Include="../**/*.cs;../**/*.razor;../**/*.csproj" Exclude="../**/obj/**,**/node_modules/**" />
+    </ItemGroup>
+
+<ItemGroup>
+        <Using Include="System" />
+        <Using Include="System.Collections.Generic" />
+        <Using Include="System.Net.Http" />
+        <Using Include="System.Net.Http.Json" />
+        <Using Include="System.Threading.Tasks" />
+        <Using Include="Microsoft.AspNetCore.Components" />
+        <Using Include="Microsoft.AspNetCore.Components.Forms" />
+        <Using Include="Microsoft.AspNetCore.Components.Routing" />
+        <Using Include="Microsoft.AspNetCore.Components.Web" />
+        <Using Include="Microsoft.AspNetCore.Components.WebAssembly.Http" />
+        <Using Include="Microsoft.JSInterop" />
+        <Using Include="BlaTeX" />
+        <Using Include="BlaTeX.Components" />
+        <Using Include="BlaTeX.Shared" />
+        <Using Include="BlaTeX.JSInterop" />
+        <Using Include="BlaTeX.JSInterop.KaTeX" />
+        <Using Include="JBSnorro" />
+        <Using Include="JBSnorro.Diagnostics" />
+        <Using Include="JBSnorro.JS" />
+        <Using Include="JBSnorro.Extensions" />
+        <Using Include="JBSnorro.Text.Json" />
+        <Using Include="Bunit" />
+        <Using Include="Bunit.Extensions" />
+        <Using Include="Xunit" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(Configuration)'=='Debug'">
+        <ContentWithTargetPath Include="Properties/xunit.runner.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <TargetPath>xunit.runner.json</TargetPath>
+        </ContentWithTargetPath>
+    </ItemGroup>
+    <ItemGroup Condition="'$(Configuration)'!='Debug'">
+        <ContentWithTargetPath Include="Properties/xunit.runner.CI.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <TargetPath>xunit.runner.json</TargetPath>
+        </ContentWithTargetPath>
+    </ItemGroup>
+
+    <!-- https://github.com/dotnet/sdk/issues/1458#issuecomment-420456386 -->
+    <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml" Condition="$(CopyLocalLockFileAssemblies) == true" AfterTargets="ResolveReferences">
+        <ItemGroup>
+            <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdb')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).pdb')" />
+            <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
+        </ItemGroup>
+    </Target>
+</Project>

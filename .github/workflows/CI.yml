@@ -1,36 +1,59 @@
+---
 name: CI
 
-on:
+'on':
   push:
-    branches: [ master, trigger_CI ] 
+    branches: [master]
   pull_request:
 
+defaults:
+  run:
+    shell: bash
+    
 jobs:
   test:
-    runs-on: ubuntu-latest
-  
+    strategy:
+      matrix:
+        os: [ubuntu-22.04] # , windows-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: recursive
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        # select a 'version' from https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/6.0/releases.json
-        dotnet-version: 6.0.100
-        include-prerelease: true
-    - name: Setup NodeJS
-      uses: actions/setup-node@v1
-      with:
-        node-version: '12.18.1'
-    - name: yarn
-      run: cd js/blatex && yarn install && yarn build
-    - name: npm
-      run: cd js && npm install && npm run build
-    - name: build
-      run: dotnet build **/*.csproj --configuration CI
-    - name: test
-      run: dotnet test *Tests --configuration CI
-      timeout-minutes: 5
-      env:
-        WAIT_FOR_STATE_TIMEOUT_SEC: 30
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.203  # select a 'version' from an sdk in https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/9.0/releases.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install @JeroenBos/KaTeX (in the background)
+        id: js
+        run: |
+          log='/tmp/npm-install.log'
+          {
+            trap "echo \"export pid_$BASHPID=\$?\" >> /tmp/exit_codes.env" EXIT
+
+            # Authenticate against GitHub Packages
+            cat ./.npmrc.example | sed 's|<https://my.1password.com.*>|${{ secrets.GH_PACKAGES_TOKEN }}|g' > ./.npmrc
+
+            npm install
+          } &>> "$log" &
+
+          echo "pid=$!"     | tee --append $GITHUB_OUTPUT
+          echo "log=$log"   | tee --append $GITHUB_OUTPUT
+        working-directory: js
+
+      - name: Build .NET
+        run: dotnet build src/BlaTeX.csproj --configuration CI
+
+      - name: Install @JeroenBos/KaTeX (await background)
+        run: ./.github/wait_for_process.sh ${{ steps.js.outputs.pid }} "${{ steps.js.outputs.log }}"
+
+      - name: Test
+        run: dotnet test tests/BlaTeX.Tests.csproj --configuration CI
+        timeout-minutes: 5
+        env:
+          WAIT_FOR_STATE_TIMEOUT_SEC: 30

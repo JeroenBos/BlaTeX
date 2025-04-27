@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Using Include="System" />
+        <Using Include="System.Collections.Generic" />
+        <Using Include="System.Net.Http" />
+        <Using Include="System.Net.Http.Json" />
+        <Using Include="System.Threading.Tasks" />
+        <Using Include="Microsoft.AspNetCore.Components" />
+        <Using Include="Microsoft.AspNetCore.Components.Forms" />
+        <Using Include="Microsoft.AspNetCore.Components.Routing" />
+        <Using Include="Microsoft.AspNetCore.Components.Web" />
+        <Using Include="Microsoft.AspNetCore.Components.WebAssembly.Http" />
+        <Using Include="Microsoft.JSInterop" />
+        <Using Include="BlaTeX" />
+        <Using Include="BlaTeX.Shared" />
+        <Using Include="BlaTeX.JSInterop" />
+        <Using Include="BlaTeX.JSInterop.KaTeX" />
+        <Using Include="JBSnorro" />
+        <Using Include="JBSnorro.Diagnostics" />
+        <Using Include="JBSnorro.JS" />
+        <Using Include="JBSnorro.Extensions" />
+        <Using Include="JBSnorro.Text.Json" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" version="9.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" version="9.0.4" PrivateAssets="all" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="JBSnorro" Version="0.0.33" Condition="'$(Configuration)' != 'Debug'" />
+        <ProjectReference Include="../../JBSnorro/JBSnorro/JBSnorro.csproj" Condition="'$(Configuration)' == 'Debug'"/>
+    </ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>BlaTeX.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+</Project>

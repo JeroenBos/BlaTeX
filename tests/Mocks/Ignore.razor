@@ -1,0 +1,10 @@
+<span diff:ignore></span>
+@*
+We're ignoring a span here that contains a zero-width space.
+The thing is that the AspNetCore exports weird characters (ΓÇï).
+- I can't find how to make AspNetCore output in UTF8 (it says it already does so, but something there doesn't work).
+- It DOES work if I set Windows systemwide to UTF8, but then it still doesn't work in CI (it does on Ubuntu, but not on Windows), and then VSCode's test explorer doesn't work 😑
+- bUnit's HtmlComparer can't be overridden
+So we're stuck, I'm just going to ignore them for now. Ideally we'd just have this component be <span class="vlist-s">&#8203;</span>; as works on Linux; but alas.
+*@
+
