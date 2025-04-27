@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using BlaTeX.JSInterop.KaTeX.Syntax;
 
 namespace BlaTeX.JSInterop.KaTeX;
@@ -23,6 +24,7 @@ internal class KaTeXRuntime : IKaTeXRuntime
 {
     private readonly IJSRuntime jsRuntime;
 
+    [DebuggerHidden]
     public KaTeXRuntime(IJSRuntime jsRuntime)
     {
         if (jsRuntime == null)

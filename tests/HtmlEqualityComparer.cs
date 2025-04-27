@@ -96,19 +96,19 @@ public static class HtmlEqualityComparer
     }
     /// <summary> Throws a detailed error if the specified strings don't represent equivalent HTML. </summary>
     [DebuggerHidden]
-    public static void AssertEqual(INodeList expectedNodes, INodeList renderedInput, string message = defaultMessage)
+    public static void AssertEqual(INodeList expected, INodeList actual, string message = defaultMessage)
     {
-        HtmlEqualException? exception = ComputeException(expectedNodes, renderedInput, message);
+        HtmlEqualException? exception = ComputeException(expected, actual, message);
         if (exception != null)
             throw exception;
     }
     /// <summary> Gets a detailed error if the specified strings don't represent equivalent HTML. </summary>
-    internal static HtmlEqualException? ComputeException(INodeList expectedNodes, INodeList inputNodes, string message = defaultMessage)
+    internal static HtmlEqualException? ComputeException(INodeList expected, INodeList actual, string message = defaultMessage)
     {
-        var diffs = ComputeDifference(expectedNodes, inputNodes);
+        var diffs = ComputeDifference(expected, actual);
 
         if (diffs.Any())
-            return new HtmlEqualException(diffs, expectedNodes, inputNodes, message);
+            return new HtmlEqualException(diffs, expected, actual, message);
 
         return null;
     }

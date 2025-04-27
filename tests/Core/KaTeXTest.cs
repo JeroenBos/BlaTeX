@@ -95,9 +95,7 @@ public class KaTeXTest : RazorTestBase
     internal static async Task WaitForKatexToHaveRendered(IRenderedComponent<KaTeX> cut)
     {
         // Use Task.Run to prevent program from exiting in case it's on the main thread
-        await Task.Run(() => cut.WaitForState(predicate, WaitForStateTimeout));
-
-        bool predicate() => cut.Instance.markup != null;
+        await Task.Run(() => cut.WaitForState(() => cut.Instance.markup != null, WaitForStateTimeout));
     }
 
 
