@@ -11,19 +11,19 @@ public static class HtmlEqualityComparer
 {
     private const string defaultMessage = "Html unequal";
 
-    public static IReadOnlyList<IDiff> ComputeDifference(INodeList expected, INodeList renderedInput)
+    public static IReadOnlyList<IDiff> ComputeDifference(INodeList expected, INodeList actual)
     {
-        return renderedInput.CompareTo(expected);
+        return actual.CompareTo(expected);
     }
-    public static IReadOnlyList<IDiff> ComputeDifference(string expected, INodeList renderedInput, out INodeList expectedNodes)
+    public static IReadOnlyList<IDiff> ComputeDifference(string expected, INodeList actual, out INodeList expectedNodes)
     {
         using var parser = new BunitHtmlParser();
-        return ComputeDifference(expected, renderedInput, out expectedNodes);
+        return ComputeDifference(expected, actual, out expectedNodes);
     }
-    public static IEnumerable<IDiff> ComputeDifference(string expected, INodeList renderedInput, BunitHtmlParser parser, out INodeList expectedNodes)
+    public static IEnumerable<IDiff> ComputeDifference(string expected, INodeList actual, BunitHtmlParser parser, out INodeList expectedNodes)
     {
         expectedNodes = parser.Parse(expected);
-        return ComputeDifference(expectedNodes, renderedInput);
+        return ComputeDifference(expectedNodes, actual);
     }
     public static IReadOnlyList<IDiff> ComputeDifference(string expected, string input, out (INodeList Expected, INodeList Input) nodes)
     {
@@ -38,35 +38,35 @@ public static class HtmlEqualityComparer
     }
     /// <summary> Throws a detailed error if the specified strings don't represent equivalent HTML. </summary>
     [DebuggerHidden]
-    public static void AssertEqual(IRenderedFragment expectedFragment, IRenderedFragment renderedFragment, string message = defaultMessage)
+    public static void AssertEqual(IRenderedFragment expected, IRenderedFragment actual, string message = defaultMessage)
     {
-        AssertEqual(expectedFragment.Nodes, renderedFragment.Nodes, message);
+        AssertEqual(expected.Nodes, actual.Nodes, message);
     }
     /// <summary> Throws a detailed error if the specified strings don't represent equivalent HTML. </summary>
     [DebuggerHidden]
-    public static void AssertEqual(IRenderedFragment expectedFragment, INodeList inputNodes, string message = defaultMessage)
+    public static void AssertEqual(IRenderedFragment expected, INodeList inputNodes, string message = defaultMessage)
     {
-        AssertEqual(expectedFragment.Nodes, inputNodes, message);
+        AssertEqual(expected.Nodes, inputNodes, message);
     }
     /// <summary> Throws a detailed error if the specified strings don't represent equivalent HTML. </summary>
     [DebuggerHidden]
-    public static void AssertEqual(string expected, INodeList renderedNodes, TestServiceProvider services, string message = defaultMessage)
+    public static void AssertEqual(string expected, INodeList actual, TestServiceProvider services, string message = defaultMessage)
     {
         var parser = services.GetRequiredService<BunitHtmlParser>();
-        AssertEqual(expected, renderedNodes, parser, message);
+        AssertEqual(expected, actual, parser, message);
     }
     /// <summary> Throws a detailed error if the specified strings don't represent equivalent HTML. </summary>
     [DebuggerHidden]
-    public static void AssertEqual(string expected, IRenderedFragment renderedFragment, TestServiceProvider services, string message = defaultMessage)
+    public static void AssertEqual(string expected, IRenderedFragment actual, TestServiceProvider services, string message = defaultMessage)
     {
         var parser = services.GetRequiredService<BunitHtmlParser>();
-        AssertEqual(expected, renderedFragment.Nodes, parser, message);
+        AssertEqual(expected, actual.Nodes, parser, message);
     }
     /// <summary> Throws a detailed error if the specified strings don't represent equivalent HTML. </summary>
     [DebuggerHidden]
-    public static void AssertEqual(string expected, IRenderedFragment renderedFragment, BunitHtmlParser parser, string message = defaultMessage)
+    public static void AssertEqual(string expected, IRenderedFragment actual, BunitHtmlParser parser, string message = defaultMessage)
     {
-        AssertEqual(expected, renderedFragment.Nodes, parser, message);
+        AssertEqual(expected, actual.Nodes, parser, message);
     }
     /// <summary> Throws a detailed error if the specified strings don't represent equivalent HTML. </summary>
     [DebuggerHidden]
@@ -90,9 +90,9 @@ public static class HtmlEqualityComparer
     }
     /// <summary> Throws a detailed error if the specified strings don't represent equivalent HTML. </summary>
     [DebuggerHidden]
-    public static void AssertEqual(string expected, INodeList renderedInput, BunitHtmlParser parser, string message = defaultMessage)
+    public static void AssertEqual(string expected, INodeList actual, BunitHtmlParser parser, string message = defaultMessage)
     {
-        AssertEqual(parser.Parse(expected), renderedInput, message);
+        AssertEqual(parser.Parse(expected), actual, message);
     }
     /// <summary> Throws a detailed error if the specified strings don't represent equivalent HTML. </summary>
     [DebuggerHidden]
