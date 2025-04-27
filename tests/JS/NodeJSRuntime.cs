@@ -11,7 +11,7 @@ namespace BlaTeX.Tests;
 
 public class NodeJSRuntime : IJSRuntime
 {
-    public static JSString DefaultKaTeXPath { get; } = JSString.Escape(Path.Join(RootFolder, "js", "node_modules", "@jeroenbos", "katex", "katex.js"));
+    public static JSString DefaultKaTeXPath { get; } = JSString.Escape_Unsafe($"const katex = require('{Path.Join(RootFolder, "js", "node_modules", "@jeroenbos", "katex", "dist", "katex.min.js")}');", escapeSingleQuotes: false, escapeDoubleQuotes: false);
     public static NodeJSRuntime CreateDefault()
     {
         return new NodeJSRuntime(DefaultKaTeXPath.ToSingleton()) { Trace = true };
@@ -24,7 +24,7 @@ public class NodeJSRuntime : IJSRuntime
     public NodeJSRuntime(IEnumerable<JSString> imports, IEnumerable<(Type, string)>? jsDeserializableIDs = null, JsonSerializerOptions? options = null)
     {
         this.Imports = imports?.ToReadOnlyList() ?? EmptyCollection<JSString>.ReadOnlyList;
-        Contract.Requires(Contract.ForAll(imports ?? [], jss => File.Exists(jss.Value)), "Consider rebuilding that JS stack");
+        Contract.Requires(Contract.ForAll(imports ?? [], jss => File.Exists(jss.Value) || jss.Value.StartsWith("const ") || jss.Value.StartsWith("var ")), "Consider rebuilding that JS stack");
         this.IDs = jsDeserializableIDs?.Select(t => KeyValuePair.Create(t.Item1, t.Item2)).ToReadOnlyList() ?? EmptyCollection<KeyValuePair<Type, string>>.ReadOnlyList;
         if (options == null)
         {

@@ -11,7 +11,7 @@ public class JSIntegrationTests
   public async Task JSInteropTestViaBlazor()
   {
     var result = await NodeJSRuntime.CreateDefault()
-                                    .InvokeAsync<string>("blatex_wrapper.default.renderToString", "c")
+                                    .InvokeAsync<string>("katex.renderToString", "c")
                                     .AsTask();
     string expected = @"
 <span class=""katex"">
