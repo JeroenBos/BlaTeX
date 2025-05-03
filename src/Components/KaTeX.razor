@@ -63,12 +63,13 @@ else
 
         if ((astSpecified ? ast : this.AST) == null && (mathSpecified ? math : this.Math) == null)
         {
-            throw new ArgumentException($"You cannot provide both null '{nameof(Math)}' and null '{nameof(AST)}'");
+            Console.WriteLine($"Specified keys with nonnull values are: [{parameters.AsEnumerable().Where(p => p.Value is not null).Select(p => p.Name).Join(", ")}], with null: [{parameters.AsEnumerable().Where(p => p.Value is null).Select(p => p.Name).Join(", ")}]");
+            throw new ArgumentException($"Either '{nameof(Math)}' or '{nameof(AST)}' must be specified: received neither");
             // but it should be allowed to leave them untouched (provided they were set in the past)
         }
         if ((astSpecified ? ast : this.AST) != null && (mathSpecified ? math : this.Math) != null)
         {
-            throw new ArgumentException($"You cannot provide both nonnull '{nameof(Math)}' and nonnull '{nameof(AST)}'");
+            throw new ArgumentException($"Either '{nameof(Math)}' or '{nameof(AST)}' must be specified: received both");
             // but it should be allowed to specify only one if that's the only one that's currently set
         }
 

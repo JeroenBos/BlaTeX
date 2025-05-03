@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 namespace BlaTeX.JSInterop;
 
 public class NodeJSException : JSException

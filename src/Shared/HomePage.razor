@@ -1,0 +1,31 @@
+@page "/"
+@inject HttpClient Http
+@using BlaTeX.Components
+@using Microsoft.AspNetCore.Components.Web
+
+<h3>This component demonstrates calling JS from .NET. </h3>
+<input value=@initialValue
+       @oninput="onInputChanged" />
+
+
+<p data-test="loaded">Regular KaTeX component:</p>
+<KaTeX Math=@math />
+<p>Interactive KaTeX component:</p>
+
+<p>
+    🚧
+    <!-- #region 
+        <InteractiveKaTeX Math=@math />
+    -->
+</p>
+
+
+@code {
+    private const string initialValue = "c = \\pm \\sqrt{a^2 + b^2}";
+    private string math = initialValue;
+
+    private void onInputChanged(ChangeEventArgs e)
+    {
+        math = (string)(e.Value ?? throw new ArgumentException("ChangeEventArgs.Value"));
+    }
+}

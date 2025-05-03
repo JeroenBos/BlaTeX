@@ -435,7 +435,6 @@ $RECYCLE.BIN/
 # JS dist
 wwwroot/js
 wwwroot/css/katex
-*/package-lock.json
 
 
 **/launchSettings.json
