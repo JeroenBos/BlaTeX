@@ -21,22 +21,31 @@ public static class ParameterViewExtensions
         var parameterNames = GetBaseTypeKeys(baseType);
         return parameters.FilterKeys(parameterNames.ToArray());
     }
+    public static IEnumerable<ParameterValue> AsEnumerable(this ParameterView parameterView)
+    {
+        // the type implements GetEnumerator, but not IEnumerable :/
+        foreach (var value in parameterView)
+        {
+            yield return value;
+        }
+    }
+    public static IEnumerable<string> GetKeys(this ParameterView parameterView)
+    {
+        foreach (var value in parameterView)
+        {
+            yield return value.Name;
+        }
+    }
     /// <summary> Extracts a new parameter view with only the specified keys, throwing if a key is not present. </summary>
     public static ParameterView Select(this ParameterView parameters, params string[] keys)
     {
-        var result = new Dictionary<string, object?>();
-        var dict = parameters.ToDictionary();
-        foreach (var key in keys)
-        {
-            result[key] = dict[key];
-        }
-        return ParameterView.FromDictionary(result);
-    }
-    /// <summary> Extracts a new parameter view with only the specified keys, throwing if a key is not present. </summary>
-    public static ParameterView Select(this ParameterView parameters, Type baseType)
-    {
-        var parameterNames = GetBaseTypeKeys(baseType);
-        return parameters.Select(parameterNames.ToArray());
+        var keysSet = new HashSet<string>(keys);
+        return ParameterView.FromDictionary(
+            parameters
+                .AsEnumerable()
+                .Where(param => keysSet.Contains(param.Name))
+                .ToDictionary(param => param.Name, param => (object?)param.Value)
+        );
     }
     /// <summary> Gets the properties annotated with [Parameter] on the specified base type and its base types. </summary>
     private static IEnumerable<string> GetBaseTypeKeys(Type baseType)
@@ -49,7 +58,7 @@ public static class ParameterViewExtensions
     /// <summary> Gets whether the specified parameters contains the specified parameter name. </summary>
     public static bool Contains(this ParameterView parameters, string parameterName)
     {
-        return parameters.TryGetValue<object>(parameterName, out var _);
+        return parameters.TryGetValue<object>(parameterName, out _);
     }
     /// <summary> Creates a new parameter view with the specified parameter name and value. Overrides if already exists. </summary>
     public static ParameterView With(this ParameterView parameters, string parameterName, object? value)

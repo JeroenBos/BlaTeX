@@ -9,6 +9,10 @@ name: CI
 defaults:
   run:
     shell: bash
+env:
+  DOTNET_VERSION: 9.0.203  # select a 'version' from an sdk in https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/9.0/releases.json
+  FORCE_COLOR: 3
+  CONFIGURATION: CI
     
 jobs:
   test:
@@ -23,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.203  # select a 'version' from an sdk in https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/9.0/releases.json
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - uses: actions/setup-node@v4
         with:
@@ -47,13 +51,86 @@ jobs:
         working-directory: js
 
       - name: Build .NET
-        run: dotnet build src/BlaTeX.csproj --configuration CI
+        run: dotnet build src/BlaTeX.csproj --configuration ${{ env.CONFIGURATION }}
 
       - name: Install @JeroenBos/KaTeX (await background)
         run: ./.github/wait_for_process.sh ${{ steps.js.outputs.pid }} "${{ steps.js.outputs.log }}"
 
       - name: Test
-        run: dotnet test tests/BlaTeX.Tests.csproj --configuration CI
+        run: dotnet test tests/BlaTeX.Tests.csproj --configuration ${{ env.CONFIGURATION }}
         timeout-minutes: 5
         env:
           WAIT_FOR_STATE_TIMEOUT_SEC: 30
+
+  e2e:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: e2e
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install @JeroenBos/KaTeX (in the background)
+        id: js
+        run: |
+          log='/tmp/npm-install.log'
+          {
+            trap "echo \"export pid_$BASHPID=\$?\" >> /tmp/exit_codes.env" EXIT
+
+            # Authenticate against GitHub Packages
+            cat ./.npmrc.example | sed 's|<https://my.1password.com.*>|${{ secrets.GH_PACKAGES_TOKEN }}|g' > ./.npmrc
+
+            npm install
+          } &>> "$log" &
+
+          echo "pid=$!"     | tee --append $GITHUB_OUTPUT
+          echo "log=$log"   | tee --append $GITHUB_OUTPUT
+        working-directory: js
+
+      - name: Build .NET
+        run: dotnet build src/BlaTeX.csproj --configuration ${{ env.CONFIGURATION }}
+        working-directory:
+
+      - name: Install @JeroenBos/KaTeX (await background)
+        run: ./.github/wait_for_process.sh ${{ steps.js.outputs.pid }} "${{ steps.js.outputs.log }}"
+        working-directory:
+      
+      - run: npm ci && npx playwright install chromium
+
+      - name: Host static files
+        run: |
+          docker build . --file e2e/http-server.Dockerfile --build-arg CONFIGURATION=${{ env.CONFIGURATION }} --tag http-server
+          trap "echo \"\$?\" >> /tmp/http-server-exit-code" EXIT
+          docker run -i                                                                                        \
+            -p 8080:8080                                                                                       \
+            --volume "/$(pwd)/e2e:/app"                                                                        \
+            --volume "/$(pwd)/src/bin/${{ env.CONFIGURATION }}/net9.0/wwwroot/_framework:/app/_framework"      \
+            --volume "/$(pwd)/js/node_modules:/app/node_modules"                                               \
+            http-server                                                                                        \
+            &> /tmp/log.txt &
+        working-directory:
+
+      - name: Run E2E test
+        run: E2E_TRACE=true npx playwright test
+
+      - name: Export test results GitHub artifacts
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: screenshot diffs
+          path: ${{ github.workspace }}/e2e/test-results/
+          if-no-files-found: ignore
+
+      - name: Output test-server logs
+        if: always()
+        run: |
+          [[ -f /tmp/log.txt ]] && cat /tmp/log.txt
+          exit "$(cat /tmp/http-server-exit-code || 1)"
