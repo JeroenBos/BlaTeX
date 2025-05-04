@@ -62,7 +62,7 @@ public partial class BlazorChildComponentMarkupService : IChildComponentMarkupSe
                 do
                 {
                     if (endIndex >= markup.Length)
-                        throw SyntaxError.OutOfRange;
+                        throw new SyntaxError("Syntax error: end of string encountered");
 
                     if (delimiterStack.Count != 0 && IsAt(delimiterStack.Peek()))
                     {
@@ -172,13 +172,4 @@ public partial class BlazorChildComponentMarkupService : IChildComponentMarkupSe
     //         };
     //     }
     // }
-}
-
-[Serializable]
-public class SyntaxError : Exception
-{
-    public static readonly SyntaxError OutOfRange = new SyntaxError("Syntax error: end of string encountered");
-    public SyntaxError() { }
-    public SyntaxError(string message) : base(message) { }
-    public SyntaxError(string message, Exception inner) : base(message, inner) { }
 }
