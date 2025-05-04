@@ -1,36 +1,36 @@
 @namespace BlaTeX.Components
 
 @{
-    Range prevRange = 0..0;
+    Index prevEnd = 0;
     @foreach (var range in Selector(Markup))
     {
-        @((MarkupString)Markup[prevRange.End..range.Start])
+        @((MarkupString)Markup[prevEnd..range.Start])
         @Substitute(Markup[range])
 
-        prevRange = range;
+        prevEnd = range.End;
     }
-    @((MarkupString)Markup[prevRange.End..])
+    @((MarkupString)Markup[prevEnd..])
 }
 
 @code {
-    /// <summary> Markup of which parts may be replaced by render fragments. </summary>
+    /// <summary> Markup of which parts may be replaced by fragment renderers. </summary>
     [Parameter]
     public required string Markup { get; init; }
 
-    /// <summary> Gets the ranges in <see cref="Markup"/> at which a <see cref="RenderFragment"/> is to be rendered instead of the verbatim markup. </summary>
+    /// <summary> Gets the ranges in <see cref="Markup"/> where fragments are to be rendered instead. </summary>
     [Parameter]
     public required Func<string, IEnumerable<Range>> Selector { get; init; }
 
-    /// <summary> Computes the fragment to render given a substring of <see cref="Markup"/>. </summary>
+    /// <summary> Given a substring of <see cref="Markup"/>, gets the fragment to render. </summary>
     [Parameter]
     public required Func<string, RenderFragment> Substitute { get; init; }
 
-    public override async Task SetParametersAsync(ParameterView parameters)
+    public override Task SetParametersAsync(ParameterView parameters)
     {
         parameters.AssertPresent(this.Markup, nameof(this.Markup));
         parameters.AssertPresent(this.Selector, nameof(this.Selector));
         parameters.AssertPresent(this.Substitute, nameof(this.Substitute));
 
-        await base.SetParametersAsync(parameters);
+        return base.SetParametersAsync(parameters);
     }
 }
