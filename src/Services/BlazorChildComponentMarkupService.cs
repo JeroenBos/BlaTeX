@@ -5,7 +5,7 @@ namespace BlaTeX;
 // this is a .cs file rather than .razor to reuse the renderer of the base class
 /// <summary>
 /// When provided to a KaTeX component, replaces all blazor-styled tags and arguments by child components.
-/// Examples of shich blazor-styled tags are:
+/// Examples of such blazor-styled tags are:
 /// - blatex:name
 /// - blatex:name=arg
 /// - blatex:name=(arg1,arg2)
