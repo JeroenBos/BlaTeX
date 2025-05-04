@@ -1,3 +1,4 @@
+using BlaTeX.JSInterop.KaTeX.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BlaTeX.Tests.Understanding;

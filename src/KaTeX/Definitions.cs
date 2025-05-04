@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections;
+using BlaTeX.JSInterop.KaTeX.Internal;
 
 namespace BlaTeX.JSInterop.KaTeX;
 
@@ -28,7 +29,6 @@ public interface HtmlDomNode : VirtualNode
                         Option<float> maxFontSize = default,
                         Option<CssStyle> style = default);
 }
-
 
 public interface CssStyle
 {
@@ -128,6 +128,7 @@ public interface VirtualNode
     /// <summary> Convert into an HTML markup string. </summary>
     Task<string> ToMarkup(IKaTeXRuntime runtime) => runtime.ToMarkup(this);
 }
+
 public interface MathDomNode : VirtualNode
 {
     string toText();
@@ -177,6 +178,7 @@ public enum MathNodeType
     mphantom,
     mglyph,
 }
+
 interface SettingsOptions
 {
     bool? DisplayMode { get; }
@@ -237,12 +239,14 @@ public interface Attributes : IReadOnlyDictionary<string, object?>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
+
 public interface SourceLocation
 {
     int Start { get; }
     int End { get; }
     int Length => End - Start;
 }
+
 public enum Mode
 {
     Unknown,
