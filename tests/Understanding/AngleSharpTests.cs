@@ -1,7 +1,4 @@
-using System.Linq;
-using AngleSharp.Diffing.Core;
-using AngleSharp.Dom;
-using Bunit.Rendering;
+using BlaTeX.JSInterop.KaTeX.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BlaTeX.Tests.Understanding;

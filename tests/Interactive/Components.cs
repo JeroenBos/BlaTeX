@@ -23,7 +23,7 @@ public class BlazorStyledChildComponentsTests
         const string markup = "blatex:a";
         var ranges = Selector(markup).ToList();
 
-        Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length) });
+        Contract.AssertSequenceEqual(ranges, [new Range(0, markup.Length)]);
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public class BlazorStyledChildComponentsTests
         const string markup = "blatex:a=b";
         var ranges = Selector(markup).ToList();
 
-        Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length) });
+        Contract.AssertSequenceEqual(ranges, [new Range(0, markup.Length)]);
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public class BlazorStyledChildComponentsTests
         const string markup = "blatex:a='b'";
         var ranges = Selector(markup).ToList();
 
-        Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length) });
+        Contract.AssertSequenceEqual(ranges, [new Range(0, markup.Length)]);
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class BlazorStyledChildComponentsTests
         const string markup = "blatex:a='b' ";
         var ranges = Selector(markup).ToList();
 
-        Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length - 1) });
+        Contract.AssertSequenceEqual(ranges, [new Range(0, markup.Length - 1)]);
     }
     [Fact]
     public void SimpleMarkupWithParenthesesDelimiters()
@@ -58,7 +58,7 @@ public class BlazorStyledChildComponentsTests
         const string markup = "blatex:a=(b)";
         var ranges = Selector(markup).ToList();
 
-        Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length) });
+        Contract.AssertSequenceEqual(ranges, [new Range(0, markup.Length)]);
     }
     [Fact]
     public void SimpleMarkupWithParenthesesDelimitersDoesntIncludeTrailingWhitespace()
@@ -66,7 +66,7 @@ public class BlazorStyledChildComponentsTests
         const string markup = "blatex:a=(b) ";
         var ranges = Selector(markup).ToList();
 
-        Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length - 1) });
+        Contract.AssertSequenceEqual(ranges, [new Range(0, markup.Length - 1)]);
     }
     [Fact]
     public void SimpleMarkupWithBlazorParenthesesDelimiters()
@@ -74,7 +74,7 @@ public class BlazorStyledChildComponentsTests
         const string markup = "blatex:a=@(b)";
         var ranges = Selector(markup).ToList();
 
-        Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length) });
+        Contract.AssertSequenceEqual(ranges, [new Range(0, markup.Length)]);
     }
     [Fact]
     public void SimpleMarkupWithBlazorParenthesesDelimitersDoesntIncludeTrailingWhitespace()
@@ -82,7 +82,7 @@ public class BlazorStyledChildComponentsTests
         const string markup = "blatex:a=@(b) ";
         var ranges = Selector(markup).ToList();
 
-        Contract.AssertSequenceEqual(ranges, new[] { new Range(0, markup.Length - 1) });
+        Contract.AssertSequenceEqual(ranges, [new Range(0, markup.Length - 1)]);
     }
 
     [Fact]
@@ -91,7 +91,7 @@ public class BlazorStyledChildComponentsTests
         const string markup = "<div blatex:a=@(b)/>";
         var ranges = Selector(markup).ToList();
 
-        Contract.AssertSequenceEqual(ranges, new[] { new Range(markup.IndexOf("bla"), markup.IndexOf("/>")) });
+        Contract.AssertSequenceEqual(ranges, [new Range(markup.IndexOf("bla"), markup.IndexOf("/>"))]);
     }
 
     [Fact]
@@ -100,6 +100,6 @@ public class BlazorStyledChildComponentsTests
         const string markup = "<div blatex:a=@(b)>Text</div>";
         var ranges = Selector(markup).ToList();
 
-        Contract.AssertSequenceEqual(ranges, new[] { new Range(markup.IndexOf("bla"), markup.IndexOf(">T")) });
+        Contract.AssertSequenceEqual(ranges, [new Range(markup.IndexOf("bla"), markup.IndexOf(">T"))]);
     }
 }

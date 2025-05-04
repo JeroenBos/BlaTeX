@@ -1,19 +1,17 @@
-using BlaTeX.JSInterop.KaTeX.Syntax;
-
 namespace BlaTeX;
 
 // this is a .cs file rather than .razor to reuse the renderer of the base class
 /// <summary>
 /// When provided to a KaTeX component, replaces all blazor-styled tags and arguments by child components.
-/// Examples of shich blazor-styled tags are:
+/// Examples of such blazor-styled tags are:
 /// - blatex:name
 /// - blatex:name=arg
 /// - blatex:name=(arg1,arg2)
 /// - blatex:name="many more things are possible after the ="
 ///
-/// Their context is e.g. &lt;div blatex:a=@(b)&gt;gtText&lt;/div&gt;
+/// Their context is e.g. &lt;div blatex:a=@(b)&gt;Text&lt;/div&gt;
 /// </summary>
-public partial class BlazorChildComponentMarkupService : IChildComponentMarkupService
+internal class BlazorChildComponentMarkupService : IChildComponentMarkupService
 {
     /// <summary> All child fragments will be placed in this collection. </summary>
     public IReadOnlyDictionary<string, RenderFragment<string>> Fragments { get; } = new Dictionary<string, RenderFragment<string>>();
@@ -64,7 +62,7 @@ public partial class BlazorChildComponentMarkupService : IChildComponentMarkupSe
                 do
                 {
                     if (endIndex >= markup.Length)
-                        throw SyntaxError.OutOfRange;
+                        throw new SyntaxError("Syntax error: end of string encountered");
 
                     if (delimiterStack.Count != 0 && IsAt(delimiterStack.Peek()))
                     {
@@ -174,13 +172,4 @@ public partial class BlazorChildComponentMarkupService : IChildComponentMarkupSe
     //         };
     //     }
     // }
-}
-
-[Serializable]
-public class SyntaxError : Exception
-{
-    public static readonly SyntaxError OutOfRange = new SyntaxError("Syntax error: end of string encountered");
-    public SyntaxError() { }
-    public SyntaxError(string message) : base(message) { }
-    public SyntaxError(string message, Exception inner) : base(message, inner) { }
 }

@@ -2,7 +2,7 @@ namespace BlaTeX.JSInterop;
 
 public class NodeJSException : JSException
 {
-    public string DebugOutput { get; set; } = "";
+    public string? DebugOutput { get; init; }
 
     public NodeJSException(string message) : base(message) { }
     public NodeJSException(string message, Exception innerException) : base(message, innerException) { }

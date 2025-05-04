@@ -6,6 +6,7 @@
         <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+        <RootNamespace>BlaTeX</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,6 +22,7 @@
         <Using Include="Microsoft.AspNetCore.Components.WebAssembly.Http" />
         <Using Include="Microsoft.JSInterop" />
         <Using Include="BlaTeX" />
+        <Using Include="BlaTeX.Components" />
         <Using Include="BlaTeX.Shared" />
         <Using Include="BlaTeX.JSInterop" />
         <Using Include="BlaTeX.JSInterop.KaTeX" />

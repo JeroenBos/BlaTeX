@@ -1,5 +1,5 @@
 @inject IKaTeXRuntime JS
-@using BlaTeX.JSInterop.KaTeX.Syntax
+@namespace BlaTeX.Components
 
 @if (markup != null)
 {
@@ -19,17 +19,12 @@ else
 }
 
 @code {
-    // this component has the following logic:
-    // - EITHER Math is specified
-    // - OR the AST is specified
-
-    // if the math is specified, it may contain nested \blatex functions, which need to be rendered specially
-    // The fragments to be rendered are provided by the service
-    // ELSE if the AST is specified
-    // it may contain nodes of type NodeType.Blatex, in which case a special renderfragment is to be used
-
     /// <summary>
-    /// Caches the markup created from <see cref="Math"/> or <see cref="AST"/>.
+    /// - EITHER <see cref="Math"/> is specified
+    ///     It may contain nested \blatex functions, which need to be rendered specially
+    ///     The fragments to be rendered are provided by <see cref="ChildComponentMarkupService"/>.
+    /// - OR the <see cref="AST"/> is specified:
+    ///     It may contain nodes of type <see cref="NodeType.Blatex"/>, in which case a special RenderFragment is to be used.
     /// </summary>
     internal string? markup;
 
@@ -95,24 +90,26 @@ else
     /// <param name="triggerRender"> Pass 'true' if a render won't be triggered by other parameters. </param>
     private async Task SetMarkupService(IChildComponentMarkupService? service, bool triggerRender)
     {
-        if (this.ChildComponentMarkupService != service)
+        if (this.ChildComponentMarkupService == service)
         {
-            this.ChildComponentMarkupService = service;
-            markup = null;
+            return;
+        }
 
-            // we will have to recompute markup, because that's the value _after_ transformation by this service
-            if (triggerRender)
+        this.ChildComponentMarkupService = service;
+        markup = null;
+
+        // we will have to recompute markup, because that's the value _after_ transformation by this service
+        if (triggerRender)
+        {
+            if (this.AST != null)
             {
-                if (this.AST != null)
-                {
-                    // this.AST is the AST before the markup service transformation. Trigger the transformation again:
-                    await SetASTParameter(this.AST, this.Math);
-                }
-                else
-                {
-                    Contract.Assert(this.Math != null);
-                    await SetMathParameter(this.Math!);
-                }
+                // this.AST is the AST before the markup service transformation. Trigger the transformation again:
+                await SetASTParameter(this.AST, this.Math);
+            }
+            else
+            {
+                Contract.Assert(this.Math != null);
+                await SetMathParameter(this.Math);
             }
         }
     }
@@ -120,7 +117,7 @@ else
     {
         _showLoadingPageWhileRendering(math, ast: null);
 
-        var transformedAST = this.ChildComponentMarkupService?.Select(ast) ?? ast;
+        var transformedAST = ast; // 🚧 this.ChildComponentMarkupService?.Select(ast) ?? ast;
         this.markup = await JS.RenderToString(transformedAST, math);
     }
     private async Task SetMathParameter(string math)

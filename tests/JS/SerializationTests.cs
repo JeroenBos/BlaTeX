@@ -1,4 +1,4 @@
-using BlaTeX.JSInterop.KaTeX.Syntax;
+using BlaTeX.JSInterop.KaTeX.Internal;
 
 namespace BlaTeX.Tests;
 

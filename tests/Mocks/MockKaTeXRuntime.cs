@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using BlaTeX.JSInterop.KaTeX.Syntax;
 
 namespace BlaTeX.Tests.Mocks;
 

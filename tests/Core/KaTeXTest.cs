@@ -1,3 +1,4 @@
+using BlaTeX.JSInterop.KaTeX.Internal;
 using Bunit.RazorTesting;
 using Bunit.Rendering;
 using Microsoft.Extensions.DependencyInjection;
