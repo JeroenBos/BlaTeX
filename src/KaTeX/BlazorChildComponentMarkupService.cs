@@ -9,9 +9,9 @@ namespace BlaTeX;
 /// - blatex:name=(arg1,arg2)
 /// - blatex:name="many more things are possible after the ="
 ///
-/// Their context is e.g. &lt;div blatex:a=@(b)&gt;gtText&lt;/div&gt;
+/// Their context is e.g. &lt;div blatex:a=@(b)&gt;Text&lt;/div&gt;
 /// </summary>
-public partial class BlazorChildComponentMarkupService : IChildComponentMarkupService
+internal class BlazorChildComponentMarkupService : IChildComponentMarkupService
 {
     /// <summary> All child fragments will be placed in this collection. </summary>
     public IReadOnlyDictionary<string, RenderFragment<string>> Fragments { get; } = new Dictionary<string, RenderFragment<string>>();

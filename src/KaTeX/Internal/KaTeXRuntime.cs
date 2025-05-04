@@ -9,10 +9,7 @@ internal class KaTeXRuntime : IKaTeXRuntime
     [DebuggerHidden]
     public KaTeXRuntime(IJSRuntime jsRuntime)
     {
-        if (jsRuntime == null)
-            throw new ArgumentNullException(nameof(jsRuntime));
-
-        this.jsRuntime = jsRuntime;
+        this.jsRuntime = jsRuntime ?? throw new ArgumentNullException(nameof(jsRuntime));
     }
 
     public async Task<string> RenderToString(string math)
