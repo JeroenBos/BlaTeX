@@ -1,3 +1,5 @@
+@namespace BlaTeX.Components
+
 @{
     Range prevRange = 0..0;
     @foreach (var range in Selector(Markup))
@@ -11,7 +13,6 @@
 }
 
 @code {
-#nullable enable
     /// <summary> Markup of which parts may be replaced by render fragments. </summary>
     [Parameter]
     public required string Markup { get; init; }
