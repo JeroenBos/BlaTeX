@@ -1,4 +1,3 @@
-using BlaTeX.JSInterop.KaTeX.Syntax;
 using JBSnorro.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;

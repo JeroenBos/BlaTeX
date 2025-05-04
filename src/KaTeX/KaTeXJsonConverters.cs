@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using BlaTeX.JSInterop.KaTeX.Syntax;
 using System.Collections;
 
 namespace BlaTeX.JSInterop;

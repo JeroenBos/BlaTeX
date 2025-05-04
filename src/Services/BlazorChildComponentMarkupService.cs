@@ -1,5 +1,3 @@
-using BlaTeX.JSInterop.KaTeX.Syntax;
-
 namespace BlaTeX;
 
 // this is a .cs file rather than .razor to reuse the renderer of the base class

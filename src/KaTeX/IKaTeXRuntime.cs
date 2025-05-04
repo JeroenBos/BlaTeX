@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using BlaTeX.JSInterop.KaTeX.Syntax;
 
 namespace BlaTeX.JSInterop.KaTeX;
 

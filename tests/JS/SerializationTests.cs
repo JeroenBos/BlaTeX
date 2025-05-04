@@ -1,5 +1,3 @@
-using BlaTeX.JSInterop.KaTeX.Syntax;
-
 namespace BlaTeX.Tests;
 
 public class KaTeXTypesSerializationTests

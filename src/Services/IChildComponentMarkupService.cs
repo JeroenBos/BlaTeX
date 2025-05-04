@@ -1,5 +1,3 @@
-using BlaTeX.JSInterop.KaTeX.Syntax;
-
 namespace BlaTeX;
 
 public interface IChildComponentMarkupService
