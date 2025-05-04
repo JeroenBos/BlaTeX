@@ -99,12 +99,11 @@ jobs:
         run: dotnet build src/BlaTeX.csproj --configuration ${{ env.CONFIGURATION }}
         working-directory:
 
-      - run: npx playwright install chromium
-
       - name: Install @JeroenBos/KaTeX (await background)
         run: ./.github/wait_for_process.sh ${{ steps.js.outputs.pid }} "${{ steps.js.outputs.log }}"
         working-directory:
       
+      - run: npx playwright install chromium
 
       - name: Host static files
         run: |
