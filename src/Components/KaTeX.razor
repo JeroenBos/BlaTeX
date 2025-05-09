@@ -5,9 +5,7 @@
 {
     <InterpolatedMarkup Markup="@markup"
                                 Substitute="@Substitute"
-                                Selector="@Selector">
-
-    </InterpolatedMarkup>
+                                Selector="@Selector" />
 }
 else if (Loading != null)
 {
@@ -24,7 +22,7 @@ else
     ///     It may contain nested \blatex functions, which need to be rendered specially
     ///     The fragments to be rendered are provided by <see cref="ChildComponentMarkupService"/>.
     /// - OR the <see cref="AST"/> is specified:
-    ///     It may contain nodes of type <see cref="NodeType.Blatex"/>, in which case a special RenderFragment is to be used.
+    ///     It may contain nodes of type <see cref="NodeType.Blatex"/>, in which case a special <see cref="RenderFragment"/> is to be used.
     /// </summary>
     internal string? markup;
 

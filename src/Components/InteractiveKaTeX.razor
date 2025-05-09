@@ -11,8 +11,7 @@
 
 @code {
     [Parameter]
-    public bool Immutable { get; set; }
-
+    public bool Immutable { get; init; }
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
