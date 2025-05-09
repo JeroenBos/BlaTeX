@@ -4,12 +4,12 @@ namespace BlaTeX.Tests;
 
 public class HtmlDomNodeTests
 {
-	private NodeJSRuntime jsRuntime;
+	private readonly NodeJSRuntime jsRuntime;
 	private readonly IKaTeXRuntime KaTeX;
 	public HtmlDomNodeTests()
 	{
-		jsRuntime = NodeJSRuntime.CreateDefault();
-		KaTeX = IKaTeXRuntime.Create(jsRuntime);
+		this.jsRuntime = NodeJSRuntime.CreateDefault();
+		this.KaTeX = IKaTeXRuntime.Create(jsRuntime);
 	}
 
 	[Fact]
@@ -27,5 +27,4 @@ public class HtmlDomNodeTests
 		Contract.Assert("true".Equals(child.Attributes["aria-hidden"]));
 		Contract.Assert(new _SourceLocation(0, 1).Equals(greatgrandchild.Attributes.SourceLocation));
 	}
-
 }
