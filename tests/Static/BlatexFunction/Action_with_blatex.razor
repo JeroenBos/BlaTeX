@@ -2,7 +2,7 @@
 @inherits KaTeXTestComponentBase
 
 <KaTeXTest math="c = a"
-           Action="@(cut => Action(cut, "c = \\blatex{} a"))">
+           OnBeforeSnapshot="@(cut => Action(cut, "c = \\blatex{} a"))">
     @* <div id="interactivity" > *@
     <span class="katex">
         <span class="katex-mathml">

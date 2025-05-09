@@ -16,7 +16,7 @@ public class KaTeXTest : RazorTestBase
     // test-related parameters: 
 
     /// <summary> If specified, dictates whether the interactive version of the component is tested or not.
-    /// If not specified, it depends on whether <see cref="Action"> is provided.  </summary>
+    /// If not specified, it depends on whether <see cref="OnBeforeSnapshot"> is provided.  </summary>
     [Parameter]
     public bool? Interactive { get; set; }
     [Parameter]
@@ -25,7 +25,7 @@ public class KaTeXTest : RazorTestBase
     public required RenderFragment Expected { get; set; }
     /// <summary> An action to be executed after the first render but before the snapshot comparison. </summary>
     [Parameter]
-    public EventCallback<IRenderedComponent<KaTeX>> Action { get; set; }
+    public EventCallback<IRenderedComponent<KaTeX>> OnBeforeSnapshot { get; set; }
     public override string Description => base.Description ?? Math ?? "No description";
 
 
@@ -75,9 +75,9 @@ public class KaTeXTest : RazorTestBase
         Contract.Assert(cut is not null, "The KaTeX component did not render successfully");
 
         await WaitForKatexToHaveRendered(cut);
-        if (this.Action.HasDelegate)
+        if (this.OnBeforeSnapshot.HasDelegate)
         {
-            await this.Action.InvokeAsync(cut);
+            await this.OnBeforeSnapshot.InvokeAsync(cut);
             await WaitForKatexToHaveRendered(cut);
         }
 
@@ -123,8 +123,8 @@ public class KaTeXTest : RazorTestBase
                 case "ChildContent":
                     this.Expected = (RenderFragment)(value ?? throw new ArgumentNullException(nameof(Expected)));
                     break;
-                case "Action":
-                    this.Action = value is null ? default : (EventCallback<IRenderedComponent<KaTeX>>)value;
+                case "OnBeforeSnapshot":
+                    this.OnBeforeSnapshot = value is null ? default : (EventCallback<IRenderedComponent<KaTeX>>)value;
                     break;
                 case "ChildComponentMarkupService":
                     this.ChildComponentMarkupService = (IChildComponentMarkupService?)value;
