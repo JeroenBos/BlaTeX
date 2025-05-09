@@ -41,12 +41,6 @@
     static Task Action(IRenderedComponent<KaTeX> cut, string newMath)
     {
         var newParameters = ParameterViewExtensions.Create(("Math", newMath));
-        return cut.InvokeAsync(async () =>
-{
-    await cut.Instance.SetParametersAsync(newParameters);
-});
-
-        // cut.SetParametersAndRender(ComponentParameter.CreateParameter("math", newMath));
-        // var diffs = cut.GetChangesSinceFirstRender();
+        return cut.InvokeAsync(async () => await cut.Instance.SetParametersAsync(newParameters));
     }
 }
