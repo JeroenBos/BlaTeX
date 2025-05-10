@@ -4,6 +4,6 @@
     "license": "MIT",
     "description": "Wrapper around KaTeX for BlaTeX",
     "dependencies": {
-        "@jeroenbos/katex": "0.16.22-3"
+        "@jeroenbos/katex": "0.16.22-4"
     }
 }
