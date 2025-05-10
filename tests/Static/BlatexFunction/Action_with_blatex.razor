@@ -2,8 +2,7 @@
 @inherits KaTeXTestComponentBase
 
 <KaTeXTest math="c = a"
-           Action="@(cut => Action(cut, "c = \\blatex{} a"))">
-    @* <div id="interactivity" > *@
+           OnBeforeSnapshot="@(cut => OnBeforeSnapshot(cut, "c = \\blatex{b} a"))">
     <span class="katex">
         <span class="katex-mathml">
             <math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -11,10 +10,10 @@
                     <mrow>
                         <mi>c</mi>
                         <mo>=</mo>
-                        <annotation></annotation>
+                        <annotation>b</annotation>
                         <mi>a</mi>
                     </mrow>
-                    <annotation encoding="application/x-tex">c = \blatex{} a</annotation>
+                    <annotation encoding="application/x-tex">c = \blatex{b} a</annotation>
                 </semantics>
             </math>
         </span>
@@ -28,9 +27,9 @@
             <span class="base">
                 <span class="strut" style="height:0.4306em;"></span>
                 <span data-loc="4,11">
-                    <span data-blatex="" data-loc="4,11"></span>
+                    <span data-blatex="b" data-loc="4,11"></span>
                 </span>
-                <span class="mord mathnormal" data-loc="14,15">a</span>
+                <span class="mord mathnormal" data-loc="15,16">a</span>
             </span>
         </span>
     </span>
@@ -38,15 +37,9 @@
 
 @code {
     /// <summary> This test mostly serves that adding a \blatex doesn't affect the adjacent nodes. </summary>
-    static Task Action(IRenderedComponent<KaTeX> cut, string newMath)
+    static Task OnBeforeSnapshot(IRenderedComponent<KaTeX> cut, string newMath)
     {
         var newParameters = ParameterViewExtensions.Create(("Math", newMath));
-        return cut.InvokeAsync(async () =>
-{
-    await cut.Instance.SetParametersAsync(newParameters);
-});
-
-        // cut.SetParametersAndRender(ComponentParameter.CreateParameter("math", newMath));
-        // var diffs = cut.GetChangesSinceFirstRender();
+        return cut.InvokeAsync(async () => await cut.Instance.SetParametersAsync(newParameters));
     }
 }

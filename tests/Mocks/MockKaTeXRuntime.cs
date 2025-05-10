@@ -2,6 +2,10 @@ using System.Collections.ObjectModel;
 
 namespace BlaTeX.Tests.Mocks;
 
+
+/// <summary>
+/// A KaTeX runtime for which all operations are ignored in test comparison with diff:ignore.
+/// </summary>
 record MockKaTeXRuntime : IKaTeXRuntime
 {
     public string RenderToStringReturnValue { get; init; } = "<div diff:ignore></div>";
