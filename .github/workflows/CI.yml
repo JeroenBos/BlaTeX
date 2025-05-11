@@ -13,16 +13,16 @@ env:
   DOTNET_VERSION: 9.0.203  # select a 'version' from an sdk in https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/9.0/releases.json
   FORCE_COLOR: 3
   CONFIGURATION: CI
-    
+
 jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-22.04] # , windows-latest]
+        os: [ubuntu-22.04]  # , windows-latest]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
-    
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -102,17 +102,17 @@ jobs:
       - name: Install @JeroenBos/KaTeX (await background)
         run: ./.github/wait_for_process.sh ${{ steps.js.outputs.pid }} "${{ steps.js.outputs.log }}"
         working-directory:
-      
+
       - run: npm ci && npx playwright install chromium
 
       - name: Host static files
         run: |
-          docker build . --file e2e/http-server.Dockerfile --build-arg CONFIGURATION=${{ env.CONFIGURATION }} --tag http-server
+          docker build . --file e2e/http-server.Dockerfile --tag http-server --build-arg CONFIGURATION=${CONFIGURATION}
           trap "echo \"\$?\" >> /tmp/http-server-exit-code" EXIT
           docker run -i                                                                                        \
             -p 8080:8080                                                                                       \
             --volume "/$(pwd)/e2e:/app"                                                                        \
-            --volume "/$(pwd)/src/bin/${{ env.CONFIGURATION }}/net9.0/wwwroot/_framework:/app/_framework"      \
+            --volume "/$(pwd)/src/bin/${CONFIGURATION}/net9.0/wwwroot/_framework:/app/_framework"              \
             --volume "/$(pwd)/js/node_modules:/app/node_modules"                                               \
             http-server                                                                                        \
             &> /tmp/log.txt &
