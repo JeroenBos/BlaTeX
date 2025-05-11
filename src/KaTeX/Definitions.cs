@@ -6,31 +6,31 @@ using BlaTeX.JSInterop.KaTeX.Internal;
 
 namespace BlaTeX.JSInterop.KaTeX;
 
-public interface HtmlDomNode : VirtualNode
+public interface IHtmlDomNode : IVirtualNode
 {
-    public static HtmlDomNode Create(
+    public static IHtmlDomNode Create(
         IReadOnlyList<string>? classes,
         float height,
         float depth,
         float maxFontSize,
-        CssStyle? style)
+        ICssStyle? style)
     {
-        return new _HtmlDomNode(classes, height, depth, maxFontSize, (_CssStyle?)style);
+        return new HtmlDomNode(classes, height, depth, maxFontSize, (CssStyle?)style);
     }
     IReadOnlyList<string>? Classes { get; }
     // either of type int or float
     float Height { get; }
     float Depth { get; }
     float MaxFontSize { get; }
-    CssStyle? Style { get; }
-    HtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
-                        Option<float> height = default,
-                        Option<float> depth = default,
-                        Option<float> maxFontSize = default,
-                        Option<CssStyle> style = default);
+    ICssStyle? Style { get; }
+    IHtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
+                      Option<float> height = default,
+                      Option<float> depth = default,
+                      Option<float> maxFontSize = default,
+                      Option<ICssStyle> style = default);
 }
 
-public interface CssStyle
+public interface ICssStyle
 {
     // blatex-added properties:
     string? PaddingRight { get; }
@@ -38,7 +38,7 @@ public interface CssStyle
     string? PaddingTop { get; }
     string? PaddingBottom { get; }
     string? MarginBottom { get; }
-    ReactCSSProperties_pointerEvents? PointerEvents { get; }
+    IReactCSSProperties_pointerEvents? PointerEvents { get; }
     // original cssstyle properties:
     string? BorderBottomWidth { get; }
     string? BorderColor { get; }
@@ -58,11 +58,11 @@ public interface CssStyle
     string? Width { get; }
     string? VerticalAlign { get; }
 
-    CssStyle With(Option<string?> paddingRight = default,
+    ICssStyle With(Option<string?> paddingRight = default,
                     Option<string?> paddingTop = default,
                     Option<string?> paddingBottom = default,
                     Option<string?> marginBottom = default,
-                    Option<ReactCSSProperties_pointerEvents?> pointerEvents = default,
+                    Option<IReactCSSProperties_pointerEvents?> pointerEvents = default,
                     Option<string?> borderBottomWidth = default,
                     Option<string?> borderColor = default,
                     Option<string?> borderRightWidth = default,
@@ -82,54 +82,54 @@ public interface CssStyle
                     Option<string?> verticalAlign = default);
 }
 
-public interface ReactCSSProperties_pointerEvents
+public interface IReactCSSProperties_pointerEvents
 {
 }
 
-public interface Span<TChildNode> : HtmlDomNode where TChildNode : VirtualNode
+public interface ISpan<TChildNode> : IHtmlDomNode where TChildNode : IVirtualNode
 {
     // Span<T> is not part of the polymorphic deserializers because it's indistinguishable from their direct descendants (DomSpan for now only)
     public IReadOnlyList<TChildNode> Children { get; }
-    public Attributes Attributes { get; }
+    public IAttributes Attributes { get; }
     public float? Width { get; }
 
-    Span<TChildNode> With(Option<TChildNode[]> children = default,
-                            Option<Attributes> attributes = default,
+    ISpan<TChildNode> With(Option<TChildNode[]> children = default,
+                            Option<IAttributes> attributes = default,
                             Option<float?> width = default,
                             Option<IReadOnlyList<string>> classes = default,
                             Option<float> height = default,
                             Option<float> depth = default,
                             Option<float> maxFontSize = default,
-                            Option<CssStyle> style = default);
+                            Option<ICssStyle> style = default);
 }
-public interface DomSpan : Span<HtmlDomNode>
+public interface IDomSpan : ISpan<IHtmlDomNode>
 {
-    new DomSpan With(Option<HtmlDomNode[]> children = default,
-                        Option<Attributes> attributes = default,
+    new IDomSpan With(Option<IHtmlDomNode[]> children = default,
+                        Option<IAttributes> attributes = default,
                         Option<float?> width = default,
                         Option<IReadOnlyList<string>> classes = default,
                         Option<float> height = default,
                         Option<float> depth = default,
                         Option<float> maxFontSize = default,
-                        Option<CssStyle> style = default)
+                        Option<ICssStyle> style = default)
     {
-        return (DomSpan)((Span<HtmlDomNode>)this).With(children, attributes, width, classes, height, depth, maxFontSize, style);
+        return (IDomSpan)((ISpan<IHtmlDomNode>)this).With(children, attributes, width, classes, height, depth, maxFontSize, style);
     }
 }
 
-public interface Node
+public interface INode
 {
 }
 
-public interface VirtualNode
+public interface IVirtualNode
 {
     /// <summary> Convert into an HTML node. </summary>
-    Node ToNode() => throw new NotImplementedException(); // Task<Node> ToNode(IKaTeX runtime) => runtime.ToNode(this);
+    INode ToNode() => throw new NotImplementedException(); // Task<Node> ToNode(IKaTeX runtime) => runtime.ToNode(this);
     /// <summary> Convert into an HTML markup string. </summary>
     Task<string> ToMarkup(IKaTeXRuntime runtime) => runtime.ToMarkup(this);
 }
 
-public interface MathDomNode : VirtualNode
+public interface IMathDomNode : IVirtualNode
 {
     string toText();
 }
@@ -138,11 +138,11 @@ public interface MathDomNode : VirtualNode
     * constructor requires the type of node to create (for example, `"mo"` or
     * `"mspace"`, corresponding to `<mo>` and `<mspace>` tags).
     */
-interface MathNode : MathDomNode
+interface IMathNode : IMathDomNode
 {
     MathNodeType Type { get; }
     IReadOnlyDictionary<string, string> Attributes { get; }
-    IReadOnlyList<MathDomNode> Children { get; }
+    IReadOnlyList<IMathDomNode> Children { get; }
 
     // public ctor(type: MathNodeType, children?: MathDomNode[]);
 }
@@ -179,48 +179,48 @@ public enum MathNodeType
     mglyph,
 }
 
-interface SettingsOptions
+interface ISettingsOptions
 {
     bool? DisplayMode { get; }
     bool? ThrowOnError { get; }
     string? ErrorColor { get; }
-    MacroMap? Macros { get; }
+    IMacroMap? Macros { get; }
     bool? ColorIsTextColor { get; }
-    Strict? Strict { get; }
+    IStrict? Strict { get; }
     float? MaxSize { get; }
     float? MaxExpand { get; }
     IReadOnlyList<string>? AllowedProtocols { get; }
 
-    public SettingsOptions With(Option<bool?> displayMode = default,
+    public ISettingsOptions With(Option<bool?> displayMode = default,
                                 Option<bool?> throwOnError = default,
                                 Option<string?> errorColor = default,
-                                Option<MacroMap?> macros = default,
+                                Option<IMacroMap?> macros = default,
                                 Option<bool?> colorIsTextColor = default,
-                                Option<Strict?> strict = default,
+                                Option<IStrict?> strict = default,
                                 Option<float?> maxSize = default,
                                 Option<float?> maxExpand = default,
                                 Option<string[]?> allowedProtocols = default);
 };
 
-interface MacroMap
+interface IMacroMap
 {
     // not implemented
 }
-interface Strict
+interface IStrict
 {
     // not implemented.
     // export type = boolean | "ignore" | "warn" | "error" | StrictFunction
-    // export type StrictFunction = (errorCode: string, errorMsg: string, token?: Token | AnyParseNode) => boolean | string | undefined;
+    // export type StrictFunction = (errorCode: string, errorMsg: string, token?: Token | IAnyParseNode) => boolean | string | undefined;
 }
-public interface Attributes : IReadOnlyDictionary<string, object?>
+public interface IAttributes : IReadOnlyDictionary<string, object?>
 {
-    SourceLocation? SourceLocation { get; }
+    ISourceLocation? SourceLocation { get; }
 
-    public static Attributes Empty { get; } = new EmptyAttributes();
-    private sealed class EmptyAttributes : Attributes
+    public static IAttributes Empty { get; } = new EmptyAttributes();
+    private sealed class EmptyAttributes : IAttributes
     {
         public object? this[string key] => throw new KeyNotFoundException(key);
-        public SourceLocation? SourceLocation => null;
+        public ISourceLocation? SourceLocation => null;
         public IEnumerable<string> Keys => [];
         public IEnumerable<object?> Values => [];
         public int Count => 0;
@@ -240,7 +240,7 @@ public interface Attributes : IReadOnlyDictionary<string, object?>
     }
 }
 
-public interface SourceLocation
+public interface ISourceLocation
 {
     int Start { get; }
     int End { get; }
@@ -260,15 +260,15 @@ public static class ModeExtensions
 }
 
 /// <summary> Follows KaTeX naming convention. </summary>
-public interface AnyParseNode
+public interface IAnyParseNode
 {
     NodeType Type { get; }
     Mode Mode { get; }
-    SourceLocation? SourceLocation { get; }
+    ISourceLocation? SourceLocation { get; }
 }
-public interface BlaTeXNode : AnyParseNode
+public interface IBlaTeXNode : IAnyParseNode
 {
-    _AnyParseNode[] Args { get; }
+    IAnyParseNode[] Args { get; }
 }
 /// <summary> Follows KaTeX naming convention. </summary>
 public enum NodeType
@@ -334,13 +334,13 @@ public enum NodeType
 }
 public static class NodeTypeExtensions
 {
-    /// <summary> Gets the type (subtype of <see cref="AnyParseNode">) that represents the specified node type. </summary>
+    /// <summary> Gets the type (subtype of <see cref="IAnyParseNode">) that represents the specified node type. </summary>
     public static Type GetASTType(this NodeType type)
     {
         switch (type)
         {
             case NodeType.Blatex:
-                return typeof(BlaTeXNode);
+                return typeof(IBlaTeXNode);
             case NodeType.Unknown:
             default:
                 return null!;  // This means there is no dedicated runtime type for this node type

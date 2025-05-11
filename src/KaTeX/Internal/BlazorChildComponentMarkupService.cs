@@ -143,7 +143,7 @@ internal class BlazorChildComponentMarkupService : IChildComponentMarkupService
         }
     }
 
-    public virtual IReadOnlyList<AnyParseNode> Select(IReadOnlyList<AnyParseNode> ast)
+    public virtual IReadOnlyList<IAnyParseNode> Select(IReadOnlyList<IAnyParseNode> ast)
     {
         return ast;
     }

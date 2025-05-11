@@ -23,14 +23,14 @@ public static partial class KaTeXJsonConverters
     {
         var rootConverters = new JsonConverterCollection[]
         {
-            new ExactPolymorphicJsonConverter<HtmlDomNode>(
-                (typeof(DomSpan), typeof(_DomSpan)),
-                (typeof(HtmlDomNode), typeof(_HtmlDomNode))
+            new ExactPolymorphicJsonConverter<IHtmlDomNode>(
+                (typeof(IDomSpan), typeof(DomSpan)),
+                (typeof(IHtmlDomNode), typeof(HtmlDomNode))
                 ),
-            _Attributes.JsonConverter.Instance,
-            _SourceLocation.JsonConverter.Instance,
+            Attributes.JsonConverter.Instance,
+            SourceLocation.JsonConverter.Instance,
             NodeTypeExtensions.JsonConverterInstance,
-            _AnyParseNode.Instances,
+            AnyParseNode.Instances,
             JsonElementJsonConverter.Instance,
         };
 

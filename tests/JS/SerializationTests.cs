@@ -15,7 +15,7 @@ public class KaTeXTypesSerializationTests
     [Fact]
     public async Task SerializeSqrtParseNode()
     {
-        var node = new _AnyParseNode(NodeType.Sqrt, Mode.Math, new _SourceLocation(0, 4));
+        var node = new AnyParseNode(NodeType.Sqrt, Mode.Math, new SourceLocation(0, 4));
         string s = await KaTeX.RenderToString(new[] { node });
         Contract.Assert(s != null);
     }

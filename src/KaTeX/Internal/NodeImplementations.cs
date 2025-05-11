@@ -7,34 +7,34 @@ using System.Text.RegularExpressions;
 
 namespace BlaTeX.JSInterop.KaTeX.Internal;
 
-internal class _HtmlDomNode : HtmlDomNode, IJSSerializable
+internal class HtmlDomNode : IHtmlDomNode, IJSSerializable
 {
     public string SERIALIZATION_TYPE_ID => IJSSerializable.SERIALIZATION_TYPE_ID_Impl(this);
     public IReadOnlyList<string>? classes { get; set; }
     public float height { get; set; }
     public float depth { get; set; }
     public float maxFontSize { get; set; }
-    public _CssStyle? style { get; set; }
+    public CssStyle? style { get; set; }
     [DebuggerHidden]
-    IReadOnlyList<string>? HtmlDomNode.Classes => classes;
+    IReadOnlyList<string>? IHtmlDomNode.Classes => classes;
     [DebuggerHidden]
-    float HtmlDomNode.Height => height;
+    float IHtmlDomNode.Height => height;
     [DebuggerHidden]
-    float HtmlDomNode.Depth => depth;
+    float IHtmlDomNode.Depth => depth;
     [DebuggerHidden]
-    float HtmlDomNode.MaxFontSize => maxFontSize;
+    float IHtmlDomNode.MaxFontSize => maxFontSize;
     [DebuggerHidden]
-    CssStyle? HtmlDomNode.Style => style;
+    ICssStyle? IHtmlDomNode.Style => style;
 
 
     /// <summary> Ctor for JsonSerializer. </summary>
-    public _HtmlDomNode() { }
-    public _HtmlDomNode(
+    public HtmlDomNode() { }
+    public HtmlDomNode(
         IReadOnlyList<string>? classes,
         float height,
         float depth,
         float maxFontSize,
-        _CssStyle? style)
+        CssStyle? style)
     {
         this.classes = classes;
         this.height = height;
@@ -46,10 +46,10 @@ internal class _HtmlDomNode : HtmlDomNode, IJSSerializable
 
     public override bool Equals(object? obj)
     {
-        return this.Equals(obj as HtmlDomNode);
+        return this.Equals(obj as IHtmlDomNode);
     }
 
-    protected bool Equals([NotNullWhen(true)] HtmlDomNode? other)
+    protected bool Equals([NotNullWhen(true)] IHtmlDomNode? other)
     {
         if (other is null)
             return false;
@@ -70,105 +70,105 @@ internal class _HtmlDomNode : HtmlDomNode, IJSSerializable
     }
     public override int GetHashCode() => throw new NotImplementedException();
 
-    public virtual HtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
+    public virtual IHtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
                                     Option<float> height = default,
                                     Option<float> depth = default,
                                     Option<float> maxFontSize = default,
-                                    Option<CssStyle> style = default)
+                                    Option<ICssStyle> style = default)
     {
-        return new _HtmlDomNode(classes.ValueOrDefault(this.classes),
+        return new HtmlDomNode(classes.ValueOrDefault(this.classes),
                                 height.ValueOrDefault(this.height),
                                 depth.ValueOrDefault(this.depth),
                                 maxFontSize.ValueOrDefault(this.maxFontSize),
-                                (_CssStyle?)style.ValueOrDefault(this.style));
+                                (CssStyle?)style.ValueOrDefault(this.style));
     }
 }
 
 /// <summary> A concrete type of Span<T>. </summary>
-internal class _DomSpan : _Span<HtmlDomNode>, DomSpan
+internal class DomSpan : Span<IHtmlDomNode>, IDomSpan
 {
     /// <summary> Ctor for JsonSerializer. </summary>
-    public _DomSpan()
+    public DomSpan()
     {
 
     }
-    public _DomSpan(
-        HtmlDomNode[]? children,
-        Attributes? attributes,
+    public DomSpan(
+        IHtmlDomNode[]? children,
+        IAttributes? attributes,
         float? width,
         IReadOnlyList<string>? classes,
         float height,
         float depth,
         float maxFontSize,
-        _CssStyle? style)
+        CssStyle? style)
         : base(children, attributes, width, classes, height, depth, maxFontSize, style)
     {
     }
     public override bool Equals(object? obj)
     {
-        return this.Equals(obj as DomSpan);
+        return this.Equals(obj as IDomSpan);
     }
-    protected bool Equals([NotNullWhen(true)] DomSpan? other)
+    protected bool Equals([NotNullWhen(true)] IDomSpan? other)
     {
         return base.Equals(other);
     }
     public override int GetHashCode() => throw new NotImplementedException();
 
-    public sealed override Span<HtmlDomNode> With(Option<HtmlDomNode[]> children = default,
-                                                    Option<Attributes> attributes = default,
+    public sealed override ISpan<IHtmlDomNode> With(Option<IHtmlDomNode[]> children = default,
+                                                    Option<IAttributes> attributes = default,
                                                     Option<float?> width = default,
                                                     Option<IReadOnlyList<string>> classes = default,
                                                     Option<float> height = default,
                                                     Option<float> depth = default,
                                                     Option<float> maxFontSize = default,
-                                                    Option<CssStyle> style = default)
+                                                    Option<ICssStyle> style = default)
     {
-        return new _DomSpan(children.ValueOrDefault(this.children),
+        return new DomSpan(children.ValueOrDefault(this.children),
                             attributes.ValueOrDefault(this.attributes),
                             width.ValueOrDefault(this.width),
                             classes.ValueOrDefault(this.classes),
                             height.ValueOrDefault(this.height),
                             depth.ValueOrDefault(this.depth),
                             maxFontSize.ValueOrDefault(this.maxFontSize),
-                            (_CssStyle?)style.ValueOrDefault(this.style));
+                            (CssStyle?)style.ValueOrDefault(this.style));
     }
 }
 
-internal class _Span<TChildNode> : _HtmlDomNode, Span<TChildNode> where TChildNode : VirtualNode
+internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNode : IVirtualNode
 {
     public TChildNode[] children { get; set; }
-    public Attributes attributes { get; set; }
+    public IAttributes attributes { get; set; }
     public float? width { get; set; }
     [DebuggerHidden]
-    IReadOnlyList<TChildNode> Span<TChildNode>.Children => children;
+    IReadOnlyList<TChildNode> ISpan<TChildNode>.Children => children;
     [DebuggerHidden]
-    Attributes Span<TChildNode>.Attributes => attributes;
+    IAttributes ISpan<TChildNode>.Attributes => attributes;
     [DebuggerHidden]
-    float? Span<TChildNode>.Width => width;
+    float? ISpan<TChildNode>.Width => width;
 
     /// <summary> Ctor for JsonSerializer. </summary>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    public _Span() { }
+    public Span() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    public _Span(TChildNode[]? children,
-                 Attributes? attributes,
+    public Span(TChildNode[]? children,
+                 IAttributes? attributes,
                  float? width,
                  IReadOnlyList<string>? classes,
                  float height,
                  float depth,
                  float maxFontSize,
-                 _CssStyle? style)
+                 CssStyle? style)
         : base(classes, height, depth, maxFontSize, style)
     {
         this.children = children ?? [];
-        this.attributes = attributes ?? Attributes.Empty;
+        this.attributes = attributes ?? IAttributes.Empty;
         this.width = width;
     }
     public override bool Equals(object? obj)
     {
-        return this.Equals(obj as Span<TChildNode>);
+        return this.Equals(obj as ISpan<TChildNode>);
     }
-    protected bool Equals([NotNullWhen(true)] Span<TChildNode>? other)
+    protected bool Equals([NotNullWhen(true)] ISpan<TChildNode>? other)
     {
         if (!base.Equals(other))
             return false;
@@ -182,64 +182,64 @@ internal class _Span<TChildNode> : _HtmlDomNode, Span<TChildNode> where TChildNo
         return true;
     }
     public override int GetHashCode() => throw new NotImplementedException();
-    public sealed override HtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
+    public sealed override IHtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
                                             Option<float> height = default,
                                             Option<float> depth = default,
                                             Option<float> maxFontSize = default,
-                                            Option<CssStyle> style = default)
+                                            Option<ICssStyle> style = default)
     {
         return With(default, default, default, classes, height, depth, maxFontSize, style);
     }
-    public virtual Span<TChildNode> With(Option<TChildNode[]> children = default,
-                                         Option<Attributes> attributes = default,
+    public virtual ISpan<TChildNode> With(Option<TChildNode[]> children = default,
+                                         Option<IAttributes> attributes = default,
                                          Option<float?> width = default,
                                          Option<IReadOnlyList<string>> classes = default,
                                          Option<float> height = default,
                                          Option<float> depth = default,
                                          Option<float> maxFontSize = default,
-                                         Option<CssStyle> style = default)
+                                         Option<ICssStyle> style = default)
     {
-        return new _Span<TChildNode>(children.ValueOrDefault(this.children),
+        return new Span<TChildNode>(children.ValueOrDefault(this.children),
                                      attributes.ValueOrDefault(this.attributes),
                                      width.ValueOrDefault(this.width),
                                      classes.ValueOrDefault(this.classes),
                                      height.ValueOrDefault(this.height),
                                      depth.ValueOrDefault(this.depth),
                                      maxFontSize.ValueOrDefault(this.maxFontSize),
-                                     (_CssStyle?)style.ValueOrDefault(this.style));
+                                     (CssStyle?)style.ValueOrDefault(this.style));
     }
 }
 
-internal class _SettingsOptions : SettingsOptions
+internal class SettingsOptions : ISettingsOptions
 {
     public bool? displayMode { get; set; }
     public bool? throwOnError { get; set; }
     public string? errorColor { get; set; }
-    public MacroMap? macros { get; set; }
+    public IMacroMap? macros { get; set; }
     public bool? colorIsTextColor { get; set; }
-    public Strict? strict { get; set; }
+    public IStrict? strict { get; set; }
     public float? maxSize { get; set; }
     public float? maxExpand { get; set; }
     public string[]? allowedProtocols { get; set; }
 
-    bool? SettingsOptions.DisplayMode => displayMode;
-    bool? SettingsOptions.ThrowOnError => throwOnError;
-    string? SettingsOptions.ErrorColor => errorColor;
-    MacroMap? SettingsOptions.Macros => macros;
-    bool? SettingsOptions.ColorIsTextColor => colorIsTextColor;
-    Strict? SettingsOptions.Strict => strict;
-    float? SettingsOptions.MaxSize => maxSize;
-    float? SettingsOptions.MaxExpand => maxExpand;
-    IReadOnlyList<string>? SettingsOptions.AllowedProtocols => allowedProtocols;
+    bool? ISettingsOptions.DisplayMode => displayMode;
+    bool? ISettingsOptions.ThrowOnError => throwOnError;
+    string? ISettingsOptions.ErrorColor => errorColor;
+    IMacroMap? ISettingsOptions.Macros => macros;
+    bool? ISettingsOptions.ColorIsTextColor => colorIsTextColor;
+    IStrict? ISettingsOptions.Strict => strict;
+    float? ISettingsOptions.MaxSize => maxSize;
+    float? ISettingsOptions.MaxExpand => maxExpand;
+    IReadOnlyList<string>? ISettingsOptions.AllowedProtocols => allowedProtocols;
 
     /// <summary> Ctor for JsonSerializer. </summary>
-    public _SettingsOptions() { }
-    public _SettingsOptions(bool? displayMode,
+    public SettingsOptions() { }
+    public SettingsOptions(bool? displayMode,
                             bool? throwOnError,
                             string? errorColor,
-                            MacroMap? macros,
+                            IMacroMap? macros,
                             bool? colorIsTextColor,
-                            Strict? strict,
+                            IStrict? strict,
                             float? maxSize,
                             float? maxExpand,
                             string[]? allowedProtocols)
@@ -258,9 +258,9 @@ internal class _SettingsOptions : SettingsOptions
 
     public override bool Equals(object? obj)
     {
-        return this.Equals(obj as SettingsOptions);
+        return this.Equals(obj as ISettingsOptions);
     }
-    protected bool Equals([NotNullWhen(true)] SettingsOptions? other)
+    protected bool Equals([NotNullWhen(true)] ISettingsOptions? other)
     {
         if (other is null)
             return false;
@@ -290,17 +290,17 @@ internal class _SettingsOptions : SettingsOptions
     }
     public override int GetHashCode() => throw new NotImplementedException();
 
-    public virtual SettingsOptions With(Option<bool?> displayMode = default,
+    public virtual ISettingsOptions With(Option<bool?> displayMode = default,
                                         Option<bool?> throwOnError = default,
                                         Option<string?> errorColor = default,
-                                        Option<MacroMap?> macros = default,
+                                        Option<IMacroMap?> macros = default,
                                         Option<bool?> colorIsTextColor = default,
-                                        Option<Strict?> strict = default,
+                                        Option<IStrict?> strict = default,
                                         Option<float?> maxSize = default,
                                         Option<float?> maxExpand = default,
                                         Option<string[]?> allowedProtocols = default)
     {
-        return new _SettingsOptions(
+        return new SettingsOptions(
             displayMode.ValueOrDefault(this.displayMode),
             throwOnError.ValueOrDefault(this.throwOnError),
             errorColor.ValueOrDefault(this.errorColor),
@@ -314,13 +314,13 @@ internal class _SettingsOptions : SettingsOptions
     }
 };
 
-internal class _CssStyle : CssStyle
+internal class CssStyle : ICssStyle
 {
     public string? PaddingRight { get; set; }
     public string? PaddingTop { get; set; }
     public string? PaddingBottom { get; set; }
     public string? MarginBottom { get; set; }
-    public ReactCSSProperties_pointerEvents? PointerEvents { get; set; }
+    public IReactCSSProperties_pointerEvents? PointerEvents { get; set; }
     public string? BorderBottomWidth { get; set; }
     public string? BorderColor { get; set; }
     public string? BorderRightWidth { get; set; }
@@ -340,12 +340,12 @@ internal class _CssStyle : CssStyle
     public string? VerticalAlign { get; set; }
 
     /// <summary> Ctor for JsonSerializer. </summary>
-    public _CssStyle() { }
-    public _CssStyle(string? paddingRight,
+    public CssStyle() { }
+    public CssStyle(string? paddingRight,
                         string? paddingTop,
                         string? paddingBottom,
                         string? marginBottom,
-                        ReactCSSProperties_pointerEvents? pointerEvents,
+                        IReactCSSProperties_pointerEvents? pointerEvents,
                         string? borderBottomWidth,
                         string? borderColor,
                         string? borderRightWidth,
@@ -391,9 +391,9 @@ internal class _CssStyle : CssStyle
 
     public override bool Equals(object? obj)
     {
-        return this.Equals(obj as CssStyle);
+        return this.Equals(obj as ICssStyle);
     }
-    protected bool Equals([NotNullWhen(true)] CssStyle? other)
+    protected bool Equals([NotNullWhen(true)] ICssStyle? other)
     {
         if (other is null)
             return false;
@@ -449,30 +449,30 @@ internal class _CssStyle : CssStyle
     public override int GetHashCode() => throw new NotImplementedException();
 
 
-    public CssStyle With(Option<string?> paddingRight = default,
-                            Option<string?> paddingTop = default,
-                            Option<string?> paddingBottom = default,
-                            Option<string?> marginBottom = default,
-                            Option<ReactCSSProperties_pointerEvents?> pointerEvents = default,
-                            Option<string?> borderBottomWidth = default,
-                            Option<string?> borderColor = default,
-                            Option<string?> borderRightWidth = default,
-                            Option<string?> borderTopWidth = default,
-                            Option<string?> bottom = default,
-                            Option<string?> color = default,
-                            Option<string?> height = default,
-                            Option<string?> left = default,
-                            Option<string?> marginLeft = default,
-                            Option<string?> marginRight = default,
-                            Option<string?> marginTop = default,
-                            Option<string?> minWidth = default,
-                            Option<string?> paddingLeft = default,
-                            Option<string?> position = default,
-                            Option<string?> top = default,
-                            Option<string?> width = default,
-                            Option<string?> verticalAlign = default)
+    public ICssStyle With(Option<string?> paddingRight = default,
+                          Option<string?> paddingTop = default,
+                          Option<string?> paddingBottom = default,
+                          Option<string?> marginBottom = default,
+                          Option<IReactCSSProperties_pointerEvents?> pointerEvents = default,
+                          Option<string?> borderBottomWidth = default,
+                          Option<string?> borderColor = default,
+                          Option<string?> borderRightWidth = default,
+                          Option<string?> borderTopWidth = default,
+                          Option<string?> bottom = default,
+                          Option<string?> color = default,
+                          Option<string?> height = default,
+                          Option<string?> left = default,
+                          Option<string?> marginLeft = default,
+                          Option<string?> marginRight = default,
+                          Option<string?> marginTop = default,
+                          Option<string?> minWidth = default,
+                          Option<string?> paddingLeft = default,
+                          Option<string?> position = default,
+                          Option<string?> top = default,
+                          Option<string?> width = default,
+                          Option<string?> verticalAlign = default)
     {
-        return new _CssStyle(
+        return new CssStyle(
             paddingRight.ValueOrDefault(this.PaddingRight),
             paddingTop.ValueOrDefault(this.PaddingTop),
             paddingBottom.ValueOrDefault(this.PaddingBottom),
@@ -499,13 +499,13 @@ internal class _CssStyle : CssStyle
     }
 }
 
-internal class _SourceLocation : SourceLocation
+internal class SourceLocation : ISourceLocation
 {
-    public class JsonConverter : JsonConverter<SourceLocation>
+    public class JsonConverter : JsonConverter<ISourceLocation>
     {
         public static JsonConverter Instance { get; } = new JsonConverter();
         private static readonly Regex expectedFormat = new Regex("[0-9]+,[0-9]+");
-        public override SourceLocation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override ISourceLocation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             using var _ = new StackoverflowDetector(this, reader, typeToConvert);
 
@@ -525,7 +525,7 @@ internal class _SourceLocation : SourceLocation
                     int separatorIndex = s.IndexOf(",");
                     int start = int.Parse(s[..separatorIndex]);
                     int end = int.Parse(s[(separatorIndex + 1)..]);
-                    return new _SourceLocation(start, end);
+                    return new SourceLocation(start, end);
                 }
             }
             else
@@ -562,11 +562,11 @@ internal class _SourceLocation : SourceLocation
                 else if (end == null)
                     throw new JsonException("Invalid SourceLocation: 'end' not found");
                 else
-                    return new _SourceLocation(start.Value, end.Value);
+                    return new SourceLocation(start.Value, end.Value);
             }
         }
 
-        public override void Write(Utf8JsonWriter writer, SourceLocation value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, ISourceLocation value, JsonSerializerOptions options)
         {
             Contract.Requires(value != null);
             Contract.Requires(value.Start >= 0);
@@ -581,24 +581,24 @@ internal class _SourceLocation : SourceLocation
 
 
     [SetsRequiredMembers]
-    public _SourceLocation(int start, int end)
+    public SourceLocation(int start, int end)
     {
         this.start = start;
         this.end = end;
     }
-    public virtual SourceLocation With(Option<int> start = default,
+    public virtual ISourceLocation With(Option<int> start = default,
                                         Option<int> end = default)
     {
-        return new _SourceLocation(start.ValueOrDefault(this.start),
+        return new SourceLocation(start.ValueOrDefault(this.start),
                                     end.ValueOrDefault(this.end));
     }
 
     public override bool Equals(object? obj)
     {
-        return this.Equals(obj as SourceLocation);
+        return this.Equals(obj as ISourceLocation);
     }
 
-    protected bool Equals([NotNullWhen(true)] SourceLocation? other)
+    protected bool Equals([NotNullWhen(true)] ISourceLocation? other)
     {
         if (other is null)
             return false;
@@ -614,29 +614,29 @@ internal class _SourceLocation : SourceLocation
     public override int GetHashCode() => throw new NotImplementedException();
 
     [DebuggerHidden]
-    int SourceLocation.Start => start;
+    int ISourceLocation.Start => start;
     [DebuggerHidden]
-    int SourceLocation.End => end;
+    int ISourceLocation.End => end;
 
 }
 
 // currently sealed because extension is not supported, but may be opened up later
-internal sealed class _Attributes : ReadOnlyDictionary<string, object?>, Attributes
+internal sealed class Attributes : ReadOnlyDictionary<string, object?>, IAttributes
 {
-    public class JsonConverter : DictionaryJsonConverter<object?, Attributes>
+    public class JsonConverter : DictionaryJsonConverter<object?, IAttributes>
     {
         public static JsonConverter Instance { get; } = new JsonConverter();
-        static Attributes ctor(Dictionary<string, object?> deserialized)
+        static IAttributes ctor(Dictionary<string, object?> deserialized)
         {
-            return new _Attributes(deserialized);
+            return new Attributes(deserialized);
         }
         static IReadOnlyDictionary<string, Type?> elementTypes => new Dictionary<string, Type?>
         {
             // the types are the key type for json deserialization. So they trigger which jsonConverter to use
-            { sourceLocationKey, typeof(SourceLocation) },
+            { sourceLocationKey, typeof(ISourceLocation) },
         };
         private JsonConverter() : base(ctor, elementTypes: elementTypes) { }
-        public override Attributes Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override IAttributes Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             // base call already detected stackoverflows
 
@@ -646,24 +646,24 @@ internal sealed class _Attributes : ReadOnlyDictionary<string, object?>, Attribu
 
 
 
-    public _Attributes(IReadOnlyDictionary<string, object?> underlying)
+    public Attributes(IReadOnlyDictionary<string, object?> underlying)
         : base(underlying)
     {
         if (underlying.TryGetValue(sourceLocationKey, out object? sourceLocation))
-            Contract.Requires(sourceLocation is SourceLocation, $"If '{sourceLocationKey}' is specified, it must be of type {nameof(SourceLocation)}");
+            Contract.Requires(sourceLocation is ISourceLocation, $"If '{sourceLocationKey}' is specified, it must be of type {nameof(SourceLocation)}");
     }
 
-    public SourceLocation? SourceLocation
+    public ISourceLocation? SourceLocation
     {
         get
         {
-            return underlying.GetValueOrDefault(sourceLocationKey, null) as SourceLocation;
+            return underlying.GetValueOrDefault(sourceLocationKey, null) as ISourceLocation;
         }
     }
     private const string sourceLocationKey = "data-loc";
 
 
-    public /*virtual*/ Attributes With(params KeyValuePair<string, object?>[] newProperties)
+    public /*virtual*/ IAttributes With(params KeyValuePair<string, object?>[] newProperties)
     {
         if (newProperties.Length == 0)
             return this;
@@ -672,6 +672,6 @@ internal sealed class _Attributes : ReadOnlyDictionary<string, object?>, Attribu
         foreach (var kvp in newProperties)
             newUnderlying[kvp.Key] = kvp.Value;
 
-        return new _Attributes(newUnderlying);
+        return new Attributes(newUnderlying);
     }
 }

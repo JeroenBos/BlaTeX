@@ -11,11 +11,11 @@ internal class IJSSerializableState
 
         // uncomment these when they're available:
         // typeof(DocumentFragment),
-        typeof(MathDomNode),
+        typeof(IMathDomNode),
         // typeof(SvgNode),
         // typeof(PathNode),
         // typeof(LineNode),
-        typeof(Span<>),
+        typeof(ISpan<>),
         // typeof(SymbolNode),
         // typeof(Anchor),
     ];

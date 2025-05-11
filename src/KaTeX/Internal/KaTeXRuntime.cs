@@ -20,7 +20,7 @@ internal class KaTeXRuntime : IKaTeXRuntime
         Contract.Ensures(result != null);
         return result;
     }
-    public async Task<string> RenderToString(IReadOnlyList<AnyParseNode> tree, string? math = null)
+    public async Task<string> RenderToString(IReadOnlyList<IAnyParseNode> tree, string? math = null)
     {
         Contract.Requires(tree != null, nameof(tree));
         Contract.RequiresForAll(tree, node => node != null);
@@ -30,19 +30,19 @@ internal class KaTeXRuntime : IKaTeXRuntime
         return result;
     }
 
-    public async Task<HtmlDomNode> RenderToDom(string math)
+    public async Task<IHtmlDomNode> RenderToDom(string math)
     {
         Contract.Requires(math != null, nameof(math));
 
-        var result = await InvokeAsync<HtmlDomNode>("__renderToDomTree", arguments: math);
+        var result = await InvokeAsync<IHtmlDomNode>("__renderToDomTree", arguments: math);
         Contract.Ensures(result != null);
         return result;
     }
-    public async Task<IReadOnlyList<AnyParseNode>> Parse(string math)
+    public async Task<IReadOnlyList<IAnyParseNode>> Parse(string math)
     {
         Contract.Requires(math != null, nameof(math));
 
-        var result = await InvokeAsync<AnyParseNode[]>("__parse", arguments: math);
+        var result = await InvokeAsync<IAnyParseNode[]>("__parse", arguments: math);
         Contract.Ensures(result != null);
         Contract.Ensures(result.All(node => node != null));
         return result;
@@ -51,16 +51,16 @@ internal class KaTeXRuntime : IKaTeXRuntime
     /// <summary> Converters the specified tree to KaTeX's dom representation. <summary>
     /// <param name="tree"> The tree to render. </param>
     /// <param name="math"> If omitted, no MathML will be generated. </param>
-    public async Task<DomSpan> RenderToDom(AnyParseNode[] tree, string? math = null)
+    public async Task<IDomSpan> RenderToDom(IAnyParseNode[] tree, string? math = null)
     {
         Contract.Requires(tree != null, nameof(tree));
         Contract.RequiresForAll(tree, node => node != null);
 
-        var result = await InvokeAsync<DomSpan>("__parseToDomTree", tree, math);
+        var result = await InvokeAsync<IDomSpan>("__parseToDomTree", tree, math);
         Contract.Ensures(result != null);
         return result;
     }
-    public async Task<string> ToMarkup(VirtualNode node)
+    public async Task<string> ToMarkup(IVirtualNode node)
     {
         Contract.Requires(node != null, nameof(node));
 

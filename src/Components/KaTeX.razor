@@ -43,7 +43,7 @@ else
     /// Maybe null if the component is currently parsing <see cref="Math"/>.
     /// </summary>
     [Parameter]
-    public IReadOnlyList<AnyParseNode>? AST { get; set; }
+    public IReadOnlyList<IAnyParseNode>? AST { get; set; }
 
     [Parameter]
     public IChildComponentMarkupService? ChildComponentMarkupService { get; set; }
@@ -53,7 +53,7 @@ else
         parameters.AssertContainsOnly(nameof(AST), nameof(Math), nameof(ChildComponentMarkupService));
 
         bool mathSpecified = parameters.TryGetValue<string?>(nameof(Math), out var math);
-        bool astSpecified = parameters.TryGetValue<IReadOnlyList<AnyParseNode>?>(nameof(AST), out var ast);
+        bool astSpecified = parameters.TryGetValue<IReadOnlyList<IAnyParseNode>?>(nameof(AST), out var ast);
 
         if ((astSpecified ? ast : this.AST) == null && (mathSpecified ? math : this.Math) == null)
         {
@@ -112,7 +112,7 @@ else
             }
         }
     }
-    private async Task SetASTParameter(IReadOnlyList<AnyParseNode> ast, string? math)
+    private async Task SetASTParameter(IReadOnlyList<IAnyParseNode> ast, string? math)
     {
         _showLoadingPageWhileRendering(math, ast: null);
 
@@ -126,7 +126,7 @@ else
         var ast = await JS.Parse(math);
         await SetASTParameter(ast, math);
     }
-    private void _showLoadingPageWhileRendering(string? math, IReadOnlyList<AnyParseNode>? ast)
+    private void _showLoadingPageWhileRendering(string? math, IReadOnlyList<IAnyParseNode>? ast)
     {
         this.markup = null;
         this.AST = ast;
