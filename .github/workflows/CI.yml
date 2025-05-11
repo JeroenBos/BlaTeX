@@ -107,12 +107,12 @@ jobs:
 
       - name: Host static files
         run: |
-          docker build . --file e2e/http-server.Dockerfile --build-arg CONFIGURATION=${{ env.CONFIGURATION }} --tag http-server
+          docker build . --file e2e/http-server.Dockerfile --tag http-server --build-arg CONFIGURATION=${CONFIGURATION}
           trap "echo \"\$?\" >> /tmp/http-server-exit-code" EXIT
           docker run -i                                                                                        \
             -p 8080:8080                                                                                       \
             --volume "/$(pwd)/e2e:/app"                                                                        \
-            --volume "/$(pwd)/src/bin/${{ env.CONFIGURATION }}/net9.0/wwwroot/_framework:/app/_framework"      \
+            --volume "/$(pwd)/src/bin/${CONFIGURATION}/net9.0/wwwroot/_framework:/app/_framework"              \
             --volume "/$(pwd)/js/node_modules:/app/node_modules"                                               \
             http-server                                                                                        \
             &> /tmp/log.txt &

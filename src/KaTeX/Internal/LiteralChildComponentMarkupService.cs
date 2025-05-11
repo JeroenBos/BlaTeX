@@ -16,6 +16,7 @@ public class LiteralChildComponentMarkupService : IChildComponentMarkupService
     public IEnumerable<Range> Select(string markup)
     {
         int previousIndex = markup.IndexOf("katex-html"); // skip "katex-mathml"
+        Console.WriteLine($"previousIndex={previousIndex}");
         while (true)
         {
             int index = markup.IndexOf(literal, previousIndex);
@@ -24,6 +25,9 @@ public class LiteralChildComponentMarkupService : IChildComponentMarkupService
                 yield break;
             }
             yield return new Range(index, index + literal.Length);
+            Console.WriteLine($"index={index}");
+            Console.WriteLine($"Replacing={markup[index..(index + literal.Length)]}");
+
             previousIndex = index + literal.Length;
         }
     }
