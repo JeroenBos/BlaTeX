@@ -1,3 +1,4 @@
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 using JBSnorro.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -147,9 +148,7 @@ internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNod
     float? ISpan<TChildNode>.Width => width;
 
     /// <summary> Ctor for JsonSerializer. </summary>
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public Span() { }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public Span(TChildNode[]? children,
                  IAttributes? attributes,
                  float? width,

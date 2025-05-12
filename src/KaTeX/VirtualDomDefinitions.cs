@@ -6,6 +6,31 @@ using BlaTeX.JSInterop.KaTeX.Internal;
 
 namespace BlaTeX.JSInterop.KaTeX;
 
+
+public interface IVirtualNode
+{
+    /// <summary> Convert into an HTML markup string. </summary>
+    Task<string> ToMarkup(IKaTeXRuntime runtime) => runtime.ToMarkup(this);
+    // also has a function ToNode, which converts to html node, which doesn't seem useful from interop.
+}
+
+public interface IMathDomNode : IVirtualNode
+{
+    string toText();
+}
+/// <summary>
+/// This node represents a general purpose MathML node of any type.
+/// The constructor requires the type of node to create (for example, "mo"` or `"mspace"`, corresponding to `<mo>` and `<mspace>` tags).
+/// </summary>
+interface IMathNode : IMathDomNode
+{
+    MathNodeType Type { get; }
+    IReadOnlyDictionary<string, string> Attributes { get; }
+    IReadOnlyList<IMathDomNode> Children { get; }
+
+    // public ctor(type: MathNodeType, children?: MathDomNode[]);
+}
+
 public interface IHtmlDomNode : IVirtualNode
 {
     public static IHtmlDomNode Create(
@@ -30,62 +55,20 @@ public interface IHtmlDomNode : IVirtualNode
                       Option<ICssStyle> style = default);
 }
 
-public interface ICssStyle
-{
-    // blatex-added properties:
-    string? PaddingRight { get; }
-    // paddingLeft already exist among the originals
-    string? PaddingTop { get; }
-    string? PaddingBottom { get; }
-    string? MarginBottom { get; }
-    IReactCSSProperties_pointerEvents? PointerEvents { get; }
-    // original cssstyle properties:
-    string? BorderBottomWidth { get; }
-    string? BorderColor { get; }
-    string? BorderRightWidth { get; }
-    string? BorderTopWidth { get; }
-    string? Bottom { get; }
-    string? Color { get; }
-    string? Height { get; }
-    string? Left { get; }
-    string? MarginLeft { get; }
-    string? MarginRight { get; }
-    string? MarginTop { get; }
-    string? MinWidth { get; }
-    string? PaddingLeft { get; }
-    string? Position { get; }
-    string? Top { get; }
-    string? Width { get; }
-    string? VerticalAlign { get; }
-
-    ICssStyle With(Option<string?> paddingRight = default,
-                    Option<string?> paddingTop = default,
-                    Option<string?> paddingBottom = default,
-                    Option<string?> marginBottom = default,
-                    Option<IReactCSSProperties_pointerEvents?> pointerEvents = default,
-                    Option<string?> borderBottomWidth = default,
-                    Option<string?> borderColor = default,
-                    Option<string?> borderRightWidth = default,
-                    Option<string?> borderTopWidth = default,
-                    Option<string?> bottom = default,
-                    Option<string?> color = default,
-                    Option<string?> height = default,
-                    Option<string?> left = default,
-                    Option<string?> marginLeft = default,
-                    Option<string?> marginRight = default,
-                    Option<string?> marginTop = default,
-                    Option<string?> minWidth = default,
-                    Option<string?> paddingLeft = default,
-                    Option<string?> position = default,
-                    Option<string?> top = default,
-                    Option<string?> width = default,
-                    Option<string?> verticalAlign = default);
-}
-
-public interface IReactCSSProperties_pointerEvents
-{
-}
-
+/// <summary>
+/// In KaTeX the following aliases exist:
+/// - DomSpan = Span<HtmlDomNode>
+/// - SvgSpan = Span<SvgNode>
+/// 
+/// This node represents a span node, with a className, a list of children, and
+/// an inline style. It also contains information about its height, depth, and
+/// maxFontSize.
+///
+/// Represents two types with different uses: SvgSpan to wrap an SVG and DomSpan
+/// otherwise. This typesafety is important when HTML builders access a span's
+/// children.
+/// </summary>
+/// <typeparam name="TChildNode"></typeparam>.
 public interface ISpan<TChildNode> : IHtmlDomNode where TChildNode : IVirtualNode
 {
     // Span<T> is not part of the polymorphic deserializers because it's indistinguishable from their direct descendants (DomSpan for now only)
@@ -102,49 +85,64 @@ public interface ISpan<TChildNode> : IHtmlDomNode where TChildNode : IVirtualNod
                             Option<float> maxFontSize = default,
                             Option<ICssStyle> style = default);
 }
+
 public interface IDomSpan : ISpan<IHtmlDomNode>
 {
     new IDomSpan With(Option<IHtmlDomNode[]> children = default,
-                        Option<IAttributes> attributes = default,
-                        Option<float?> width = default,
-                        Option<IReadOnlyList<string>> classes = default,
-                        Option<float> height = default,
-                        Option<float> depth = default,
-                        Option<float> maxFontSize = default,
-                        Option<ICssStyle> style = default)
+                      Option<IAttributes> attributes = default,
+                      Option<float?> width = default,
+                      Option<IReadOnlyList<string>> classes = default,
+                      Option<float> height = default,
+                      Option<float> depth = default,
+                      Option<float> maxFontSize = default,
+                      Option<ICssStyle> style = default)
     {
         return (IDomSpan)((ISpan<IHtmlDomNode>)this).With(children, attributes, width, classes, height, depth, maxFontSize, style);
     }
 }
 
-public interface INode
+/// <summary>
+/// This node represents an anchor (<a>) element with a hyperlink.  See `span` for further details.
+/// </summary>
+public interface Anchor : IHtmlDomNode
+{
+}
+/// <summary>
+/// A symbol node contains information about a single symbol. It either renders
+/// to a single text node, or a span with a single text node in it, depending on
+/// whether it has CSS classes, styles, or needs italic correction.
+/// </summary>
+public interface SymbolNode : IHtmlDomNode
+{
+}
+public interface SvgNode : IVirtualNode
+{
+    public interface PathNode : IVirtualNode
+    {
+        // child node of SvgNode
+    }
+    public interface LineNode : IVirtualNode
+    {
+        // child node of SvgNode
+    }
+}
+/// <summary>
+/// This node represents an image embed (<img>) element.
+/// </summary>
+public interface Img : IVirtualNode
 {
 }
 
-public interface IVirtualNode
+/// <summary> Follows KaTeX naming convention. </summary>
+public interface IAnyParseNode
 {
-    /// <summary> Convert into an HTML node. </summary>
-    INode ToNode() => throw new NotImplementedException(); // Task<Node> ToNode(IKaTeX runtime) => runtime.ToNode(this);
-    /// <summary> Convert into an HTML markup string. </summary>
-    Task<string> ToMarkup(IKaTeXRuntime runtime) => runtime.ToMarkup(this);
+    NodeType Type { get; }
+    Mode Mode { get; }
+    ISourceLocation? SourceLocation { get; }
 }
-
-public interface IMathDomNode : IVirtualNode
+public interface IBlaTeXNode : IAnyParseNode
 {
-    string toText();
-}
-/**
-    * This node represents a general purpose MathML node of any type. The
-    * constructor requires the type of node to create (for example, `"mo"` or
-    * `"mspace"`, corresponding to `<mo>` and `<mspace>` tags).
-    */
-interface IMathNode : IMathDomNode
-{
-    MathNodeType Type { get; }
-    IReadOnlyDictionary<string, string> Attributes { get; }
-    IReadOnlyList<IMathDomNode> Children { get; }
-
-    // public ctor(type: MathNodeType, children?: MathDomNode[]);
+    IAnyParseNode[] Args { get; }
 }
 
 public enum MathNodeType
@@ -212,6 +210,7 @@ interface IStrict
     // export type = boolean | "ignore" | "warn" | "error" | StrictFunction
     // export type StrictFunction = (errorCode: string, errorMsg: string, token?: Token | IAnyParseNode) => boolean | string | undefined;
 }
+
 public interface IAttributes : IReadOnlyDictionary<string, object?>
 {
     ISourceLocation? SourceLocation { get; }
@@ -253,23 +252,11 @@ public enum Mode
     Math,
     Text,
 }
-
 public static class ModeExtensions
 {
     public static JsonConverter<Mode> Instance { get; } = new LowerCaseEnumStringJsonConverter<Mode>();
 }
 
-/// <summary> Follows KaTeX naming convention. </summary>
-public interface IAnyParseNode
-{
-    NodeType Type { get; }
-    Mode Mode { get; }
-    ISourceLocation? SourceLocation { get; }
-}
-public interface IBlaTeXNode : IAnyParseNode
-{
-    IAnyParseNode[] Args { get; }
-}
 /// <summary> Follows KaTeX naming convention. </summary>
 public enum NodeType
 {
@@ -374,4 +361,60 @@ public static class NodeTypeExtensions
         }
 
     }
+}
+
+public interface ICssStyle
+{
+    // blatex-added properties:
+    string? PaddingRight { get; }
+    // paddingLeft already exist among the originals
+    string? PaddingTop { get; }
+    string? PaddingBottom { get; }
+    string? MarginBottom { get; }
+    IReactCSSProperties_pointerEvents? PointerEvents { get; }
+    // original cssstyle properties:
+    string? BorderBottomWidth { get; }
+    string? BorderColor { get; }
+    string? BorderRightWidth { get; }
+    string? BorderTopWidth { get; }
+    string? Bottom { get; }
+    string? Color { get; }
+    string? Height { get; }
+    string? Left { get; }
+    string? MarginLeft { get; }
+    string? MarginRight { get; }
+    string? MarginTop { get; }
+    string? MinWidth { get; }
+    string? PaddingLeft { get; }
+    string? Position { get; }
+    string? Top { get; }
+    string? Width { get; }
+    string? VerticalAlign { get; }
+
+    ICssStyle With(Option<string?> paddingRight = default,
+                    Option<string?> paddingTop = default,
+                    Option<string?> paddingBottom = default,
+                    Option<string?> marginBottom = default,
+                    Option<IReactCSSProperties_pointerEvents?> pointerEvents = default,
+                    Option<string?> borderBottomWidth = default,
+                    Option<string?> borderColor = default,
+                    Option<string?> borderRightWidth = default,
+                    Option<string?> borderTopWidth = default,
+                    Option<string?> bottom = default,
+                    Option<string?> color = default,
+                    Option<string?> height = default,
+                    Option<string?> left = default,
+                    Option<string?> marginLeft = default,
+                    Option<string?> marginRight = default,
+                    Option<string?> marginTop = default,
+                    Option<string?> minWidth = default,
+                    Option<string?> paddingLeft = default,
+                    Option<string?> position = default,
+                    Option<string?> top = default,
+                    Option<string?> width = default,
+                    Option<string?> verticalAlign = default);
+}
+
+public interface IReactCSSProperties_pointerEvents
+{
 }
