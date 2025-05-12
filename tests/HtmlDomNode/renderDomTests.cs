@@ -1,3 +1,4 @@
+global using IDomSpan = BlaTeX.JSInterop.KaTeX.Internal.Span<BlaTeX.JSInterop.KaTeX.IHtmlDomNode>;
 using BlaTeX.JSInterop.KaTeX.Internal;
 
 namespace BlaTeX.Tests;
@@ -18,7 +19,7 @@ public class HtmlDomNodeTests
 		var domNode = await KaTeX.RenderToDom("c") as IDomSpan;
 		Contract.Assert(domNode != null);
 		Contract.Assert(domNode.Children != null);
-		Contract.Assert(domNode.Children.Count == 2);
+		Contract.Assert(domNode.Children.Length == 2);
 
 		var child = (IDomSpan)domNode.Children[1];
 		var grandchild = (IDomSpan)child.Children[0];

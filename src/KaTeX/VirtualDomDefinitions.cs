@@ -1,3 +1,5 @@
+global using IDomSpan = BlaTeX.JSInterop.KaTeX.ISpan<BlaTeX.JSInterop.KaTeX.IHtmlDomNode>;
+
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
@@ -84,21 +86,6 @@ public interface ISpan<TChildNode> : IHtmlDomNode where TChildNode : IVirtualNod
                             Option<float> depth = default,
                             Option<float> maxFontSize = default,
                             Option<ICssStyle> style = default);
-}
-
-public interface IDomSpan : ISpan<IHtmlDomNode>
-{
-    new IDomSpan With(Option<IHtmlDomNode[]> children = default,
-                      Option<IAttributes> attributes = default,
-                      Option<float?> width = default,
-                      Option<IReadOnlyList<string>> classes = default,
-                      Option<float> height = default,
-                      Option<float> depth = default,
-                      Option<float> maxFontSize = default,
-                      Option<ICssStyle> style = default)
-    {
-        return (IDomSpan)((ISpan<IHtmlDomNode>)this).With(children, attributes, width, classes, height, depth, maxFontSize, style);
-    }
 }
 
 /// <summary>

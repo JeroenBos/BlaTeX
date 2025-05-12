@@ -85,65 +85,16 @@ internal class HtmlDomNode : IHtmlDomNode, IJSSerializable
     }
 }
 
-/// <summary> A concrete type of Span<T>. </summary>
-internal class DomSpan : Span<IHtmlDomNode>, IDomSpan
-{
-    /// <summary> Ctor for JsonSerializer. </summary>
-    public DomSpan()
-    {
-
-    }
-    public DomSpan(
-        IHtmlDomNode[]? children,
-        IAttributes? attributes,
-        float? width,
-        IReadOnlyList<string>? classes,
-        float height,
-        float depth,
-        float maxFontSize,
-        CssStyle? style)
-        : base(children, attributes, width, classes, height, depth, maxFontSize, style)
-    {
-    }
-    public override bool Equals(object? obj)
-    {
-        return this.Equals(obj as IDomSpan);
-    }
-    protected bool Equals([NotNullWhen(true)] IDomSpan? other)
-    {
-        return base.Equals(other);
-    }
-    public override int GetHashCode() => throw new NotImplementedException();
-
-    public sealed override ISpan<IHtmlDomNode> With(Option<IHtmlDomNode[]> children = default,
-                                                    Option<IAttributes> attributes = default,
-                                                    Option<float?> width = default,
-                                                    Option<IReadOnlyList<string>> classes = default,
-                                                    Option<float> height = default,
-                                                    Option<float> depth = default,
-                                                    Option<float> maxFontSize = default,
-                                                    Option<ICssStyle> style = default)
-    {
-        return new DomSpan(children.ValueOrDefault(this.children),
-                            attributes.ValueOrDefault(this.attributes),
-                            width.ValueOrDefault(this.width),
-                            classes.ValueOrDefault(this.classes),
-                            height.ValueOrDefault(this.height),
-                            depth.ValueOrDefault(this.depth),
-                            maxFontSize.ValueOrDefault(this.maxFontSize),
-                            (CssStyle?)style.ValueOrDefault(this.style));
-    }
-}
 
 internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNode : IVirtualNode
 {
-    public TChildNode[] children { get; set; }
-    public IAttributes attributes { get; set; }
+    public TChildNode[] Children { get; set; }
+    public IAttributes Attributes { get; set; }
     public float? width { get; set; }
     [DebuggerHidden]
-    IReadOnlyList<TChildNode> ISpan<TChildNode>.Children => children;
+    IReadOnlyList<TChildNode> ISpan<TChildNode>.Children => Children;
     [DebuggerHidden]
-    IAttributes ISpan<TChildNode>.Attributes => attributes;
+    IAttributes ISpan<TChildNode>.Attributes => Attributes;
     [DebuggerHidden]
     float? ISpan<TChildNode>.Width => width;
 
@@ -159,8 +110,8 @@ internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNod
                  CssStyle? style)
         : base(classes, height, depth, maxFontSize, style)
     {
-        this.children = children ?? [];
-        this.attributes = attributes ?? IAttributes.Empty;
+        this.Children = children ?? [];
+        this.Attributes = attributes ?? IAttributes.Empty;
         this.width = width;
     }
     public override bool Equals(object? obj)
@@ -174,9 +125,9 @@ internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNod
 
         if (this.width != other.Width)
             return false;
-        if (!this.children.SequenceEqual(other.Children))
+        if (!this.Children.SequenceEqual(other.Children))
             return false;
-        if (this.attributes.Equals(other.Attributes))
+        if (this.Attributes.Equals(other.Attributes))
             return false;
         return true;
     }
@@ -198,8 +149,8 @@ internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNod
                                          Option<float> maxFontSize = default,
                                          Option<ICssStyle> style = default)
     {
-        return new Span<TChildNode>(children.ValueOrDefault(this.children),
-                                     attributes.ValueOrDefault(this.attributes),
+        return new Span<TChildNode>(children.ValueOrDefault(this.Children),
+                                     attributes.ValueOrDefault(this.Attributes),
                                      width.ValueOrDefault(this.width),
                                      classes.ValueOrDefault(this.classes),
                                      height.ValueOrDefault(this.height),
