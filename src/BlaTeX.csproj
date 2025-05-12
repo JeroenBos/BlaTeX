@@ -38,7 +38,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="JBSnorro" Version="0.0.33" Condition="'$(Configuration)' != 'Debug'" />
-        <ProjectReference Include="../../JBSnorro/JBSnorro/JBSnorro.csproj" Condition="'$(Configuration)' == 'Debug'"/>
+        <ProjectReference Include="../../JBSnorro/JBSnorro/JBSnorro.csproj" Condition="'$(Configuration)' == 'Debug'" />
     </ItemGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
