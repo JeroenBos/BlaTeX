@@ -9,8 +9,8 @@
 
 
 <p data-test="loaded">Regular KaTeX component:</p>
-<KaTeX Math=@math />
-<p>Interactive KaTeX component:</p>
+<KaTeX Math=@math ChildComponentMarkupService=inputReplacer/>
+<p>Interactive KaTeX component3:</p>
 
 <p>
     🚧
@@ -21,8 +21,9 @@
 
 
 @code {
-    private const string initialValue = "c = \\pm \\sqrt{a^2 + b^2}";
+    private const string initialValue = "c = \\pm \\sqrt{a^2 + b^2} \\blatex{input}";
     private string math = initialValue;
+    private IChildComponentMarkupService inputReplacer => new LiteralChildComponentMarkupService("input", @<input>);
 
     private void onInputChanged(ChangeEventArgs e)
     {
