@@ -13,16 +13,16 @@ env:
   DOTNET_VERSION: 9.0.203  # select a 'version' from an sdk in https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/9.0/releases.json
   FORCE_COLOR: 3
   CONFIGURATION: CI
-    
+
 jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-22.04] # , windows-latest]
+        os: [ubuntu-22.04]  # , windows-latest]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
-    
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -102,7 +102,7 @@ jobs:
       - name: Install @JeroenBos/KaTeX (await background)
         run: ./.github/wait_for_process.sh ${{ steps.js.outputs.pid }} "${{ steps.js.outputs.log }}"
         working-directory:
-      
+
       - run: npm ci && npx playwright install chromium
 
       - name: Host static files
