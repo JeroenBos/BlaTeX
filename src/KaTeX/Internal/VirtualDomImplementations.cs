@@ -90,13 +90,9 @@ internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNod
 {
     public TChildNode[] Children { get; set; }
     public IAttributes Attributes { get; set; }
-    public float? width { get; set; }
+    public float? Width { get; set; }
     [DebuggerHidden]
     IReadOnlyList<TChildNode> ISpan<TChildNode>.Children => Children;
-    [DebuggerHidden]
-    IAttributes ISpan<TChildNode>.Attributes => Attributes;
-    [DebuggerHidden]
-    float? ISpan<TChildNode>.Width => width;
 
     /// <summary> Ctor for JsonSerializer. </summary>
     public Span() { }
@@ -112,7 +108,7 @@ internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNod
     {
         this.Children = children ?? [];
         this.Attributes = attributes ?? IAttributes.Empty;
-        this.width = width;
+        this.Width = width;
     }
     public override bool Equals(object? obj)
     {
@@ -123,7 +119,7 @@ internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNod
         if (!base.Equals(other))
             return false;
 
-        if (this.width != other.Width)
+        if (this.Width != other.Width)
             return false;
         if (!this.Children.SequenceEqual(other.Children))
             return false;
@@ -151,7 +147,7 @@ internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNod
     {
         return new Span<TChildNode>(children.ValueOrDefault(this.Children),
                                      attributes.ValueOrDefault(this.Attributes),
-                                     width.ValueOrDefault(this.width),
+                                    width.ValueOrDefault(this.Width),
                                      classes.ValueOrDefault(this.classes),
                                      height.ValueOrDefault(this.height),
                                      depth.ValueOrDefault(this.depth),

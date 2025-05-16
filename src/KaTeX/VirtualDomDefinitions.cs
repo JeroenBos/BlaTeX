@@ -8,17 +8,16 @@ using BlaTeX.JSInterop.KaTeX.Internal;
 
 namespace BlaTeX.JSInterop.KaTeX;
 
-
 public interface IVirtualNode
 {
     /// <summary> Convert into an HTML markup string. </summary>
     Task<string> ToMarkup(IKaTeXRuntime runtime) => runtime.ToMarkup(this);
-    // also has a function ToNode, which converts to html node, which doesn't seem useful from interop.
+    // also has a function ToNode(..), which converts to html node, which doesn't seem useful from interop.
 }
 
 public interface IMathDomNode : IVirtualNode
 {
-    string toText();
+    string ToText();
 }
 /// <summary>
 /// This node represents a general purpose MathML node of any type.
@@ -89,9 +88,9 @@ public interface ISpan<TChildNode> : IHtmlDomNode where TChildNode : IVirtualNod
 }
 
 /// <summary>
-/// This node represents an anchor (<a>) element with a hyperlink.  See `span` for further details.
+/// This node represents an anchor (<a>) element with a hyperlink. See `span` for further details.
 /// </summary>
-public interface Anchor : IHtmlDomNode
+public interface IAnchor : IHtmlDomNode
 {
 }
 /// <summary>
@@ -99,16 +98,16 @@ public interface Anchor : IHtmlDomNode
 /// to a single text node, or a span with a single text node in it, depending on
 /// whether it has CSS classes, styles, or needs italic correction.
 /// </summary>
-public interface SymbolNode : IHtmlDomNode
+public interface ISymbolNode : IHtmlDomNode
 {
 }
-public interface SvgNode : IVirtualNode
+public interface ISvgNode : IVirtualNode
 {
-    public interface PathNode : IVirtualNode
+    public interface IPathNode : IVirtualNode
     {
         // child node of SvgNode
     }
-    public interface LineNode : IVirtualNode
+    public interface ILineNode : IVirtualNode
     {
         // child node of SvgNode
     }
@@ -116,7 +115,7 @@ public interface SvgNode : IVirtualNode
 /// <summary>
 /// This node represents an image embed (<img>) element.
 /// </summary>
-public interface Img : IVirtualNode
+public interface IImageNode : IVirtualNode
 {
 }
 
