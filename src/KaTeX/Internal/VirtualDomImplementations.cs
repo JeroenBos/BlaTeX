@@ -643,7 +643,7 @@ internal class AnyParseNode : IAnyParseNode
             getSerializerOrTypeKey: _ => (typeof(AnyParseNode), null)
         );
         var subtypeConverters = new JsonConverter[] {
-            BlaTeXNode.JsonConverterInstance,
+            BlaTeXParseNode.JsonConverterInstance,
             UnspecificInstance,
             ModeExtensions.Instance,
         };
@@ -726,20 +726,20 @@ internal class AnyParseNode : IAnyParseNode
     }
 }
 
-internal class BlaTeXNode : AnyParseNode, IBlaTeXNode
+internal class BlaTeXParseNode : AnyParseNode, IBlaTeXNode
 {
-    public static JsonConverter<IBlaTeXNode> JsonConverterInstance => ExactJsonConverter<IBlaTeXNode, BlaTeXNode>.Instance;
+    public static JsonConverter<IBlaTeXNode> JsonConverterInstance => ExactJsonConverter<IBlaTeXNode, BlaTeXParseNode>.Instance;
     public required AnyParseNode[] args { get; init; }
 
     IAnyParseNode[] IBlaTeXNode.Args => args;
 
     /// <summary> Ctor for JsonSerializer. </summary>
-    public BlaTeXNode() { }
+    public BlaTeXParseNode() { }
     [SetsRequiredMembers]
-    public BlaTeXNode(NodeType type,
-                       Mode mode,
-                       ISourceLocation? sourceLocation,
-                       AnyParseNode[] args)
+    public BlaTeXParseNode(NodeType type,
+                           Mode mode,
+                           ISourceLocation? sourceLocation,
+                           AnyParseNode[] args)
         : base(type, mode, sourceLocation)
     {
         this.args = args;
@@ -762,8 +762,8 @@ internal class BlaTeXNode : AnyParseNode, IBlaTeXNode
     public override int GetHashCode() => throw new NotImplementedException();
 
     public sealed override IAnyParseNode With(Option<NodeType> type = default,
-                                                Option<Mode> mode = default,
-                                                Option<ISourceLocation?> sourceLocation = default)
+                                              Option<Mode> mode = default,
+                                              Option<ISourceLocation?> sourceLocation = default)
     {
         return this.With(type, mode, sourceLocation, default);
     }
@@ -772,9 +772,9 @@ internal class BlaTeXNode : AnyParseNode, IBlaTeXNode
                                     Option<ISourceLocation?> sourceLocation = default,
                                     Option<AnyParseNode[]> args = default)
     {
-        return new BlaTeXNode(type.ValueOrDefault(this.type),
-                                mode.ValueOrDefault(this.mode),
-                                sourceLocation.ValueOrDefault(this.loc),
-                                args.ValueOrDefault(this.args) ?? []);
+        return new BlaTeXParseNode(type.ValueOrDefault(this.type),
+                                   mode.ValueOrDefault(this.mode),
+                                   sourceLocation.ValueOrDefault(this.loc),
+                                   args.ValueOrDefault(this.args) ?? []);
     }
 }
