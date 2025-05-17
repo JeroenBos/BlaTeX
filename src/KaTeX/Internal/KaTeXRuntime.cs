@@ -71,13 +71,8 @@ internal class KaTeXRuntime : IKaTeXRuntime
 
     private Task<T> InvokeAsync<T>(string name, params object?[] arguments)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
-            else
-                throw new ArgumentException("String empty", nameof(name));
-        if (arguments == null)
-            throw new ArgumentNullException(nameof(arguments));
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        ArgumentNullException.ThrowIfNull(arguments);
 
         arguments = arguments.Map(arg => arg is null ? JSSourceCode.Null : arg);
 
@@ -87,17 +82,9 @@ internal class KaTeXRuntime : IKaTeXRuntime
 
     private Task<T> InvokeAsync<T>(object instance, string methodName, params object?[] arguments)
     {
-        if (instance == null)
-            throw new ArgumentNullException(nameof(instance));
-
-        if (string.IsNullOrWhiteSpace(methodName))
-            if (methodName == null)
-                throw new ArgumentNullException(nameof(methodName));
-            else
-                throw new ArgumentException("String empty", nameof(methodName));
-
-        if (arguments == null)
-            throw new ArgumentNullException(nameof(arguments));
+        ArgumentNullException.ThrowIfNull(instance);
+        ArgumentException.ThrowIfNullOrEmpty(methodName);
+        ArgumentNullException.ThrowIfNull(arguments);
 
         return jsRuntime.InvokeAsync<T>("katex." + methodName, arguments)
                         .AsTask();
