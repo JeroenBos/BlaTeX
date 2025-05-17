@@ -2,10 +2,10 @@
 
 @{
     Index prevEnd = 0;
-    @foreach (var range in Selector(Markup))
+    @foreach (var (range, fragment) in Selector(Markup))
     {
         @((MarkupString)Markup[prevEnd..range.Start])
-        @Substitute(Markup[range])
+        @fragment
 
         prevEnd = range.End;
     }
@@ -19,17 +19,12 @@
 
     /// <summary> Gets the ranges in <see cref="Markup"/> where fragments are to be rendered instead. </summary>
     [Parameter]
-    public required Func<string, IEnumerable<Range>> Selector { get; init; }
-
-    /// <summary> Given a substring of <see cref="Markup"/>, gets the fragment to render. </summary>
-    [Parameter]
-    public required Func<string, RenderFragment> Substitute { get; init; }
+    public required Func<string, IEnumerable<(Range, RenderFragment)>> Selector { get; init; }
 
     public override Task SetParametersAsync(ParameterView parameters)
     {
         parameters.AssertPresent(this.Markup, nameof(this.Markup));
         parameters.AssertPresent(this.Selector, nameof(this.Selector));
-        parameters.AssertPresent(this.Substitute, nameof(this.Substitute));
 
         return base.SetParametersAsync(parameters);
     }

@@ -143,6 +143,10 @@ internal class BlazorChildComponentMarkupService : IChildComponentMarkupService
         }
     }
 
+    public IEnumerable<(Range, RenderFragment)> SelectSubstitutions(string markup)
+    {
+        return this.Select(markup).Select(range => (range, Substitute(markup[range])));
+    }
     public virtual IReadOnlyList<IAnyParseNode> Select(IReadOnlyList<IAnyParseNode> ast)
     {
         return ast;

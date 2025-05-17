@@ -4,7 +4,6 @@
 @if (markup != null)
 {
     <InterpolatedMarkup Markup="@markup"
-                                Substitute="@Substitute"
                                 Selector="@Selector" />
 }
 else if (Loading != null)
@@ -134,16 +133,8 @@ else
     }
 
     /// <summary> Gets the ranges in the markup at which a <see cref="RenderFragment"/> is to be rendered instead. </summary>
-    internal protected virtual IEnumerable<Range> Selector(string markup)
+    internal protected virtual IEnumerable<(Range, RenderFragment)> Selector(string markup)
     {
-        return this.ChildComponentMarkupService?.Select(markup) ?? Enumerable.Empty<Range>();
-    }
-    /// <summary> Returns the fragment to render at a range from <see cref="Selector(string)"/>, given the markup at that range. </summary>
-    internal protected virtual RenderFragment Substitute(string markupFragment)
-    {
-        if (this.ChildComponentMarkupService == null)
-            throw new InvalidOperationException($"Cannot substitute: override {nameof(Substitute)} or add service");
-
-        return this.ChildComponentMarkupService.Substitute(markupFragment);
+        return this.ChildComponentMarkupService?.SelectSubstitutions(markup) ?? Enumerable.Empty<(Range, RenderFragment)>();
     }
 }
