@@ -4,7 +4,6 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections;
-using BlaTeX.JSInterop.KaTeX.Internal;
 
 namespace BlaTeX.JSInterop.KaTeX;
 
@@ -12,6 +11,10 @@ public interface IVirtualNode
 {
     /// <summary> Convert into an HTML markup string. </summary>
     Task<string> ToMarkup(IKaTeXRuntime runtime) => runtime.ToMarkup(this);
+    /// <summary>
+    /// Gets the Html tag of this node.
+    /// </summary>
+    string Tag { get; }
     // also has a function ToNode(..), which converts to html node, which doesn't seem useful from interop.
 }
 
@@ -34,15 +37,6 @@ interface IMathNode : IMathDomNode
 
 public interface IHtmlDomNode : IVirtualNode
 {
-    public static IHtmlDomNode Create(
-        IReadOnlyList<string>? classes,
-        float height,
-        float depth,
-        float maxFontSize,
-        ICssStyle? style)
-    {
-        return new HtmlDomNode(classes, height, depth, maxFontSize, (CssStyle?)style);
-    }
     IReadOnlyList<string>? Classes { get; }
     // either of type int or float
     float Height { get; }

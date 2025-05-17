@@ -8,9 +8,10 @@ using System.Text.RegularExpressions;
 
 namespace BlaTeX.JSInterop.KaTeX.Internal;
 
-internal class HtmlDomNode : IHtmlDomNode, IJSSerializable
+internal abstract class HtmlDomNode : IHtmlDomNode, IJSSerializable
 {
     public string SERIALIZATION_TYPE_ID => IJSSerializable.SERIALIZATION_TYPE_ID_Impl(this);
+    public abstract string Tag { get; }
     public IReadOnlyList<string>? classes { get; set; }
     public float height { get; set; }
     public float depth { get; set; }
@@ -57,6 +58,8 @@ internal class HtmlDomNode : IHtmlDomNode, IJSSerializable
         if (ReferenceEquals(other, this)) // optimization
             return true;
 
+        if (this.Tag != other.Tag)
+            return false;
         if (this.depth != other.Depth)
             return false;
         if (this.height != other.Height)
@@ -71,18 +74,11 @@ internal class HtmlDomNode : IHtmlDomNode, IJSSerializable
     }
     public override int GetHashCode() => throw new NotImplementedException();
 
-    public virtual IHtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
-                                    Option<float> height = default,
-                                    Option<float> depth = default,
-                                    Option<float> maxFontSize = default,
-                                    Option<ICssStyle> style = default)
-    {
-        return new HtmlDomNode(classes.ValueOrDefault(this.classes),
-                                height.ValueOrDefault(this.height),
-                                depth.ValueOrDefault(this.depth),
-                                maxFontSize.ValueOrDefault(this.maxFontSize),
-                                (CssStyle?)style.ValueOrDefault(this.style));
-    }
+    public abstract IHtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
+                                      Option<float> height = default,
+                                      Option<float> depth = default,
+                                      Option<float> maxFontSize = default,
+                                      Option<ICssStyle> style = default);
 }
 
 
@@ -91,19 +87,20 @@ internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNod
     public TChildNode[] Children { get; set; }
     public IAttributes Attributes { get; set; }
     public float? Width { get; set; }
+    public override string Tag => "span";
     [DebuggerHidden]
     IReadOnlyList<TChildNode> ISpan<TChildNode>.Children => Children;
 
     /// <summary> Ctor for JsonSerializer. </summary>
     public Span() { }
     public Span(TChildNode[]? children,
-                 IAttributes? attributes,
-                 float? width,
-                 IReadOnlyList<string>? classes,
-                 float height,
-                 float depth,
-                 float maxFontSize,
-                 CssStyle? style)
+                IAttributes? attributes,
+                float? width,
+                IReadOnlyList<string>? classes,
+                float height,
+                float depth,
+                float maxFontSize,
+                CssStyle? style)
         : base(classes, height, depth, maxFontSize, style)
     {
         this.Children = children ?? [];
@@ -129,33 +126,60 @@ internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNod
     }
     public override int GetHashCode() => throw new NotImplementedException();
     public sealed override IHtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
-                                            Option<float> height = default,
-                                            Option<float> depth = default,
-                                            Option<float> maxFontSize = default,
-                                            Option<ICssStyle> style = default)
+                                             Option<float> height = default,
+                                             Option<float> depth = default,
+                                             Option<float> maxFontSize = default,
+                                             Option<ICssStyle> style = default)
     {
         return With(default, default, default, classes, height, depth, maxFontSize, style);
     }
     public virtual ISpan<TChildNode> With(Option<TChildNode[]> children = default,
-                                         Option<IAttributes> attributes = default,
-                                         Option<float?> width = default,
-                                         Option<IReadOnlyList<string>> classes = default,
-                                         Option<float> height = default,
-                                         Option<float> depth = default,
-                                         Option<float> maxFontSize = default,
-                                         Option<ICssStyle> style = default)
+                                          Option<IAttributes> attributes = default,
+                                          Option<float?> width = default,
+                                          Option<IReadOnlyList<string>> classes = default,
+                                          Option<float> height = default,
+                                          Option<float> depth = default,
+                                          Option<float> maxFontSize = default,
+                                          Option<ICssStyle> style = default)
     {
         return new Span<TChildNode>(children.ValueOrDefault(this.Children),
-                                     attributes.ValueOrDefault(this.Attributes),
+                                    attributes.ValueOrDefault(this.Attributes),
                                     width.ValueOrDefault(this.Width),
-                                     classes.ValueOrDefault(this.classes),
-                                     height.ValueOrDefault(this.height),
-                                     depth.ValueOrDefault(this.depth),
-                                     maxFontSize.ValueOrDefault(this.maxFontSize),
-                                     (CssStyle?)style.ValueOrDefault(this.style));
+                                    classes.ValueOrDefault(this.classes),
+                                    height.ValueOrDefault(this.height),
+                                    depth.ValueOrDefault(this.depth),
+                                    maxFontSize.ValueOrDefault(this.maxFontSize),
+                                    (CssStyle?)style.ValueOrDefault(this.style));
     }
 }
 
+internal class Anchor : HtmlDomNode, IAnchor
+{
+    public override string Tag => "a";
+    public Anchor(IReadOnlyList<string>? classes = default,
+                  float height = default,
+                  float depth = default,
+                  float maxFontSize = default,
+                  ICssStyle? style = default)
+      : base(classes, height, depth, maxFontSize, (CssStyle?)style)
+    {
+    }
+
+
+    public override IHtmlDomNode With(
+        Option<IReadOnlyList<string>> classes = default,
+        Option<float> height = default,
+        Option<float> depth = default,
+        Option<float> maxFontSize = default,
+        Option<ICssStyle> style = default)
+    {
+        return new Anchor(classes.ValueOrDefault(this.classes),
+                          height.ValueOrDefault(this.height),
+                          depth.ValueOrDefault(this.depth),
+                          maxFontSize.ValueOrDefault(this.maxFontSize),
+                          (CssStyle?)style.ValueOrDefault(this.style));
+    }
+}
 internal class SettingsOptions : ISettingsOptions
 {
     public bool? displayMode { get; set; }
@@ -181,14 +205,14 @@ internal class SettingsOptions : ISettingsOptions
     /// <summary> Ctor for JsonSerializer. </summary>
     public SettingsOptions() { }
     public SettingsOptions(bool? displayMode,
-                            bool? throwOnError,
-                            string? errorColor,
-                            IMacroMap? macros,
-                            bool? colorIsTextColor,
-                            IStrict? strict,
-                            float? maxSize,
-                            float? maxExpand,
-                            string[]? allowedProtocols)
+                           bool? throwOnError,
+                           string? errorColor,
+                           IMacroMap? macros,
+                           bool? colorIsTextColor,
+                           IStrict? strict,
+                           float? maxSize,
+                           float? maxExpand,
+                           string[]? allowedProtocols)
     {
         this.displayMode = displayMode;
         this.throwOnError = throwOnError;
@@ -237,14 +261,14 @@ internal class SettingsOptions : ISettingsOptions
     public override int GetHashCode() => throw new NotImplementedException();
 
     public virtual ISettingsOptions With(Option<bool?> displayMode = default,
-                                        Option<bool?> throwOnError = default,
-                                        Option<string?> errorColor = default,
-                                        Option<IMacroMap?> macros = default,
-                                        Option<bool?> colorIsTextColor = default,
-                                        Option<IStrict?> strict = default,
-                                        Option<float?> maxSize = default,
-                                        Option<float?> maxExpand = default,
-                                        Option<string[]?> allowedProtocols = default)
+                                         Option<bool?> throwOnError = default,
+                                         Option<string?> errorColor = default,
+                                         Option<IMacroMap?> macros = default,
+                                         Option<bool?> colorIsTextColor = default,
+                                         Option<IStrict?> strict = default,
+                                         Option<float?> maxSize = default,
+                                         Option<float?> maxExpand = default,
+                                         Option<string[]?> allowedProtocols = default)
     {
         return new SettingsOptions(
             displayMode.ValueOrDefault(this.displayMode),

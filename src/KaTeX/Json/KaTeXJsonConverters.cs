@@ -25,7 +25,8 @@ public static partial class KaTeXJsonConverters
         {
             new ExactPolymorphicJsonConverter<IHtmlDomNode>(
                 (typeof(IDomSpan), typeof(KaTeX.Internal.Span<IHtmlDomNode>)),
-                (typeof(IHtmlDomNode), typeof(HtmlDomNode))
+                (typeof(IHtmlDomNode), typeof(HtmlDomNode)),
+                (typeof(IAnchor), typeof(Anchor))
             ),
             Attributes.JsonConverter.Instance,
             SourceLocation.JsonConverter.Instance,
