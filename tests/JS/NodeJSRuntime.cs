@@ -17,26 +17,27 @@ public class NodeJSRuntime : IJSRuntime
         return new NodeJSRuntime(DefaultKaTeXPath.ToSingleton()) { Trace = true };
     }
 
-    public bool Trace { get; init; }
+    public bool Trace { get; private init; }
     public JsonSerializerOptions Options { get; }
     public IReadOnlyList<JSString> Imports { get; }
-    public IReadOnlyList<KeyValuePair<Type, string>> IDs { get; }
-    public NodeJSRuntime(IEnumerable<JSString> imports, IEnumerable<(Type, string)>? jsDeserializableIDs = null, JsonSerializerOptions? options = null)
+    public IReadOnlyList<KeyValuePair<Type, string>> JSDeserializableTypes { get; }
+
+    public NodeJSRuntime(IEnumerable<JSString> imports) : this(imports, []) { }
+    public NodeJSRuntime(IEnumerable<JSString> imports, IEnumerable<(Type Type, string Discriminant)> jsDeserializableIDs)
     {
-        this.Imports = imports?.ToReadOnlyList() ?? EmptyCollection<JSString>.ReadOnlyList;
-        Contract.Requires(Contract.ForAll(imports ?? [], jss => File.Exists(jss.Value) || jss.Value.StartsWith("const ") || jss.Value.StartsWith("var ")), "Consider rebuilding that JS stack");
-        this.IDs = jsDeserializableIDs?.Select(t => KeyValuePair.Create(t.Item1, t.Item2)).ToReadOnlyList() ?? EmptyCollection<KeyValuePair<Type, string>>.ReadOnlyList;
-        if (options == null)
+        Contract.Requires(imports is not null);
+        Contract.Requires(Contract.ForAll(imports, jss => File.Exists(jss.Value) || jss.Value.StartsWith("const ") || jss.Value.StartsWith("var ")), "Consider rebuilding that JS stack");
+        Contract.Requires(jsDeserializableIDs is not null);
+        Contract.Requires(Contract.ForAll(jsDeserializableIDs, ids => ids.Type is not null && string.IsNullOrEmpty(ids.Discriminant)));
+
+        this.Imports = imports.ToReadOnlyList();
+        this.JSDeserializableTypes = jsDeserializableIDs.Select(JBSnorro.Extensions.TupleExtensions.ToKeyValuePair).ToReadOnlyList();
+        this.Options = new JsonSerializerOptions
         {
-            this.Options = new JsonSerializerOptions();
-            this.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            this.Options.AddKaTeXJsonConverters();
-            this.Options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-        }
-        else
-        {
-            this.Options = options;
-        }
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        };
+        this.Options.AddKaTeXJsonConverters();
     }
 
     internal async Task<DebugProcessOutput> InvokeAsyncImpl(string identifier, params object?[]? args)
@@ -56,7 +57,7 @@ public class NodeJSRuntime : IJSRuntime
         return await jsRunner.ExecuteJS(this.Imports,
                                         identifier: identifierObj,
                                         arguments: mappedArgs,
-                                        jsIdentifiers: this.IDs,
+                                        jsIdentifiers: this.JSDeserializableTypes,
                                         options: this.Options,
                                         typeIdPropertyName: nameof(IJSSerializable.SERIALIZATION_TYPE_ID));
     }
@@ -96,7 +97,7 @@ public class NodeJSRuntime : IJSRuntime
         return this.InvokeAsync<TValue>(identifier, args);
     }
 
-    public static string RootFolder
+    private static string RootFolder
     {
         get
         {

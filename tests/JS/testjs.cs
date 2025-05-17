@@ -71,13 +71,13 @@ public class AttributesDeserializationTests
   [Fact]
   public void EmptyAttributesDeserializationTest()
   {
-    var attributes = JsonSerializer.Deserialize<Attributes>("{}", options)!;
+    var attributes = JsonSerializer.Deserialize<IAttributes>("{}", options)!;
     Contract.Assert(attributes!.Count == 0);
   }
   [Fact]
   public void StringAttributesDeserializationTest()
   {
-    var attributes = JsonSerializer.Deserialize<Attributes>("{\"a\":\"\"}", options)!;
+    var attributes = JsonSerializer.Deserialize<IAttributes>("{\"a\":\"\"}", options)!;
     Contract.Assert(attributes.Count == 1);
     Contract.Assert(attributes.ContainsKey("a"));
     Contract.Assert("".Equals(attributes["a"]));
@@ -85,7 +85,7 @@ public class AttributesDeserializationTests
   [Fact]
   public void SourceLocationAttributesDeserializationTest()
   {
-    var attributes = JsonSerializer.Deserialize<Attributes>("{\"a\":\"\"}", options)!;
+    var attributes = JsonSerializer.Deserialize<IAttributes>("{\"a\":\"\"}", options)!;
     Contract.Assert(attributes.Count == 1);
     Contract.Assert(attributes.ContainsKey("a"));
     Contract.Assert("".Equals(attributes["a"]));
@@ -101,6 +101,6 @@ public class AttributesDeserializationTests
   }
   class ContainsAttributes
   {
-    public Attributes? a { get; set; }
+    public IAttributes? a { get; set; }
   }
 }

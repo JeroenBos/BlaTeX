@@ -37,8 +37,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" version="9.0.4" PrivateAssets="all" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="JBSnorro" Version="0.0.33" Condition="'$(Configuration)' != 'Debug'" />
-        <ProjectReference Include="../../JBSnorro/JBSnorro/JBSnorro.csproj" Condition="'$(Configuration)' == 'Debug'"/>
+        <PackageReference Include="JBSnorro" Version="0.0.34" Condition="'$(Configuration)' != 'Debug'" />
+        <ProjectReference Include="../../JBSnorro/JBSnorro/JBSnorro.csproj" Condition="'$(Configuration)' == 'Debug'" />
     </ItemGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
