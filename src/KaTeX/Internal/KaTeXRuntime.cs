@@ -51,12 +51,12 @@ internal class KaTeXRuntime : IKaTeXRuntime
     /// <summary> Converters the specified tree to KaTeX's dom representation. <summary>
     /// <param name="tree"> The tree to render. </param>
     /// <param name="math"> If omitted, no MathML will be generated. </param>
-    public async Task<IDomSpan> RenderToDom(IAnyParseNode[] tree, string? math = null)
+    public async Task<IHtmlDomNode> RenderToDom(IAnyParseNode[] tree, string? math = null)
     {
         Contract.Requires(tree != null, nameof(tree));
         Contract.RequiresForAll(tree, node => node != null);
 
-        var result = await InvokeAsync<IDomSpan>("__parseToDomTree", tree, math);
+        var result = await InvokeAsync<IHtmlDomNode>("__parseToDomTree", tree, math);
         Contract.Ensures(result != null);
         return result;
     }
