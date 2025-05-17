@@ -158,7 +158,7 @@ public static class ParameterViewExtensions
     }
     public static ParameterView Create(params (string, object)[] parameters)
     {
-        return parameters.Select(JBSnorro.TupleExtensions.ToKeyValuePair)
+        return parameters.Select(JBSnorro.Extensions.TupleExtensions.ToKeyValuePair)
                          .ToDictionary()
                          .ToParameterView();
     }

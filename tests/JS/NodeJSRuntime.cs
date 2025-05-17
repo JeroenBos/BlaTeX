@@ -31,7 +31,7 @@ public class NodeJSRuntime : IJSRuntime
         Contract.Requires(Contract.ForAll(jsDeserializableIDs, ids => ids.Type is not null && string.IsNullOrEmpty(ids.Discriminant)));
 
         this.Imports = imports.ToReadOnlyList();
-        this.JSDeserializableTypes = jsDeserializableIDs.Select(JBSnorro.TupleExtensions.ToKeyValuePair).ToReadOnlyList();
+        this.JSDeserializableTypes = jsDeserializableIDs.Select(JBSnorro.Extensions.TupleExtensions.ToKeyValuePair).ToReadOnlyList();
         this.Options = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
