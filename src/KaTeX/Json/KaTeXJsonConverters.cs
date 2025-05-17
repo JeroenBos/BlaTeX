@@ -8,21 +8,19 @@ namespace BlaTeX.JSInterop;
 
 public static partial class KaTeXJsonConverters
 {
-    public static IReadOnlyList<JsonConverter> Converters { get; } = new ReadOnlyCollection<JsonConverter>(getJsonConverters().ToArray());
+    public static IReadOnlyList<JsonConverter> Converters { get; } = getJsonConverters();
     public static void AddKaTeXJsonConverters(this JsonSerializerOptions options)
     {
-        if (options == null)
-            throw new ArgumentNullException(nameof(options));
+        ArgumentNullException.ThrowIfNull(options);
 
         foreach (var katexJsonConverter in Converters)
         {
             options.Converters.Add(katexJsonConverter);
         }
     }
-    private static IEnumerable<JsonConverter> getJsonConverters()
+    private static IReadOnlyList<JsonConverter> getJsonConverters()
     {
-        var rootConverters = new JsonConverterCollection[]
-        {
+        JsonConverterCollection[] rootConverters = [
             new ExactPolymorphicJsonConverter<IHtmlDomNode>(
                 (typeof(IDomSpan), typeof(KaTeX.Internal.Span<IHtmlDomNode>)),
                 (typeof(IHtmlDomNode), typeof(HtmlDomNode)),
@@ -33,26 +31,25 @@ public static partial class KaTeXJsonConverters
             NodeTypeExtensions.JsonConverterInstance,
             AnyParseNode.Instances,
             JsonElementJsonConverter.Instance,
-        };
+        ];
 
-        var result = new HashSet<JsonConverter>(rootConverters.SelectMany(_ => _)!);
-        return result;
+        return rootConverters.SelectMany(_ => _).Unique().ToReadOnlyList()!;
     }
 }
 
-public struct JsonConverterCollection : IEnumerable<JsonConverter?>
+internal sealed class JsonConverterCollection : IEnumerable<JsonConverter?>
 {
-    private IReadOnlyList<JsonConverterCollection>? converterCollections;
-    private IReadOnlyList<JsonConverter>? converters;
+    private readonly IReadOnlyList<JsonConverterCollection>? converterCollections;
+    private readonly IReadOnlyList<JsonConverter>? converters;
 
     public JsonConverterCollection(JsonConverter instance, IEnumerable<JsonConverter> introducedConverters)
     {
-        this.converters = introducedConverters.Prepend(instance).ToList();
+        this.converters = [instance, .. introducedConverters];
         this.converterCollections = null;
     }
     public JsonConverterCollection(JsonConverterCollection instance, IEnumerable<JsonConverterCollection> introducedConverters)
     {
-        this.converterCollections = introducedConverters.Prepend(instance).ToList();
+        this.converterCollections = [instance, .. introducedConverters];
         this.converters = null;
     }
 
