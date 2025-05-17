@@ -158,7 +158,7 @@ public static class ParameterViewExtensions
     }
     public static ParameterView Create(params (string, object)[] parameters)
     {
-        return parameters.Select(ToKeyValuePair)
+        return parameters.Select(JBSnorro.TupleExtensions.ToKeyValuePair)
                          .ToDictionary()
                          .ToParameterView();
     }
@@ -181,5 +181,4 @@ public static class ParameterViewExtensions
         var parameterView = Create(value);
         return component.SetParametersAsync(parameterView);
     }
-    public static KeyValuePair<TKey, TValue> ToKeyValuePair<TKey, TValue>(this (TKey, TValue) tuple) => new KeyValuePair<TKey, TValue>(tuple.Item1, tuple.Item2);
 }
