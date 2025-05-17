@@ -1,4 +1,3 @@
-global using IDomSpan = BlaTeX.JSInterop.KaTeX.Internal.Span<BlaTeX.JSInterop.KaTeX.IHtmlDomNode>;
 using BlaTeX.JSInterop.KaTeX.Internal;
 
 namespace BlaTeX.Tests;
@@ -15,15 +14,15 @@ public class HtmlDomNodeTests
 
 	[Fact]
 	public async Task SingleCharacterRenderToDomContainsSourceLocation()
-	{
-		var domNode = await KaTeX.RenderToDom("c") as IDomSpan;
+    {
+		var domNode = await KaTeX.RenderToDom("c");
 		Contract.Assert(domNode != null);
 		Contract.Assert(domNode.Children != null);
-		Contract.Assert(domNode.Children.Length == 2);
+		Contract.Assert(domNode.Children.Count == 2);
 
-		var child = (IDomSpan)domNode.Children[1];
-		var grandchild = (IDomSpan)child.Children[0];
-		var greatgrandchild = (IDomSpan)grandchild.Children[1];
+		var child = domNode.Children[1];
+		var grandchild = child.Children[0];
+		var greatgrandchild = grandchild.Children[1];
 
 		Contract.Assert("true".Equals(child.Attributes["aria-hidden"]));
 		Contract.Assert(new SourceLocation(0, 1).Equals(greatgrandchild.Attributes.SourceLocation));

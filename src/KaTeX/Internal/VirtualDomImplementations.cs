@@ -8,43 +8,52 @@ using System.Text.RegularExpressions;
 
 namespace BlaTeX.JSInterop.KaTeX.Internal;
 
-internal abstract class HtmlDomNode : IHtmlDomNode, IJSSerializable
+internal class HtmlDomNode : IHtmlDomNode, IJSSerializable
 {
     public string SERIALIZATION_TYPE_ID => IJSSerializable.SERIALIZATION_TYPE_ID_Impl(this);
-    public abstract string Tag { get; }
-    public IReadOnlyList<string>? classes { get; set; }
-    public float height { get; set; }
-    public float depth { get; set; }
-    public float maxFontSize { get; set; }
-    public CssStyle? style { get; set; }
+    public string Tag { get; }
+    public IReadOnlyList<string>? Classes { get; set; }
+    public IHtmlDomNode[] Children { get; set; }
+    public IAttributes Attributes { get; set; }
+
+    public float Height { get; set; }
+    public float Depth { get; set; }
+    public float MaxFontSize { get; set; }
+    public float? Width { get; set; }
+    public CssStyle? Style { get; set; }
     [DebuggerHidden]
-    IReadOnlyList<string>? IHtmlDomNode.Classes => classes;
-    [DebuggerHidden]
-    float IHtmlDomNode.Height => height;
-    [DebuggerHidden]
-    float IHtmlDomNode.Depth => depth;
-    [DebuggerHidden]
-    float IHtmlDomNode.MaxFontSize => maxFontSize;
-    [DebuggerHidden]
-    ICssStyle? IHtmlDomNode.Style => style;
+    IReadOnlyList<string>? IHtmlDomNode.Classes => Classes;
+
+    ICssStyle? IHtmlDomNode.Style => Style;
+
+    IReadOnlyList<IHtmlDomNode> IHtmlDomNode.Children => Children;
+
+    public string? Text { get; set;  }
 
 
     /// <summary> Ctor for JsonSerializer. </summary>
     public HtmlDomNode() { }
     public HtmlDomNode(
+        IHtmlDomNode[]? children,
+        IAttributes? attributes,
+        float? width,
         IReadOnlyList<string>? classes,
         float height,
         float depth,
         float maxFontSize,
-        CssStyle? style)
+        CssStyle? style,
+        string? text)
     {
-        this.classes = classes;
-        this.height = height;
-        this.depth = depth;
-        this.maxFontSize = maxFontSize;
-        this.style = style;
+        this.Children = children ?? [];
+        this.Attributes = attributes ?? IAttributes.Empty;
+        this.Width = width;
+        this.Classes = classes;
+        this.Height = height;
+        this.Depth = depth;
+        this.MaxFontSize = maxFontSize;
+        this.Style = style;
+        this.Text = text;
     }
-
 
     public override bool Equals(object? obj)
     {
@@ -60,126 +69,48 @@ internal abstract class HtmlDomNode : IHtmlDomNode, IJSSerializable
 
         if (this.Tag != other.Tag)
             return false;
-        if (this.depth != other.Depth)
+        if (this.Text != other.Text)
             return false;
-        if (this.height != other.Height)
+        if (this.Depth != other.Depth)
             return false;
-        if (this.maxFontSize != other.MaxFontSize)
-            return false;
-        if (this.style?.Equals(other.Style) ?? other.Style is { })
-            return false;
-        if (this.classes?.SequenceEqual(other.Classes!) ?? other.Classes is { })
-            return false;
-        return true;
-    }
-    public override int GetHashCode() => throw new NotImplementedException();
-
-    public abstract IHtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
-                                      Option<float> height = default,
-                                      Option<float> depth = default,
-                                      Option<float> maxFontSize = default,
-                                      Option<ICssStyle> style = default);
-}
-
-
-internal class Span<TChildNode> : HtmlDomNode, ISpan<TChildNode> where TChildNode : IVirtualNode
-{
-    public TChildNode[] Children { get; set; }
-    public IAttributes Attributes { get; set; }
-    public float? Width { get; set; }
-    public override string Tag => "span";
-    [DebuggerHidden]
-    IReadOnlyList<TChildNode> ISpan<TChildNode>.Children => Children;
-
-    /// <summary> Ctor for JsonSerializer. </summary>
-    public Span() { }
-    public Span(TChildNode[]? children,
-                IAttributes? attributes,
-                float? width,
-                IReadOnlyList<string>? classes,
-                float height,
-                float depth,
-                float maxFontSize,
-                CssStyle? style)
-        : base(classes, height, depth, maxFontSize, style)
-    {
-        this.Children = children ?? [];
-        this.Attributes = attributes ?? IAttributes.Empty;
-        this.Width = width;
-    }
-    public override bool Equals(object? obj)
-    {
-        return this.Equals(obj as ISpan<TChildNode>);
-    }
-    protected bool Equals([NotNullWhen(true)] ISpan<TChildNode>? other)
-    {
-        if (!base.Equals(other))
-            return false;
-
         if (this.Width != other.Width)
             return false;
-        if (!this.Children.SequenceEqual(other.Children))
+        if (this.Height != other.Height)
             return false;
-        if (this.Attributes.Equals(other.Attributes))
+        if (this.MaxFontSize != other.MaxFontSize)
+            return false;
+        if (this.Style?.Equals(other.Style) ?? other.Style is { })
+            return false;
+        if (this.Classes?.SequenceEqual(other.Classes!) ?? other.Classes is { })
+            return false;
+        if (this.Children?.SequenceEqual(other.Children!) ?? other.Classes is { })
             return false;
         return true;
     }
     public override int GetHashCode() => throw new NotImplementedException();
-    public sealed override IHtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
-                                             Option<float> height = default,
-                                             Option<float> depth = default,
-                                             Option<float> maxFontSize = default,
-                                             Option<ICssStyle> style = default)
+
+    public IHtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
+                             Option<float> height = default,
+                             Option<float> depth = default,
+                             Option<float> maxFontSize = default,
+                             Option<ICssStyle> style = default,
+                             Option<IHtmlDomNode[]> children = default,
+                             Option<IAttributes> attributes = default,
+                             Option<float?> width = default,
+                             Option<string?> text = default)
     {
-        return With(default, default, default, classes, height, depth, maxFontSize, style);
-    }
-    public virtual ISpan<TChildNode> With(Option<TChildNode[]> children = default,
-                                          Option<IAttributes> attributes = default,
-                                          Option<float?> width = default,
-                                          Option<IReadOnlyList<string>> classes = default,
-                                          Option<float> height = default,
-                                          Option<float> depth = default,
-                                          Option<float> maxFontSize = default,
-                                          Option<ICssStyle> style = default)
-    {
-        return new Span<TChildNode>(children.ValueOrDefault(this.Children),
-                                    attributes.ValueOrDefault(this.Attributes),
-                                    width.ValueOrDefault(this.Width),
-                                    classes.ValueOrDefault(this.classes),
-                                    height.ValueOrDefault(this.height),
-                                    depth.ValueOrDefault(this.depth),
-                                    maxFontSize.ValueOrDefault(this.maxFontSize),
-                                    (CssStyle?)style.ValueOrDefault(this.style));
+        return new HtmlDomNode(children.ValueOrDefault(this.Children),
+                               attributes.ValueOrDefault(this.Attributes),
+                               width.ValueOrDefault(this.Width),
+                               classes.ValueOrDefault(this.Classes),
+                               height.ValueOrDefault(this.Height),
+                               depth.ValueOrDefault(this.Depth),
+                               maxFontSize.ValueOrDefault(this.MaxFontSize),
+                               (CssStyle?)style.ValueOrDefault(this.Style),
+                               text.ValueOrDefault(this.Text));
     }
 }
 
-internal class Anchor : HtmlDomNode, IAnchor
-{
-    public override string Tag => "a";
-    public Anchor(IReadOnlyList<string>? classes = default,
-                  float height = default,
-                  float depth = default,
-                  float maxFontSize = default,
-                  ICssStyle? style = default)
-      : base(classes, height, depth, maxFontSize, (CssStyle?)style)
-    {
-    }
-
-
-    public override IHtmlDomNode With(
-        Option<IReadOnlyList<string>> classes = default,
-        Option<float> height = default,
-        Option<float> depth = default,
-        Option<float> maxFontSize = default,
-        Option<ICssStyle> style = default)
-    {
-        return new Anchor(classes.ValueOrDefault(this.classes),
-                          height.ValueOrDefault(this.height),
-                          depth.ValueOrDefault(this.depth),
-                          maxFontSize.ValueOrDefault(this.maxFontSize),
-                          (CssStyle?)style.ValueOrDefault(this.style));
-    }
-}
 internal class SettingsOptions : ISettingsOptions
 {
     public bool? displayMode { get; set; }
@@ -188,7 +119,12 @@ internal class SettingsOptions : ISettingsOptions
     public IMacroMap? macros { get; set; }
     public bool? colorIsTextColor { get; set; }
     public IStrict? strict { get; set; }
-    public float? maxSize { get; set; }
+    public float? maxSize { get; set; }/// <summary>
+                                       /// In JS, this might only exists as property on Span?
+                                       /// In JS this is denormalized data; <see cref="this.Style"/> should also include this.
+                                       /// </summary>
+    public float? Width { get; }
+
     public float? maxExpand { get; set; }
     public string[]? allowedProtocols { get; set; }
 
@@ -546,21 +482,21 @@ internal class SourceLocation : ISourceLocation
         private JsonConverter() { }
     }
 
-    public required int start { get; init; }
-    public required int end { get; init; }
+    public required int Start { get; init; }
+    public required int End { get; init; }
 
 
     [SetsRequiredMembers]
     public SourceLocation(int start, int end)
     {
-        this.start = start;
-        this.end = end;
+        this.Start = start;
+        this.End = end;
     }
     public virtual ISourceLocation With(Option<int> start = default,
                                         Option<int> end = default)
     {
-        return new SourceLocation(start.ValueOrDefault(this.start),
-                                    end.ValueOrDefault(this.end));
+        return new SourceLocation(start.ValueOrDefault(this.Start),
+                                    end.ValueOrDefault(this.End));
     }
 
     public override bool Equals(object? obj)
@@ -575,22 +511,16 @@ internal class SourceLocation : ISourceLocation
         if (ReferenceEquals(other, this)) // optimization
             return true;
 
-        if (this.start != other.Start)
+        if (this.Start != other.Start)
             return false;
-        if (this.end != other.End)
+        if (this.End != other.End)
             return false;
         return true;
     }
     public override int GetHashCode() => throw new NotImplementedException();
 
-    [DebuggerHidden]
-    int ISourceLocation.Start => start;
-    [DebuggerHidden]
-    int ISourceLocation.End => end;
-
 }
 
-// currently sealed because extension is not supported, but may be opened up later
 internal sealed class Attributes : ReadOnlyDictionary<string, object?>, IAttributes
 {
     public class JsonConverter : DictionaryJsonConverter<object?, IAttributes>

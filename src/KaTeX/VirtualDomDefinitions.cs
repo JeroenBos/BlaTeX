@@ -1,5 +1,3 @@
-global using IDomSpan = BlaTeX.JSInterop.KaTeX.ISpan<BlaTeX.JSInterop.KaTeX.IHtmlDomNode>;
-
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
@@ -18,36 +16,71 @@ public interface IVirtualNode
     // also has a function ToNode(..), which converts to html node, which doesn't seem useful from interop.
 }
 
-public interface IMathDomNode : IVirtualNode
-{
-    string ToText();
-}
 /// <summary>
 /// This node represents a general purpose MathML node of any type.
 /// The constructor requires the type of node to create (for example, "mo"` or `"mspace"`, corresponding to `<mo>` and `<mspace>` tags).
 /// </summary>
-interface IMathNode : IMathDomNode
+interface IMathDomNode : IVirtualNode
 {
+    string ToText();
     MathNodeType Type { get; }
     IReadOnlyDictionary<string, string> Attributes { get; }
     IReadOnlyList<IMathDomNode> Children { get; }
-
-    // public ctor(type: MathNodeType, children?: MathDomNode[]);
 }
 
+/// <summary>
+/// The JS code has the following subtypes of HtmlDomNode: 
+/// ISpan<TChildNode>, IAnchor, ISymbolNode, IImageNode, ISvgNode, IPathNode, ILineNode.
+/// C# land does not care about their difference, and so we maintain opaqueness by only having the IHtmlDomNode interface.
+/// Only when converting back to JS (only possible through <see cref="IKaTeXRuntime.ToMarkup(IVirtualNode)"/>) does the JSON serializer need to know which types they were originally.
+/// </summary>
 public interface IHtmlDomNode : IVirtualNode
 {
     IReadOnlyList<string>? Classes { get; }
-    // either of type int or float
-    float Height { get; }
-    float Depth { get; }
-    float MaxFontSize { get; }
     ICssStyle? Style { get; }
+
+
+    /// <summary>
+    /// In JS this is denormalized data; <see cref="this.Style"/> should also include this.
+    /// </summary>
+    float Height { get; }
+    /// <summary>
+    /// In JS this is denormalized data; <see cref="this.Style"/> should also include this.
+    /// </summary>
+    float Depth { get; }
+    /// <summary>
+    /// In JS this is denormalized data; <see cref="this.Style"/> should also include this.
+    /// </summary>
+    float MaxFontSize { get; }
+
+    /// <summary>
+    /// In JS, this might only exists as property on Span?
+    /// </summary>
+    public IReadOnlyList<IHtmlDomNode> Children { get; }
+    /// <summary>
+    /// In JS, this might only exists as property on Span?
+    /// </summary>
+    public IAttributes Attributes { get; }
+    /// <summary>
+    /// In JS, this might only exists as property on Span?
+    /// In JS this is denormalized data; <see cref="this.Style"/> should also include this.
+    /// </summary>
+    public float? Width { get; }
+    /// <summary>
+    /// In JS, this might only exists as property on SymbolNode?
+    /// </summary>
+    public string? Text { get; }
+
     IHtmlDomNode With(Option<IReadOnlyList<string>> classes = default,
                       Option<float> height = default,
                       Option<float> depth = default,
                       Option<float> maxFontSize = default,
-                      Option<ICssStyle> style = default);
+                      Option<ICssStyle> style = default,
+                      Option<IHtmlDomNode[]> children = default,
+                      Option<IAttributes> attributes = default,
+                      Option<float?> width = default,
+                      Option<string?> text = default);
+
 }
 
 /// <summary>
@@ -64,54 +97,43 @@ public interface IHtmlDomNode : IVirtualNode
 /// children.
 /// </summary>
 /// <typeparam name="TChildNode"></typeparam>.
-public interface ISpan<TChildNode> : IHtmlDomNode where TChildNode : IVirtualNode
-{
-    // Span<T> is not part of the polymorphic deserializers because it's indistinguishable from their direct descendants (DomSpan for now only)
-    public IReadOnlyList<TChildNode> Children { get; }
-    public IAttributes Attributes { get; }
-    public float? Width { get; }
+// public interface ISpan<TChildNode> : IHtmlDomNode where TChildNode : IVirtualNode
+// {
+//     // Span<T> is not part of the polymorphic deserializers because it's indistinguishable from their direct descendants (DomSpan for now only)
 
-    ISpan<TChildNode> With(Option<TChildNode[]> children = default,
-                            Option<IAttributes> attributes = default,
-                            Option<float?> width = default,
-                            Option<IReadOnlyList<string>> classes = default,
-                            Option<float> height = default,
-                            Option<float> depth = default,
-                            Option<float> maxFontSize = default,
-                            Option<ICssStyle> style = default);
-}
+// }
 
-/// <summary>
-/// This node represents an anchor (<a>) element with a hyperlink. See `span` for further details.
-/// </summary>
-public interface IAnchor : IHtmlDomNode
-{
-}
-/// <summary>
-/// A symbol node contains information about a single symbol. It either renders
-/// to a single text node, or a span with a single text node in it, depending on
-/// whether it has CSS classes, styles, or needs italic correction.
-/// </summary>
-public interface ISymbolNode : IHtmlDomNode
-{
-}
-public interface ISvgNode : IVirtualNode
-{
-    public interface IPathNode : IVirtualNode
-    {
-        // child node of SvgNode
-    }
-    public interface ILineNode : IVirtualNode
-    {
-        // child node of SvgNode
-    }
-}
-/// <summary>
-/// This node represents an image embed (<img>) element.
-/// </summary>
-public interface IImageNode : IVirtualNode
-{
-}
+// /// <summary>
+// /// This node represents an anchor (<a>) element with a hyperlink. See `span` for further details.
+// /// </summary>
+// public interface IAnchor : IHtmlDomNode
+// {
+// }
+// /// <summary>
+// /// A symbol node contains information about a single symbol. It either renders
+// /// to a single text node, or a span with a single text node in it, depending on
+// /// whether it has CSS classes, styles, or needs italic correction.
+// /// </summary>
+// public interface ISymbolNode : IHtmlDomNode
+// {
+// }
+// public interface ISvgNode : IVirtualNode
+// {
+//     public interface IPathNode : IVirtualNode
+//     {
+//         // child node of SvgNode
+//     }
+//     public interface ILineNode : IVirtualNode
+//     {
+//         // child node of SvgNode
+//     }
+// }
+// /// <summary>
+// /// This node represents an image embed (<img>) element.
+// /// </summary>
+// public interface IImageNode : IVirtualNode
+// {
+// }
 
 /// <summary> Follows KaTeX naming convention. </summary>
 public interface IAnyParseNode
