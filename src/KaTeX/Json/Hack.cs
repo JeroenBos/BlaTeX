@@ -34,34 +34,34 @@ internal interface IJSSerializable
         int index = IJSSerializableState.convertibleTypes.IndexOf(t => t.IsAssignableFrom(@this.GetType()));
         if (index == -1)
             throw new ArgumentException($"The type '{@this.GetType().FullName}' is not JS serializable");
-        return index.ToString();
+        return "v1_" + index.ToString();
     }
     string SERIALIZATION_TYPE_ID { get; }
 }
 
-/// <summary> Deserializes objects polymorphically by using a property that serves as key to identify the actual
-/// type of the deserialized object, and delegates to the corresponding deserializer. </summary>
+/// <summary>
+/// Deserializes objects polymorphically by using a property that serves as key to identify the actual
+/// type of the deserialized object, and delegates to the corresponding deserializer.
+/// </summary>
 public class ExplicitPolymorphicJsonConverter<T, TKey> : JsonConverter<T>
 {
     private readonly string keyPropertyName;
     private readonly Func<TKey, Type> getTypeToDeserialize;
     private readonly IEqualityComparer<string> keyPropertyNameEqualityComparer;
-    private readonly Func<T, (Type?, JsonConverter<T>?)>? getSerializerOrTypeKey;
-    /// <summary>
-    /// <param name="getSerializerOrTypeKey"> This type does not support writing, but you can delegate to another converter with this function. </param>
-    /// </summary>
+    private readonly Func<T, Either<Type, JsonConverter<T>>>? getSerializerOrTypeKey;
+    /// <param name="getSerializerOrTypeKey"> This type but this allows you to delegate to another converter resolve it via another key type. </param>
     public ExplicitPolymorphicJsonConverter(string keyPropertyName,
                                             Func<TKey, Type> getTypeKeyToDeserialize,
-                                            IEqualityComparer<string>? keyPropertyNameEqualityComparer = null,
-                                            Func<T, (Type?, JsonConverter<T>?)>? getSerializerOrTypeKey = null)
+                                            Func<T, Either<Type, JsonConverter<T>>>? getSerializerOrTypeKey = null,
+                                            IEqualityComparer<string>? keyPropertyNameEqualityComparer = null)
     {
         Contract.Requires(keyPropertyName != null);
         Contract.Requires(getTypeKeyToDeserialize != null);
 
         this.keyPropertyName = keyPropertyName;
         this.getTypeToDeserialize = getTypeKeyToDeserialize;
-        this.keyPropertyNameEqualityComparer = keyPropertyNameEqualityComparer ?? EqualityComparer<string>.Default;
         this.getSerializerOrTypeKey = getSerializerOrTypeKey;
+        this.keyPropertyNameEqualityComparer = keyPropertyNameEqualityComparer ?? EqualityComparer<string>.Default;
     }
 
     public override T? Read(ref Utf8JsonReader _reader, Type typeToConvert, JsonSerializerOptions options)
@@ -93,12 +93,12 @@ public class ExplicitPolymorphicJsonConverter<T, TKey> : JsonConverter<T>
             }
             else
             {
-                SkipProperty(ref reader, options);
+                SkipProperty(ref reader);
             }
         }
-        throw new JsonException($"Key '{this.keyPropertyName}' not found. ");
+        throw new JsonException($"Key '{this.keyPropertyName}' not found");
     }
-    static void SkipProperty(ref Utf8JsonReader r, JsonSerializerOptions options)
+    static void SkipProperty(ref Utf8JsonReader r)
     {
         r.Read();
         r.GetTokenAsJson(); // just propagate the reader: not checking anything
@@ -108,24 +108,19 @@ public class ExplicitPolymorphicJsonConverter<T, TKey> : JsonConverter<T>
     public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
     {
         if (getSerializerOrTypeKey == null)
-            throw new NotSupportedException($"Serialization not supported. {nameof(getSerializerOrTypeKey)} is null and this method has not been overridden");
+            throw new NotSupportedException($"Serialization not supported as no '{nameof(getSerializerOrTypeKey)}' has been provided in the constructor");
 
-        var (key, converter) = getSerializerOrTypeKey(value);
-        if ((key == null) == (converter == null))
-            throw new ContractException($"{nameof(getSerializerOrTypeKey)} must return either one of the two return type elements");
-        if (key == typeof(T))
-            throw new ContractException($"{nameof(getSerializerOrTypeKey)} must return not return this converter's key");
-        if (converter == this)
-            throw new ContractException($"{nameof(getSerializerOrTypeKey)} must return not return this converter");
-
-        if (key != null)
+        var either = getSerializerOrTypeKey(value);
+        if (either.Get(out Type key, out JsonConverter<T> converter))
         {
+            Contract.Requires(key != typeof(T), $"{nameof(getSerializerOrTypeKey)} must return not return this converter's key");
             using var _ = this.DetectStackoverflow(writer, typeof(T));
             JsonSerializer.Serialize(writer, value, key, options);
         }
         else
         {
-            converter!.Write(writer, value, options);
+            Contract.Requires(!ReferenceEquals(converter, this), $"{nameof(getSerializerOrTypeKey)} must return not return this converter");
+            converter.Write(writer, value, options);
         }
     }
 }

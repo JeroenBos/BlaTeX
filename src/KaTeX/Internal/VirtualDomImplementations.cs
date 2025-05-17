@@ -664,7 +664,7 @@ internal class AnyParseNode : IAnyParseNode
         var instance = new ExplicitPolymorphicJsonConverter<IAnyParseNode, NodeType>(
             "type",
             GetDeserializationType,
-            getSerializerOrTypeKey: _ => (typeof(AnyParseNode), null)
+            getSerializerOrTypeKey: _ => typeof(AnyParseNode)
         );
         var subtypeConverters = new JsonConverter[] {
             BlaTeXParseNode.JsonConverterInstance,
