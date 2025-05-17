@@ -120,7 +120,7 @@ public interface IAnyParseNode
     Mode Mode { get; }
     ISourceLocation? SourceLocation { get; }
 }
-public interface IBlaTeXNode : IAnyParseNode
+public interface IBlaTeXParseNode : IAnyParseNode
 {
     IAnyParseNode[] Args { get; }
 }
@@ -307,7 +307,7 @@ public static class NodeTypeExtensions
         switch (type)
         {
             case NodeType.Blatex:
-                return typeof(IBlaTeXNode);
+                return typeof(IBlaTeXParseNode);
             case NodeType.Unknown:
             default:
                 return null!;  // This means there is no dedicated runtime type for this node type

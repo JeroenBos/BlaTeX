@@ -750,12 +750,12 @@ internal class AnyParseNode : IAnyParseNode
     }
 }
 
-internal class BlaTeXParseNode : AnyParseNode, IBlaTeXNode
+internal class BlaTeXParseNode : AnyParseNode, IBlaTeXParseNode
 {
-    public static JsonConverter<IBlaTeXNode> JsonConverterInstance => ExactJsonConverter<IBlaTeXNode, BlaTeXParseNode>.Instance;
+    public static JsonConverter<IBlaTeXParseNode> JsonConverterInstance => ExactJsonConverter<IBlaTeXParseNode, BlaTeXParseNode>.Instance;
     public required AnyParseNode[] args { get; init; }
 
-    IAnyParseNode[] IBlaTeXNode.Args => args;
+    IAnyParseNode[] IBlaTeXParseNode.Args => args;
 
     /// <summary> Ctor for JsonSerializer. </summary>
     public BlaTeXParseNode() { }
@@ -772,9 +772,9 @@ internal class BlaTeXParseNode : AnyParseNode, IBlaTeXNode
 
     public override bool Equals(object? obj)
     {
-        return this.Equals(obj as IBlaTeXNode);
+        return this.Equals(obj as IBlaTeXParseNode);
     }
-    protected bool Equals([NotNullWhen(true)] IBlaTeXNode? other)
+    protected bool Equals([NotNullWhen(true)] IBlaTeXParseNode? other)
     {
         if (!base.Equals(other))
             return false;
@@ -791,7 +791,7 @@ internal class BlaTeXParseNode : AnyParseNode, IBlaTeXNode
     {
         return this.With(type, mode, sourceLocation, default);
     }
-    public virtual IBlaTeXNode With(Option<NodeType> type = default,
+    public virtual IBlaTeXParseNode With(Option<NodeType> type = default,
                                     Option<Mode> mode = default,
                                     Option<ISourceLocation?> sourceLocation = default,
                                     Option<AnyParseNode[]> args = default)
