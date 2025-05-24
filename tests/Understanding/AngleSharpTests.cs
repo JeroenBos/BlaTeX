@@ -10,9 +10,8 @@ public class AngleSharpTests
 	{
 		using var ctx = new TestContext();
 		ctx.Services.AddDefaultTestContextServices(ctx, new BunitJSInterop());
-		ctx.Services.Add(new ServiceDescriptor(typeof(IJSRuntime), NodeJSRuntime.CreateDefault()));
-		ctx.Services.Add(new ServiceDescriptor(typeof(IKaTeXRuntime), typeof(KaTeXRuntime), ServiceLifetime.Singleton));
-
+		ctx.Services.AddSingleton<IJSRuntime, NodeJSRuntime>(_ => NodeJSRuntime.CreateDefault());
+		ctx.Services.AddSingleton<IKaTeXRuntime, KaTeXRuntime>();
 		var cut = ctx.RenderComponent<KaTeX>(ComponentParameter.CreateParameter("Math", "c"));
 
 		await KaTeXTest.WaitForKatexToHaveRendered(cut);
