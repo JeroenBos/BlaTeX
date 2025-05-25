@@ -46,9 +46,15 @@ public class NodeJSRuntime : IJSRuntime
         // but that one doesn't work because I can't get it to work recursively, see HACK id=0
         var original_args = args;
         if (args != null)
+        {
             for (int i = 0; i < args.Length; i++)
+            {
                 if (args[i] == null)
+                {
                     throw new ArgumentNullException($"args[{i}]. Use JSSourceCode.Null or JSSourceCode.Undefined instead.");
+                }
+            }
+        }
 
         var mappedArgs = args?.Map(arg => arg as JSSourceCode ?? new JSSourceCode(JsonSerializer.Serialize(arg, this.Options)));
         var identifierObj = new JSSourceCode(identifier);

@@ -45,7 +45,7 @@ public class JSIntegrationTests
   [Fact]
   public async Task CharacterEscapeTest()
   {
-    var runtime = new NodeJSRuntime(Array.Empty<JSString>());
+    var runtime = new NodeJSRuntime([]);
     const string js = "'\\t'";
     // literal JS:
     // console.log('\t')
@@ -66,7 +66,7 @@ public class JSIntegrationTests
 }
 public class AttributesDeserializationTests
 {
-  private JsonSerializerOptions options = NodeJSRuntime.CreateDefault().Options;
+  private readonly JsonSerializerOptions options = NodeJSRuntime.CreateDefault().Options;
 
   [Fact]
   public void EmptyAttributesDeserializationTest()
