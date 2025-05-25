@@ -101,7 +101,7 @@ public class NodeJSRuntime : IJSRuntime
         get
         {
             var dir = new DirectoryInfo(Environment.CurrentDirectory);
-            while (dir.Name != "BlaTeX")
+            while (!dir.Name.Equals("blatex", StringComparison.InvariantCultureIgnoreCase))
             {
                 dir = dir.Parent;
                 if (dir == null)
