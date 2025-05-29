@@ -8,10 +8,6 @@ public interface IChildComponentMarkupService
     /// <summary>
     /// Gets ranges in the markup that are to be substituted by this service.
     /// </summary>
-    IEnumerable<Range> Select(string markup);
-    /// <summary>
-    /// Given a part of markup returns the renderer.
-    /// </summary>
-    RenderFragment Substitute(string markupFragment);
+    IEnumerable<(Range, RenderFragment)> SelectSubstitutions(string markup);
     // IReadOnlyList<AnyParseNode> Select(IReadOnlyList<AnyParseNode> ast);
 }

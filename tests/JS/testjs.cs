@@ -45,7 +45,7 @@ public class JSIntegrationTests
   [Fact]
   public async Task CharacterEscapeTest()
   {
-    var runtime = new NodeJSRuntime(Array.Empty<JSString>());
+    var runtime = new NodeJSRuntime([]);
     const string js = "'\\t'";
     // literal JS:
     // console.log('\t')
@@ -66,18 +66,18 @@ public class JSIntegrationTests
 }
 public class AttributesDeserializationTests
 {
-  private JsonSerializerOptions options = NodeJSRuntime.CreateDefault().Options;
+  private readonly JsonSerializerOptions options = NodeJSRuntime.CreateDefault().Options;
 
   [Fact]
   public void EmptyAttributesDeserializationTest()
   {
-    var attributes = JsonSerializer.Deserialize<Attributes>("{}", options)!;
+    var attributes = JsonSerializer.Deserialize<IAttributes>("{}", options)!;
     Contract.Assert(attributes!.Count == 0);
   }
   [Fact]
   public void StringAttributesDeserializationTest()
   {
-    var attributes = JsonSerializer.Deserialize<Attributes>("{\"a\":\"\"}", options)!;
+    var attributes = JsonSerializer.Deserialize<IAttributes>("{\"a\":\"\"}", options)!;
     Contract.Assert(attributes.Count == 1);
     Contract.Assert(attributes.ContainsKey("a"));
     Contract.Assert("".Equals(attributes["a"]));
@@ -85,7 +85,7 @@ public class AttributesDeserializationTests
   [Fact]
   public void SourceLocationAttributesDeserializationTest()
   {
-    var attributes = JsonSerializer.Deserialize<Attributes>("{\"a\":\"\"}", options)!;
+    var attributes = JsonSerializer.Deserialize<IAttributes>("{\"a\":\"\"}", options)!;
     Contract.Assert(attributes.Count == 1);
     Contract.Assert(attributes.ContainsKey("a"));
     Contract.Assert("".Equals(attributes["a"]));
@@ -101,6 +101,6 @@ public class AttributesDeserializationTests
   }
   class ContainsAttributes
   {
-    public Attributes? a { get; set; }
+    public IAttributes? a { get; set; }
   }
 }

@@ -10,4 +10,5 @@
     "[typescript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
     },
+    "csharp.debug.justMyCode": false
 }

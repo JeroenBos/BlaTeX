@@ -11,11 +11,10 @@ internal class IJSSerializableState
 
         // uncomment these when they're available:
         // typeof(DocumentFragment),
-        typeof(MathDomNode),
+        typeof(IMathDomNode),
         // typeof(SvgNode),
         // typeof(PathNode),
         // typeof(LineNode),
-        typeof(Span<>),
         // typeof(SymbolNode),
         // typeof(Anchor),
     ];
@@ -31,7 +30,8 @@ internal interface IJSSerializable
         int index = IJSSerializableState.convertibleTypes.IndexOf(t => t.IsAssignableFrom(@this.GetType()));
         if (index == -1)
             throw new ArgumentException($"The type '{@this.GetType().FullName}' is not JS serializable");
-        return index.ToString();
+        return "v1_" + index.ToString();
     }
     string SERIALIZATION_TYPE_ID { get; }
 }
+

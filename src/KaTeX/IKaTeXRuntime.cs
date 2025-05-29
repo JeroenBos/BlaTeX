@@ -8,9 +8,9 @@ public interface IKaTeXRuntime
     }
 
     Task<string> RenderToString(string math);
-    Task<HtmlDomNode> RenderToDom(string math);
-    Task<string> ToMarkup(VirtualNode node);
-    Task<IReadOnlyList<AnyParseNode>> Parse(string math);
-    Task<string> RenderToString(IReadOnlyList<AnyParseNode> tree, string? math = null);
-    Task<string> RenderToString(AnyParseNode node, string? math = null) => RenderToString([node], math);
+    Task<IHtmlDomNode> RenderToDom(string math);
+    Task<string> ToMarkup(IVirtualNode node);
+    Task<IReadOnlyList<IAnyParseNode>> Parse(string math);
+    Task<string> RenderToString(IReadOnlyList<IAnyParseNode> tree, string? math = null);
+    Task<string> RenderToString(IAnyParseNode node, string? math = null) => RenderToString([node], math);
 }

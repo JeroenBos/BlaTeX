@@ -4,7 +4,6 @@
 @if (markup != null)
 {
     <InterpolatedMarkup Markup="@markup"
-                                Substitute="@Substitute"
                                 Selector="@Selector" />
 }
 else if (Loading != null)
@@ -43,7 +42,7 @@ else
     /// Maybe null if the component is currently parsing <see cref="Math"/>.
     /// </summary>
     [Parameter]
-    public IReadOnlyList<AnyParseNode>? AST { get; set; }
+    public IReadOnlyList<IAnyParseNode>? AST { get; set; }
 
     [Parameter]
     public IChildComponentMarkupService? ChildComponentMarkupService { get; set; }
@@ -53,7 +52,7 @@ else
         parameters.AssertContainsOnly(nameof(AST), nameof(Math), nameof(ChildComponentMarkupService));
 
         bool mathSpecified = parameters.TryGetValue<string?>(nameof(Math), out var math);
-        bool astSpecified = parameters.TryGetValue<IReadOnlyList<AnyParseNode>?>(nameof(AST), out var ast);
+        bool astSpecified = parameters.TryGetValue<IReadOnlyList<IAnyParseNode>?>(nameof(AST), out var ast);
 
         if ((astSpecified ? ast : this.AST) == null && (mathSpecified ? math : this.Math) == null)
         {
@@ -112,7 +111,7 @@ else
             }
         }
     }
-    private async Task SetASTParameter(IReadOnlyList<AnyParseNode> ast, string? math)
+    private async Task SetASTParameter(IReadOnlyList<IAnyParseNode> ast, string? math)
     {
         _showLoadingPageWhileRendering(math, ast: null);
 
@@ -126,7 +125,7 @@ else
         var ast = await JS.Parse(math);
         await SetASTParameter(ast, math);
     }
-    private void _showLoadingPageWhileRendering(string? math, IReadOnlyList<AnyParseNode>? ast)
+    private void _showLoadingPageWhileRendering(string? math, IReadOnlyList<IAnyParseNode>? ast)
     {
         this.markup = null;
         this.AST = ast;
@@ -134,16 +133,8 @@ else
     }
 
     /// <summary> Gets the ranges in the markup at which a <see cref="RenderFragment"/> is to be rendered instead. </summary>
-    internal protected virtual IEnumerable<Range> Selector(string markup)
+    internal protected virtual IEnumerable<(Range, RenderFragment)> Selector(string markup)
     {
-        return this.ChildComponentMarkupService?.Select(markup) ?? Enumerable.Empty<Range>();
-    }
-    /// <summary> Returns the fragment to render at a range from <see cref="Selector(string)"/>, given the markup at that range. </summary>
-    internal protected virtual RenderFragment Substitute(string markupFragment)
-    {
-        if (this.ChildComponentMarkupService == null)
-            throw new InvalidOperationException($"Cannot substitute: override {nameof(Substitute)} or add service");
-
-        return this.ChildComponentMarkupService.Substitute(markupFragment);
+        return this.ChildComponentMarkupService?.SelectSubstitutions(markup) ?? Enumerable.Empty<(Range, RenderFragment)>();
     }
 }
