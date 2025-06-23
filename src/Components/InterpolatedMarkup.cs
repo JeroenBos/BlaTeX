@@ -1,18 +1,7 @@
-@namespace BlaTeX.Components
+using Microsoft.AspNetCore.Components.Rendering;
 
-@{
-    Index prevEnd = 0;
-    @foreach (var range in Selector(Markup))
-    {
-        @((MarkupString)Markup[prevEnd..range.Start])
-        @Substitute(Markup[range])
-
-        prevEnd = range.End;
-    }
-    @((MarkupString)Markup[prevEnd..])
-}
-
-@code {
+public class InterpolatedMarkup : ComponentBase
+{
     /// <summary> Markup of which parts may be replaced by fragment renderers. </summary>
     [Parameter]
     public required string Markup { get; init; }
@@ -32,5 +21,21 @@
         parameters.AssertPresent(this.Substitute, nameof(this.Substitute));
 
         return base.SetParametersAsync(parameters);
+    }
+    protected override void BuildRenderTree(RenderTreeBuilder builder)
+    {
+        int seq = 0;
+        Index prevEnd = 0;
+
+        foreach (var range in Selector(Markup))
+        {
+            builder.AddMarkupContent(seq++, Markup[prevEnd..range.Start]);
+            builder.AddMarkupContent(seq++, Substitute(Markup[range.Start..range.End]));
+            prevEnd = range.End;
+        }
+
+        builder.AddMarkupContent(seq++, Markup[prevEnd..]);
+
+        Console.WriteLine(builder.ToString());
     }
 }
